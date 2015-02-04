@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>obc-libraries</artifactId>
+        <groupId>dk.dbc.ocb-tools</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>ocb-scripter</artifactId>
+
+    <name>OCB-Scripter</name>
+
+    <repositories>
+        <repository>
+            <id>mavenrepo.dbc.dk</id>
+            <url>http://mavenrepo.dbc.dk/content/groups/public</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- ************************************************************* -->
+        <!-- DBC JsLib                                                     -->
+        <!-- ************************************************************* -->
+
+        <dependency>
+            <groupId>dk.dbc</groupId>
+            <artifactId>dbc-jslib</artifactId>
+            <version>1.0-SNAPSHOT</version>
+
+            <!--
+                This tells maven to not include log4j dependencies, even if
+                introduced by other depencencies. dbc-jsslib has such a dep in test
+                but here they are removed
+            -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>dk.dbc</groupId>
+            <artifactId>jscommon</artifactId>
+            <version>2012.1-SNAPSHOT</version>
+        </dependency>
+
+        <!-- ************************************************************* -->
+        <!-- Rhino JS engine                                               -->
+        <!-- ************************************************************* -->
+        <dependency>
+            <groupId>rhino</groupId>
+            <artifactId>js</artifactId>
+            <version>1.7R5pre-E4X-AST-20140702-1</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+</project>
