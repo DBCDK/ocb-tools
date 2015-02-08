@@ -2,8 +2,10 @@
 package dk.dbc.ocbtools.commons.cli;
 
 //-----------------------------------------------------------------------------
+
 import dk.dbc.ocbtools.commons.api.Subcommand;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
+import org.apache.commons.cli.*;
 import org.reflections.Reflections;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -42,10 +44,57 @@ public class CliExecutor {
     //              Execution
     //-------------------------------------------------------------------------
 
-    public void execute( String usage, String... args ) {
+    public void execute( String usage, String[] args ) throws IllegalAccessException, InstantiationException {
         logger.entry( args );
 
         try {
+            if( args.length == 0 ) {
+                printUsage( usage );
+                return;
+            }
+
+            String cmdName = args[ 0 ];
+            String[] cmdArgs = new String[]{};
+            if( args.length > 1 ) {
+                cmdArgs = Arrays.copyOfRange( args, 1, args.length );
+            }
+
+            for( SubcommandDefinition def : getSubcommandDefinitions() ) {
+                Class<?> clazz = def.getClass();
+                Subcommand subCommand = clazz.getAnnotation( Subcommand.class );
+
+                if( subCommand != null && subCommand.name().equals( cmdName ) ) {
+                    Options options = new Options();
+                    Option help = new Option( "h", "help", false, "Giver en beskrivelse af de enkelte options til kommandoen" );
+                    options.addOption( help );
+
+                    for( Option opt : def.createOptions() ) {
+                        options.addOption( opt );
+                    }
+
+                    logger.info( "cmdArgs: {}", Arrays.toString( cmdArgs ) );
+                    CommandLine line = parseArguments( options, cmdArgs );
+                    if( line != null ) {
+                        if( line.hasOption( "help" ) ) {
+                            HelpFormatter formatter = new HelpFormatter();
+                            formatter.printHelp( usage, options );
+                            System.exit( 0 );
+
+                            return;
+                        }
+                        def.createExecutor( line ).actionPerformed();
+                    }
+                    else {
+                        logger.error( "Ukendt argument(er)." );
+                    }
+                }
+                else {
+                    logger.error( "Kommandoen '{}' findes ikke.", cmdName );
+                    logger.error( "" );
+                    printUsage( usage );
+                }
+            }
+
         }
         finally {
             logger.exit();
@@ -94,6 +143,10 @@ public class CliExecutor {
         try {
             final String ROOT_DIRECTORY_NAMES[] = { "bin", "distributions" };
 
+            if( file == null ) {
+                return null;
+            }
+
             if( !file.isDirectory() ) {
                 return null;
             }
@@ -110,6 +163,40 @@ public class CliExecutor {
             }
 
             return extractBaseDir( file.getParentFile() );
+        }
+        finally {
+            logger.exit();
+        }
+    }
+
+    private CommandLine parseArguments( Options options, String[] args ) {
+        CommandLineParser parser = new GnuParser();
+
+        try {
+            return parser.parse( options, args );
+        }
+        catch ( ParseException exp ) {
+            logger.error( "Parsing failed. Reason: " + exp.getMessage() );
+            logger.debug( "Exception: {}", exp );
+            return null;
+        }
+    }
+
+    private void printUsage( String usage ) throws InstantiationException, IllegalAccessException {
+        logger.entry( usage );
+
+        try {
+            logger.info( "Usage: {}", usage );
+            logger.info( "" );
+
+            for( SubcommandDefinition def : getSubcommandDefinitions() ) {
+                Class<?> clazz = def.getClass();
+                Subcommand subCommand = clazz.getAnnotation( Subcommand.class );
+
+                if( subCommand != null ) {
+                    logger.info( "{}: {}", subCommand.name(), subCommand.description() );
+                }
+            }
         }
         finally {
             logger.exit();

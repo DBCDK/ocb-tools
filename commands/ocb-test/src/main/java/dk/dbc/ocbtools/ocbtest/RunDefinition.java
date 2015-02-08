@@ -15,7 +15,8 @@ import java.util.List;
 /**
  * Created by stp on 07/02/15.
  */
-@Subcommand( name = "run" )
+@Subcommand( name = "run",
+             description = "Kører og tester en eller alle testcases" )
 public class RunDefinition implements SubcommandDefinition {
     public RunDefinition() {
     }

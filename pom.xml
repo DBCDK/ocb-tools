@@ -14,6 +14,28 @@
     <packaging>pom</packaging>
 
     <name>OCB-Tools</name>
+    <description>
+        OCB-Tools står for OpenCat-Business Tools og er en række kommandolinieværktøjer til DATA-divisionen
+        i deres arbejde med at udvikle skabeloner og integrationstests af skabeloner, Build og Update.
+    </description>
+
+    <ciManagement>
+        <url>http://is.dbc.dk/job/ocb-tools-head-guesstimate</url>
+    </ciManagement>
+    <scm>
+        <connection>scm:svn:https://svn.dbc.dk/repos/ocb-tools/</connection>
+        <developerConnection>scm:svn:https://svn.dbc.dk/repos/ocb-tools/</developerConnection>
+        <tag>trunk</tag>
+        <url>https://svn.dbc.dk/repos/ocb-tools/</url>
+    </scm>
+    <issueManagement>
+        <system>Bugzilla</system>
+        <url>http://bugs.dbc.dk/</url>
+    </issueManagement>
+    <organization>
+        <name>DBC as</name>
+        <url>http://www.dbc.dk</url>
+    </organization>
 
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>

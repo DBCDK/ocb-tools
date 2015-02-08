@@ -1,0 +1,53 @@
+ocb-test
+
+    Kommandoen har følgende use cases:
+
+    * Kør en eller flere tests eller systemtests.
+
+* Syntaks
+
++---------------------
+ocb-test [delkommando] [options]
++---------------------
+
+** Delkommandoer
+
+*--------------+------------------------------------------------------------+
+|| Delkommando || Beskrivelse                                               |
+*--------------+------------------------------------------------------------+
+| list         | Lister alle testcases i den aktuelle mappe og undermapper. |
+*--------------+------------------------------------------------------------+
+| js-tests     | Udfør unittests for en eller alle JavaScript-filer.        |
+*--------------+------------------------------------------------------------+
+
+* Formating code
+
+    Disse 2 eksempler er blot tests af hvordan Doxia formattere Java og json.
+
++---------------------
+@Subcommand( name = "run",
+             description = "Kører og tester en eller alle testcases" )
+public class RunDefinition implements SubcommandDefinition {
+    public RunDefinition() {
+    }
+
+    @Override
+    public List<Option> createOptions() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public SubcommandExecutor createExecutor( CommandLine line ) {
+        return new RunExecutor( line );
+    }
+}
++---------------------
+
++---------------------
+{
+    "obj": {
+        "prop1": "value",
+        "prop2": "value"
+    }
+}
++---------------------

@@ -11,7 +11,7 @@ import org.slf4j.ext.XLoggerFactory;
  * This contains the main function for the command line tools <code>ocb-test</code>
  */
 public class OCBTest {
-    public static void main( String[] args ) {
+    public static void main( String[] args ) throws InstantiationException, IllegalAccessException {
         logger.debug( "Arguments: {}", args );
 
         CliExecutor cli = new CliExecutor();
