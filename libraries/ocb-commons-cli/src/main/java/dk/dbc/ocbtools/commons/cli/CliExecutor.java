@@ -24,12 +24,9 @@ import java.util.Set;
  * The subcommand is executed by a SubcommandExecutor.
  */
 public class CliExecutor {
-    public CliExecutor() {
+    public CliExecutor( String commandName ) {
+        this.commandName = commandName;
         this.baseDir = extractBaseDir( new File( "." ) );
-    }
-
-    public CliExecutor( File baseDir ) {
-        this.baseDir = baseDir;
     }
 
     //-------------------------------------------------------------------------
@@ -44,12 +41,12 @@ public class CliExecutor {
     //              Execution
     //-------------------------------------------------------------------------
 
-    public void execute( String usage, String[] args ) throws IllegalAccessException, InstantiationException {
+    public void execute( String[] args ) throws IllegalAccessException, InstantiationException {
         logger.entry( args );
 
         try {
             if( args.length == 0 ) {
-                printUsage( usage );
+                printUsage();
                 return;
             }
 
@@ -76,9 +73,9 @@ public class CliExecutor {
                     CommandLine line = parseArguments( options, cmdArgs );
                     if( line != null ) {
                         if( line.hasOption( "help" ) ) {
+                            logger.info( "" );
                             HelpFormatter formatter = new HelpFormatter();
-                            formatter.printHelp( usage, options );
-                            System.exit( 0 );
+                            formatter.printHelp( subCommandUsage( subCommand.name() ), options );
 
                             return;
                         }
@@ -91,10 +88,36 @@ public class CliExecutor {
                 else {
                     logger.error( "Kommandoen '{}' findes ikke.", cmdName );
                     logger.error( "" );
-                    printUsage( usage );
+                    printUsage();
                 }
             }
 
+        }
+        finally {
+            logger.exit();
+        }
+    }
+
+    //-------------------------------------------------------------------------
+    //              Commands
+    //-------------------------------------------------------------------------
+
+    public static void main( String commandName, String[] args ) {
+        logger.entry( commandName, args );
+
+        try {
+            logger.debug( "Arguments: {}", args );
+
+            CliExecutor cli = new CliExecutor( commandName );
+            cli.execute( args );
+
+            System.exit( 0 );
+        }
+        catch( Exception ex ) {
+            logger.error( ex.getMessage() );
+            logger.debug( "Error:", ex );
+
+            System.exit( 1 );
         }
         finally {
             logger.exit();
@@ -182,11 +205,11 @@ public class CliExecutor {
         }
     }
 
-    private void printUsage( String usage ) throws InstantiationException, IllegalAccessException {
-        logger.entry( usage );
+    private void printUsage() throws InstantiationException, IllegalAccessException {
+        logger.entry();
 
         try {
-            logger.info( "Usage: {}", usage );
+            logger.info( "Usage: {}", commandUsage() );
             logger.info( "" );
 
             for( SubcommandDefinition def : getSubcommandDefinitions() ) {
@@ -203,11 +226,20 @@ public class CliExecutor {
         }
     }
 
+    private String commandUsage() {
+        return subCommandUsage( "[kommando]" );
+    }
+
+    private String subCommandUsage( String subCommandName ) {
+        return String.format( "%s %s [options]", commandName, subCommandName );
+    }
+
     //-------------------------------------------------------------------------
     //              Members
     //-------------------------------------------------------------------------
 
     private static final XLogger logger = XLoggerFactory.getXLogger( CliExecutor.class );
 
+    private String commandName;
     private File baseDir;
 }
