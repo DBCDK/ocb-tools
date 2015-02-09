@@ -6,6 +6,7 @@ package dk.dbc.ocbtools.commons.api;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import java.io.File;
 import java.util.List;
 
 //-----------------------------------------------------------------------------
@@ -34,5 +35,5 @@ public interface SubcommandDefinition {
      *
      * @return A command executor.
      */
-    public SubcommandExecutor createExecutor( CommandLine line );
+    public SubcommandExecutor createExecutor( File baseDir, CommandLine line );
 }

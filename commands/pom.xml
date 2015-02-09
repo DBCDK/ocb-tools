@@ -29,7 +29,7 @@
         <dependency>
             <groupId>dk.dbc.ocb-tools</groupId>
             <artifactId>ocb-commons-cli</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

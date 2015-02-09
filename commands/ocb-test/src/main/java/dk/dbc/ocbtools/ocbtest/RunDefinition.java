@@ -8,6 +8,7 @@ import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class RunDefinition implements SubcommandDefinition {
     }
 
     @Override
-    public SubcommandExecutor createExecutor( CommandLine line ) {
+    public SubcommandExecutor createExecutor( File baseDir, CommandLine line ) {
         return new RunExecutor( line );
     }
 }

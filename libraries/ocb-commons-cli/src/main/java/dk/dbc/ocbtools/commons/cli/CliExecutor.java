@@ -11,6 +11,7 @@ import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +42,7 @@ public class CliExecutor {
     //              Execution
     //-------------------------------------------------------------------------
 
-    public void execute( String[] args ) throws IllegalAccessException, InstantiationException {
+    public void execute( String[] args ) throws IllegalAccessException, InstantiationException, IOException, CliException {
         logger.entry( args );
 
         try {
@@ -56,6 +57,9 @@ public class CliExecutor {
                 cmdArgs = Arrays.copyOfRange( args, 1, args.length );
             }
 
+            logger.info( "Using Opencat-business directory: {}", baseDir != null ? baseDir.getCanonicalPath() : "(null)" );
+
+            boolean commandFoundAndExecuted = false;
             for( SubcommandDefinition def : getSubcommandDefinitions() ) {
                 Class<?> clazz = def.getClass();
                 Subcommand subCommand = clazz.getAnnotation( Subcommand.class );
@@ -69,7 +73,7 @@ public class CliExecutor {
                         options.addOption( opt );
                     }
 
-                    logger.info( "cmdArgs: {}", Arrays.toString( cmdArgs ) );
+                    logger.debug( "Arguments to sub command: {}", Arrays.toString( cmdArgs ) );
                     CommandLine line = parseArguments( options, cmdArgs );
                     if( line != null ) {
                         if( line.hasOption( "help" ) ) {
@@ -79,17 +83,20 @@ public class CliExecutor {
 
                             return;
                         }
-                        def.createExecutor( line ).actionPerformed();
+                        def.createExecutor( baseDir, line ).actionPerformed();
+                        commandFoundAndExecuted = true;
+                        break;
                     }
                     else {
                         logger.error( "Ukendt argument(er)." );
                     }
                 }
-                else {
-                    logger.error( "Kommandoen '{}' findes ikke.", cmdName );
-                    logger.error( "" );
-                    printUsage();
-                }
+            }
+
+            if( !commandFoundAndExecuted ) {
+                logger.error( "Kommandoen '{}' findes ikke.", cmdName );
+                logger.error( "" );
+                printUsage();
             }
 
         }
@@ -115,7 +122,7 @@ public class CliExecutor {
         }
         catch( Exception ex ) {
             logger.error( ex.getMessage() );
-            logger.debug( "Error:", ex );
+            logger.error( "Error: {}", ex );
 
             System.exit( 1 );
         }

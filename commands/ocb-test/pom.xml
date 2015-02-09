@@ -16,4 +16,12 @@
         <command.main.classname>dk.dbc.ocbtools.ocbtest.OCBTest</command.main.classname>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>dk.dbc.ocb-tools</groupId>
+            <artifactId>ocb-scripter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>

@@ -1,0 +1,2 @@
+modules.search.path = javascript/javacore/;javascript/jscommon/config/;javascript/jscommon/convert/;javascript/jscommon/devel/;javascript/jscommon/external/;javascript/jscommon/io/;javascript/jscommon/marc/;javascript/jscommon/net/;javascript/jscommon/system/;javascript/jscommon/util/
+unittest.modules.search.path = javascript/javacore/;javascript/jscommon/config/;javascript/jscommon/convert/;javascript/jscommon/devel/;javascript/jscommon/external/;javascript/jscommon/io/;javascript/jscommon/marc/;javascript/jscommon/net/;javascript/jscommon/system/;javascript/jscommon/util/
