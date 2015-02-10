@@ -156,6 +156,26 @@ public class CliExecutor {
         }
     }
 
+    public SubcommandDefinition findSubcommandDefinition( String subCommandName ) throws InstantiationException, IllegalAccessException {
+        logger.entry();
+
+        try {
+            for( SubcommandDefinition def : getSubcommandDefinitions() ) {
+                Class<?> clazz = def.getClass();
+                Subcommand subCommand = clazz.getAnnotation( Subcommand.class );
+
+                if( subCommand != null && subCommand.name().equals( subCommandName ) ) {
+                    return def;
+                }
+            }
+
+            return null;
+        }
+        finally {
+            logger.exit();
+        }
+    }
+
     //-------------------------------------------------------------------------
     //              Helpers
     //-------------------------------------------------------------------------
@@ -234,11 +254,13 @@ public class CliExecutor {
     }
 
     private String commandUsage() {
-        return subCommandUsage( "[kommando]" );
+        return String.format( "%s [kommando] [argumenter]", commandName );
     }
 
-    private String subCommandUsage( String subCommandName ) {
-        return String.format( "%s %s [options]", commandName, subCommandName );
+    private String subCommandUsage( String subCommandName ) throws IllegalAccessException, InstantiationException {
+        SubcommandDefinition def = findSubcommandDefinition( subCommandName );
+        Subcommand subCommand = def.getClass().getAnnotation( Subcommand.class );
+        return String.format( "%s %s %s", commandName, subCommandName, subCommand.usage() );
     }
 
     //-------------------------------------------------------------------------

@@ -19,7 +19,8 @@ import java.util.List;
  * Defines a subcommand to execute the JavaScript unittests.
  */
 @Subcommand( name = "js-tests",
-             description = "Kører og tester en eller alle unittests i JavaScript" )
+             description = "Kører og tester en eller alle unittests i JavaScript",
+             usage = "[module1], [module2], [...]" )
 public class JsTestsDefinition implements SubcommandDefinition {
     public JsTestsDefinition() {
     }

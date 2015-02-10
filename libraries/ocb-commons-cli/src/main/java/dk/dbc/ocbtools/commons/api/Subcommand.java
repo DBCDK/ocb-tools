@@ -19,4 +19,9 @@ public @interface Subcommand {
      * Description of the usage of the subcommand.
      */
     public String description() default "";
+
+    /**
+     * Usage description.
+     */
+    public String usage() default "[options]";
 }
