@@ -2,6 +2,7 @@ package dk.dbc.ocbtools.ocbtest;
 
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.cli.CliException;
+import dk.dbc.ocbtools.scripter.Distribution;
 import dk.dbc.ocbtools.scripter.ScripterException;
 import dk.dbc.ocbtools.scripter.ServiceScripter;
 import org.slf4j.ext.XLogger;
@@ -37,9 +38,18 @@ public class JsTestsExecutor implements SubcommandExecutor {
             scripter.setBaseDir( baseDir.getCanonicalPath() );
             scripter.setModulesKey( "unittest.modules.search.path" );
 
-            ArrayList<String> distributionPaths = new ArrayList<>();
-            distributionPaths.add( "ocb-tools" );
-            scripter.setDistributionPaths( distributionPaths );
+            String distributionsDirName = baseDir.getCanonicalPath() + "/distributions";
+
+            ArrayList<Distribution> distributions = new ArrayList<>();
+            distributions.add( new Distribution( "ocbtools", "ocb-tools" ) );
+            for( String dirName : new File( distributionsDirName ).list() ) {
+                if( !dirName.equals( "common" ) ) {
+                    if( new File( distributionsDirName + "/" + dirName ).isDirectory() ) {
+                        distributions.add( new Distribution( dirName, "distributions/" + dirName ) );
+                    }
+                }
+            }
+            scripter.setDistributions( distributions );
             scripter.setServiceName( "ocb-test" );
 
             List<String> modulesToTest = modules;

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter" />
+
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
@@ -23,7 +25,4 @@
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </root>
-
-    <logger name="org.reflections" level="WARN" />
-    <logger name="JavaScript.Logger" level="WARN" />
 </configuration>

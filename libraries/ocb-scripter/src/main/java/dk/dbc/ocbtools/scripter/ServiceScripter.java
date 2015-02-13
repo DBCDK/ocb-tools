@@ -24,7 +24,7 @@ public class ServiceScripter {
      */
     public ServiceScripter() {
         this.baseDir = "";
-        this.distributionPaths = null;
+        this.distributions = null;
         this.modulesKey = "";
         this.serviceName = "";
     }
@@ -41,12 +41,12 @@ public class ServiceScripter {
         this.baseDir = baseDir;
     }
 
-    public List<String> getDistributionPaths() {
-        return distributionPaths;
+    public List<Distribution> getDistributions() {
+        return distributions;
     }
 
-    public void setDistributionPaths( List<String> distributionPaths ) {
-        this.distributionPaths = distributionPaths;
+    public void setDistributions( List<Distribution> distributions ) {
+        this.distributions = distributions;
     }
 
     public String getModulesKey() {
@@ -119,6 +119,7 @@ public class ServiceScripter {
             ArrayList<String> modulePaths = new ArrayList<>();
 
             String[] searchPaths = createModulesHandler().getSearchPaths().split( " " );
+            logger.debug( "Search paths: {}", searchPaths );
             for( String searchPath : searchPaths ) {
                 String[] path = searchPath.split( ":" );
                 if( path.length == 2 ) {
@@ -131,14 +132,16 @@ public class ServiceScripter {
                         modulesDir = String.format( MODULES_PATH_PATTERN, baseDir, COMMON_DISTRIBUTION_PATH );
                         file = new File( modulesDir + "/" + pathDir );
                         if( file.isDirectory() ) {
+                            logger.debug( "Adding module path: {}", file.getCanonicalPath() );
                             modulePaths.add( file.getCanonicalPath() );
                         }
                     }
-                    else if( pathType.equals( "file" ) ) {
-                        for( String distPath : distributionPaths ) {
-                            modulesDir = String.format( MODULES_PATH_PATTERN, baseDir, distPath );
+                    else {
+                        for( Distribution dist : distributions ) {
+                            modulesDir = String.format( MODULES_PATH_PATTERN, baseDir, dist.getDirName() );
                             file = new File( modulesDir + "/" + pathDir );
                             if( file.isDirectory() ) {
+                                logger.debug( "Adding module path: {}", file.getCanonicalPath() );
                                 modulePaths.add( file.getCanonicalPath() );
                             }
                         }
@@ -174,11 +177,18 @@ public class ServiceScripter {
             Environment envir = new Environment();
             envir.registerUseFunction( createModulesHandler() );
 
-            jsFileName = String.format( ENTRYPOINTS_PATTERN, baseDir, distributionPaths.get( 0 ), serviceName, fileName );
-            logger.info( "Trying to evaluate {} in the new JavaScript Environment", jsFileName );
-            envir.evalFile( jsFileName );
+            for( Distribution dist : distributions ) {
+                jsFileName = String.format( ENTRYPOINTS_PATTERN, baseDir, dist.getDirName(), serviceName, fileName );
+                File file = new File( jsFileName );
+                if( file.exists() && file.isFile() ) {
+                    logger.info( "Trying to evaluate {} in the new JavaScript Environment", jsFileName );
+                    envir.evalFile( jsFileName );
 
-            return envir;
+                    return envir;
+                }
+            }
+
+            throw new ScripterException( "Unable to find an environment for file %s", fileName );
         }
         catch( IOException ex ) {
             logger.error( "Unable to load file {}: {}", jsFileName, ex.getMessage() );
@@ -202,13 +212,15 @@ public class ServiceScripter {
             ModuleHandler handler = new ModuleHandler();
             String modulesDir;
 
-            handler.registerHandler( "file", new FileSchemeHandler( baseDir ) );
-            for( String path : distributionPaths ) {
-                modulesDir = String.format( MODULES_PATH_PATTERN, baseDir, path );
-                addSearchPathsFromSettingsFile( handler, "file", modulesDir );
+            for( Distribution dist : distributions ) {
+                modulesDir = String.format( MODULES_PATH_PATTERN, baseDir, dist.getDirName() );
+                logger.debug( "Adding distribution to module handler: {} -> {}", dist.getSchemaName(), modulesDir );
+                handler.registerHandler( dist.getSchemaName(), new FileSchemeHandler( modulesDir ) );
+                addSearchPathsFromSettingsFile( handler, dist.getSchemaName(), modulesDir );
             }
 
             modulesDir = String.format( MODULES_PATH_PATTERN, baseDir, COMMON_DISTRIBUTION_PATH );
+            logger.debug( "Adding distribution to module handler: {} -> {}", COMMON_INSTALL_NAME, modulesDir );
             handler.registerHandler( COMMON_INSTALL_NAME, new FileSchemeHandler( modulesDir ) );
             addSearchPathsFromSettingsFile( handler, COMMON_INSTALL_NAME, modulesDir );
 
@@ -281,8 +293,8 @@ public class ServiceScripter {
 
     private static final XLogger logger = XLoggerFactory.getXLogger( ServiceScripter.class );
 
-    private static final String COMMON_INSTALL_NAME = "common";
-    private static final String COMMON_DISTRIBUTION_PATH = "distributions/" + COMMON_INSTALL_NAME;
+    private static final String COMMON_INSTALL_NAME = "file";
+    private static final String COMMON_DISTRIBUTION_PATH = "distributions/common";
     private static final String MODULES_PATH_PATTERN = "%s/%s/src";
     private static final String ENTRYPOINTS_PATTERN = MODULES_PATH_PATTERN + "/entrypoints/%s/%s";
 
@@ -294,7 +306,7 @@ public class ServiceScripter {
     /**
      * Name of the distribution to use.
      */
-    private List<String> distributionPaths;
+    private List<Distribution> distributions;
 
     /**
      * Key in settings file to load module paths from.

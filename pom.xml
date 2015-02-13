@@ -43,6 +43,7 @@
 
         <!-- Versions for dependencies -->
         <apache.commons.cli.version>1.2</apache.commons.cli.version>
+        <codehaus.jackson.version>1.9.11</codehaus.jackson.version>
     </properties>
 
     <dependencies>
@@ -58,6 +59,15 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.1.2</version>
+        </dependency>
+
+        <!-- ************************************************************* -->
+        <!-- IScrum                                                        -->
+        <!-- ************************************************************* -->
+        <dependency>
+            <groupId>dk.dbc.iscrum</groupId>
+            <artifactId>iscrum-utils</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <!-- ************************************************************* -->
