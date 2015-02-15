@@ -43,7 +43,6 @@
 
         <!-- Versions for dependencies -->
         <apache.commons.cli.version>1.2</apache.commons.cli.version>
-        <codehaus.jackson.version>1.9.11</codehaus.jackson.version>
     </properties>
 
     <dependencies>
@@ -89,8 +88,15 @@
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
+                <filtering>true</filtering>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

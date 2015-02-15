@@ -14,9 +14,10 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <version>${codehaus.jackson.version}</version>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ocb-commons-cli</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
+
 </project>

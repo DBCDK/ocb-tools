@@ -3,17 +3,18 @@ package dk.dbc.ocbtools.ocbtest;
 
 //-----------------------------------------------------------------------------
 
+import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.cli.CliException;
-import dk.dbc.ocbtools.scripter.Distribution;
-import dk.dbc.ocbtools.scripter.ScripterException;
-import dk.dbc.ocbtools.scripter.ServiceScripter;
+import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
+import dk.dbc.ocbtools.testengine.testcases.Testcase;
+import dk.dbc.ocbtools.testengine.testcases.TestcaseRepository;
+import dk.dbc.ocbtools.testengine.testcases.TestcaseRepositoryFactory;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,18 +37,14 @@ public class ListExecutor implements SubcommandExecutor {
         try {
             logger.debug( "Match expressions: {}", matchExpressions );
 
-            ServiceScripter scripter = new ServiceScripter();
-            scripter.setBaseDir( baseDir.getCanonicalPath() );
-            scripter.setModulesKey( "unittest.modules.search.path" );
-
-            ArrayList<Distribution> distributions = new ArrayList<>();
-            distributions.add( new Distribution( "ocbtools", "ocb-tools" ) );
-            scripter.setDistributions( distributions );
-            scripter.setServiceName( "ocb-test" );
-
-            scripter.callMethod( "ListTestCases.use.js", "actionPerformed", baseDir.getCanonicalPath(), matchExpressions );
+            OCBFileSystem fs = new OCBFileSystem();
+            TestcaseRepository repo = TestcaseRepositoryFactory.newInstanceWithTestcases( fs );
+            for( Testcase tc : repo.findAll() ) {
+                String filename = tc.getFile().getCanonicalPath().replace( fs.getBaseDir().getCanonicalPath() + "/", "" );
+                logger.info( "{} ({}): {}", tc.getName(), filename, tc.getDescription() );
+            }
         }
-        catch( IOException | ScripterException ex ) {
+        catch( IOException ex ) {
             throw new CliException( ex.getMessage(), ex );
         }
         finally {
@@ -59,7 +56,7 @@ public class ListExecutor implements SubcommandExecutor {
     //              Members
     //-------------------------------------------------------------------------
 
-    private static final XLogger logger = XLoggerFactory.getXLogger( ListExecutor.class );
+    private static final XLogger logger = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
 
     private File baseDir;
     private List<String> matchExpressions;

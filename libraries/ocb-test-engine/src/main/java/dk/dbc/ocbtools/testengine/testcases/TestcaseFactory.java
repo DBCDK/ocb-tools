@@ -2,40 +2,43 @@
 package dk.dbc.ocbtools.testengine.testcases;
 
 //-----------------------------------------------------------------------------
-
+import dk.dbc.iscrum.utils.json.Json;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 //-----------------------------------------------------------------------------
 /**
- * Repository of Testcases load from different files.
+ * Created by stp on 15/02/15.
  */
-public class TestcaseRepository {
-    public TestcaseRepository() {
-        this.testcases = new ArrayList<>();
-    }
-
+public class TestcaseFactory {
     //-------------------------------------------------------------------------
-    //              Interface
+    //              Loaders
     //-------------------------------------------------------------------------
 
-    public void addAll( Collection<Testcase> collection ) {
-        testcases.addAll( collection );
-    }
+    public static List<Testcase> newInstancesFromFile( File file ) throws IOException {
+        logger.entry();
 
-    public List<Testcase> findAll() {
-        return testcases;
+        List<Testcase> result = null;
+        try {
+            result = Json.decodeArray( file, Testcase.class );
+            for( Testcase tc : result ) {
+                tc.setFile( file );
+            }
+
+            return result;
+        }
+        finally {
+            logger.exit();
+        }
     }
 
     //-------------------------------------------------------------------------
     //              Members
     //-------------------------------------------------------------------------
 
-    private static final XLogger logger = XLoggerFactory.getXLogger( TestcaseRepository.class );
-
-    private List<Testcase> testcases;
+    private static final XLogger logger = XLoggerFactory.getXLogger( TestcaseRepositoryFactory.class );
 }

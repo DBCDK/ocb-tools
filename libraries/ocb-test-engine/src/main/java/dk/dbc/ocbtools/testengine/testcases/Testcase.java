@@ -16,6 +16,7 @@ public class Testcase {
     public Testcase() {
         this.name = "";
         this.description = "";
+        this.file = null;
     }
 
     //-------------------------------------------------------------------------
@@ -38,20 +39,12 @@ public class Testcase {
         this.description = description;
     }
 
-    public File getDirectory() {
-        return directory;
+    public File getFile() {
+        return file;
     }
 
-    public void setDirectory( File directory ) {
-        this.directory = directory;
-    }
-
-    public File getFilename() {
-        return filename;
-    }
-
-    public void setFilename( File filename ) {
-        this.filename = filename;
+    public void setFile( File file ) {
+        this.file = file;
     }
 
     //-------------------------------------------------------------------------
@@ -100,9 +93,11 @@ public class Testcase {
     private String name;
     private String description;
 
+    /**
+     * The file that this Testcase was created from.
+     * <p/>
+     * It may be null.
+     */
     @JsonIgnore
-    private File directory;
-
-    @JsonIgnore
-    private File filename;
+    private File file;
 }
