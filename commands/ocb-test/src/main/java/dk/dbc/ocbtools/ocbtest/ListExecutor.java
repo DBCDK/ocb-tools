@@ -40,12 +40,41 @@ public class ListExecutor implements SubcommandExecutor {
             OCBFileSystem fs = new OCBFileSystem();
             TestcaseRepository repo = TestcaseRepositoryFactory.newInstanceWithTestcases( fs );
             for( Testcase tc : repo.findAll() ) {
-                String filename = tc.getFile().getCanonicalPath().replace( fs.getBaseDir().getCanonicalPath() + "/", "" );
-                logger.info( "{} ({}): {}", tc.getName(), filename, tc.getDescription() );
+                if( !matchAnyExpressions( tc, matchExpressions ) ) {
+                    continue;
+                }
+
+                String filename = tc.getFile().getCanonicalPath();
+                filename = filename.replace( fs.getBaseDir().getCanonicalPath() + "/", "" );
+
+                logger.info( "{}:", tc.getName() );
+                logger.info( "    Fil: {}", filename );
+                logger.info( "    Beskrivelse: {}", tc.getDescription() );
             }
         }
         catch( IOException ex ) {
             throw new CliException( ex.getMessage(), ex );
+        }
+        finally {
+            logger.exit();
+        }
+    }
+
+    private boolean matchAnyExpressions( Testcase tc, List<String> regexps ) {
+        logger.entry();
+
+        try {
+            if( regexps.isEmpty() ) {
+                return true;
+            }
+
+            for( String regex : regexps ) {
+                if( tc.getName().matches( regex ) ) {
+                    return true;
+                }
+            }
+
+            return false;
         }
         finally {
             logger.exit();
