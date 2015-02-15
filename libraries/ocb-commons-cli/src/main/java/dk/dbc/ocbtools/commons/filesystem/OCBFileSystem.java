@@ -48,7 +48,7 @@ public class OCBFileSystem {
         ArrayList<String> result = new ArrayList<>();
         try {
             File distributionsDir = new File( baseDir.getCanonicalPath() + "/" + DISTRIBUTIONS_DIRNAME );
-            for( File file : distributionsDir.listFiles( new FileIgnoreFilter( COMMON_DISTRIBUTION_DIRNAME ) ) ) {
+            for( File file : distributionsDir.listFiles( new FileIgnoreFilter( COMMON_DISTRIBUTION_DIRNAME, ".svn" ) ) ) {
                 if( file.isDirectory() ) {
                     result.add( file.getName() );
                 }

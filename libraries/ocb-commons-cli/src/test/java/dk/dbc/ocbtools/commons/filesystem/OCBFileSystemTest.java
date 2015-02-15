@@ -6,10 +6,7 @@ package dk.dbc.ocbtools.commons.filesystem;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -49,7 +46,12 @@ public class OCBFileSystemTest {
         expected.add( new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/movies/film-cases.json" ) );
         expected.add( new File( instance.getBaseDir().getAbsolutePath() + "/distributions/fbs/system-tests/bog-cases.json" ) );
         expected.add( new File( instance.getBaseDir().getAbsolutePath() + "/distributions/fbs/system-tests/film-cases.json" ) );
-        assertEquals( expected, instance.findSystemtests() );
+        Collections.sort( expected );
+
+        List<File> actual = instance.findSystemtests();
+        Collections.sort( actual );
+
+        assertEquals( expected, actual );
     }
 
     //-------------------------------------------------------------------------
