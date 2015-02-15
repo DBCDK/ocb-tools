@@ -7,10 +7,12 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Created by stp on 14/02/15.
@@ -33,7 +35,7 @@ public class OCBFileSystemTest {
         OCBFileSystem instance = newInstance();
 
         String[] expected = { "dataio", "fbs" };
-        assertArrayEquals( expected, instance.findDistributions().toArray() );
+        assertEquals( Arrays.asList( expected ), instance.findDistributions() );
     }
 
     @Test
@@ -47,7 +49,7 @@ public class OCBFileSystemTest {
         expected.add( new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/movies/film-cases.json" ) );
         expected.add( new File( instance.getBaseDir().getAbsolutePath() + "/distributions/fbs/system-tests/bog-cases.json" ) );
         expected.add( new File( instance.getBaseDir().getAbsolutePath() + "/distributions/fbs/system-tests/film-cases.json" ) );
-        assertArrayEquals( expected.toArray(), instance.findSystemtests().toArray() );
+        assertEquals( expected, instance.findSystemtests() );
     }
 
     //-------------------------------------------------------------------------
