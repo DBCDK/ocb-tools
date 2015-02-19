@@ -1,0 +1,19 @@
+{
+    "name": "tc_name",
+    "description": "tc_descr",
+    "templateName": "bog",
+    "records": [ "rec1.xml", "rec2.xml" ],
+    "expected": {
+        "validationResults": [
+            {
+                "type": "ERROR",
+                "params": {
+                    "url": "http://www.kat-format.dk/danMARC2/Danmarc2.5.htm",
+                    "message": "message",
+                    "fieldno": 2,
+                    "subfieldno": 5
+                }
+            }
+        ]
+    }
+}

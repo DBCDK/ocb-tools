@@ -2,11 +2,13 @@
 package dk.dbc.ocbtools.testengine.testcases;
 
 //-----------------------------------------------------------------------------
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.File;
+import java.util.List;
 
 //-----------------------------------------------------------------------------
 /**
@@ -16,6 +18,8 @@ public class Testcase {
     public Testcase() {
         this.name = "";
         this.description = "";
+        this.records = null;
+        this.expected = null;
         this.file = null;
     }
 
@@ -39,12 +43,36 @@ public class Testcase {
         this.description = description;
     }
 
+    public String getTemplateName() {
+        return templateName;
+    }
+
+    public void setTemplateName( String templateName ) {
+        this.templateName = templateName;
+    }
+
     public File getFile() {
         return file;
     }
 
     public void setFile( File file ) {
         this.file = file;
+    }
+
+    public List<String> getRecords() {
+        return records;
+    }
+
+    public void setRecords( List<String> records ) {
+        this.records = records;
+    }
+
+    public Expected getExpected() {
+        return expected;
+    }
+
+    public void setExpected( Expected expected ) {
+        this.expected = expected;
     }
 
     //-------------------------------------------------------------------------
@@ -92,6 +120,9 @@ public class Testcase {
 
     private String name;
     private String description;
+    private String templateName;
+    private List<String> records;
+    private Expected expected;
 
     /**
      * The file that this Testcase was created from.

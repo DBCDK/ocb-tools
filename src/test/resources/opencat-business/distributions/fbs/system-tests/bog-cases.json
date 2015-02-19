@@ -1,7 +1,11 @@
 [
     {
         "name": "book-t01",
-        "description": "Beskrivelse af book-t01"
+        "description": "Beskrivelse af book-t01",
+        "records": {
+            "files": [ "" ],
+            "directory":
+        }
     },
     {
         "name": "book-t02",
