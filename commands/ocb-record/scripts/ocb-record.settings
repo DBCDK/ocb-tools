@@ -1,0 +1,2 @@
+build.url=http://ifish-i01:1080/CatalogingBuildServices/OpenBuild
+opennumberroll.url=http://opennumberroll.addi.dk/1.0/?action=numberRoll&numberRollName=faust_8_test&outputType=xml

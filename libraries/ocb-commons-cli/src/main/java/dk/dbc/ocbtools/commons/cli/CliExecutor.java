@@ -3,6 +3,7 @@ package dk.dbc.ocbtools.commons.cli;
 
 //-----------------------------------------------------------------------------
 
+import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.Subcommand;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
 import org.apache.commons.cli.*;
@@ -65,6 +66,7 @@ public class CliExecutor {
                 Subcommand subCommand = clazz.getAnnotation( Subcommand.class );
 
                 if( subCommand != null && subCommand.name().equals( cmdName ) ) {
+                    commandFoundAndExecuted = true;
                     Options options = new Options();
                     Option help = new Option( "h", "help", false, "Giver en beskrivelse af de enkelte options til kommandoen" );
                     options.addOption( help );
@@ -74,21 +76,15 @@ public class CliExecutor {
                     }
 
                     logger.debug( "Arguments to sub command: {}", Arrays.toString( cmdArgs ) );
+
                     CommandLine line = parseArguments( options, cmdArgs );
                     if( line != null ) {
                         if( line.hasOption( "help" ) ) {
-                            logger.info( "" );
-                            HelpFormatter formatter = new HelpFormatter();
-                            formatter.printHelp( subCommandUsage( subCommand.name() ), options );
-
+                            printUsage();
                             return;
                         }
                         def.createExecutor( baseDir, line ).actionPerformed();
-                        commandFoundAndExecuted = true;
                         break;
-                    }
-                    else {
-                        logger.error( "Ukendt argument(er)." );
                     }
                 }
             }
@@ -219,22 +215,52 @@ public class CliExecutor {
         }
     }
 
-    private CommandLine parseArguments( Options options, String[] args ) {
+    private CommandLine parseArguments( Options options, String[] args ) throws IllegalAccessException, InstantiationException {
+        logger.entry( options, args );
         CommandLineParser parser = new GnuParser();
 
         try {
             return parser.parse( options, args );
-        }
-        catch ( ParseException exp ) {
-            logger.error( "Parsing failed. Reason: " + exp.getMessage() );
+        } catch ( ParseException exp ) {
+            if ( !isHelpInArgsList( args ) ) {
+                logger.error( "Parsing failed. Reason: " + exp.getMessage() );
+            }
             logger.debug( "Exception: {}", exp );
+            printUsage( options );
             return null;
+        } finally {
+            logger.exit();
+        }
+    }
+
+    private Boolean isHelpInArgsList( String[] args ) {
+        logger.entry( args );
+        Boolean res = false;
+        try {
+            for ( String arg : args ) {
+                if ( "-h".equalsIgnoreCase( arg ) || "--help".equalsIgnoreCase( arg ) || "help".equalsIgnoreCase( arg ) ) {
+                    res = true;
+                    break;
+                }
+            }
+            return res;
+        } finally {
+            logger.exit( res );
         }
     }
 
     private void printUsage() throws InstantiationException, IllegalAccessException {
         logger.entry();
+        try {
+            printUsage( null );
+        }
+        finally {
+            logger.exit();
+        }
+    }
 
+    private void printUsage( Options options ) throws InstantiationException, IllegalAccessException {
+        logger.entry( options );
         try {
             logger.info( "Usage: {}", commandUsage() );
             logger.info( "" );
@@ -245,10 +271,13 @@ public class CliExecutor {
 
                 if( subCommand != null ) {
                     logger.info( "{}: {}", subCommand.name(), subCommand.description() );
+                    if ( options != null ) {
+                        HelpFormatter formatter = new HelpFormatter();
+                        formatter.printHelp( subCommandUsage( subCommand.name() ), options );
+                    }
                 }
             }
-        }
-        finally {
+        } finally {
             logger.exit();
         }
     }
@@ -263,11 +292,21 @@ public class CliExecutor {
         return String.format( "%s %s %s", commandName, subCommandName, subCommand.usage() );
     }
 
+    private void printStuff( String cmdName, Options options ) throws InstantiationException, IllegalAccessException {
+        logger.entry( cmdName, options );
+        try {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp( subCommandUsage( cmdName ), options );
+        } finally {
+            logger.exit();
+        }
+    }
+
     //-------------------------------------------------------------------------
     //              Members
     //-------------------------------------------------------------------------
 
-    private static final XLogger logger = XLoggerFactory.getXLogger( CliExecutor.class );
+    private static final XLogger logger = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
 
     private String commandName;
     private File baseDir;
