@@ -16,6 +16,11 @@ public class Distribution {
         return this.dirName;
     }
 
+    @Override
+    public String toString() {
+        return String.format( "{schemaName: %s, dirName: %s}", schemaName, dirName );
+    }
+
     private String schemaName;
     private String dirName;
 }

@@ -39,20 +39,22 @@ public class OCBFileSystemTest {
     public void testFindSystemTests() throws Exception {
         OCBFileSystem instance = newInstance();
 
-        List<File> expected = new ArrayList<>();
-        expected.add( new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/books/single-cases.json" ) );
-        expected.add( new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/books/volumes/main-cases.json" ) );
-        expected.add( new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/books/volumes/volume-cases.json" ) );
-        expected.add( new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/movies/film-cases.json" ) );
-        expected.add( new File( instance.getBaseDir().getAbsolutePath() + "/distributions/fbs/system-tests/bog-cases.json" ) );
-        expected.add( new File( instance.getBaseDir().getAbsolutePath() + "/distributions/fbs/system-tests/film-cases.json" ) );
+        List<SystemTest> expected = new ArrayList<>();
+        expected.add( new SystemTest( "dataio", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/books/single-cases.json" ) ) );
+        expected.add( new SystemTest( "dataio", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/books/volumes/main-cases.json" ) ) );
+        expected.add( new SystemTest( "dataio", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/books/volumes/volume-cases.json" ) ) );
+        expected.add( new SystemTest( "dataio", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/movies/film-cases.json" ) ) );
+        expected.add( new SystemTest( "fbs", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/fbs/system-tests/bog-cases.json" ) ) );
+        expected.add( new SystemTest( "fbs", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/fbs/system-tests/film-cases.json" ) ) );
         Collections.sort( expected );
 
-        List<File> actual = instance.findSystemtests();
+        List<SystemTest> actual = instance.findSystemtests();
         Collections.sort( actual );
 
         assertEquals( expected, actual );
     }
+//"[{distributionName:dataio, file:/Users/stp/Documents/Projects/ocb-tools/src/test/resources/opencat-business/distributions/dataio/system-tests/books/single-cases.json}, {distributionName:dataio, file:/Users/stp/Documents/Projects/ocb-tools/src/test/resources/opencat-business/distributions/dataio/system-tests/books/volumes/main-cases.json}, {distributionName:dataio, file:/Users/stp/Documents/Projects/ocb-tools/src/test/resources/opencat-business/distributions/dataio/system-tests/books/volumes/volume-cases.json}, {distributionName:dataio, file:/Users/stp/Documents/Projects/ocb-tools/src/test/resources/opencat-business/distributions/dataio/system-tests/movies/film-cases.json}, {distributionName:fbs, file:/Users/stp/Documents/Projects/ocb-tools/src/test/resources/opencat-business/distributions/fbs/system-tests/bog-cases.json}, {distributionName:fbs, file:/Users/stp/Documents/Projects/ocb-tools/src/test/resources/opencat-business/distributions/fbs/system-tests/film-cases.json}]"
+//"[{distributionName:dataio, file:/Users/stp/Documents/Projects/ocb-tools/src/test/resources/opencat-business/distributions/dataio/system-tests/books/single-cases.json}, {distributionName:dataio, file:/Users/stp/Documents/Projects/ocb-tools/src/test/resources/opencat-business/distributions/dataio/system-tests/books/volumes/main-cases.json}, {distributionName:dataio, file:/Users/stp/Documents/Projects/ocb-tools/src/test/resources/opencat-business/distributions/dataio/system-tests/books/volumes/volume-cases.json}, {distributionName:dataio, file:/Users/stp/Documents/Projects/ocb-tools/src/test/resources/opencat-business/distributions/dataio/system-tests/movies/film-cases.json}, {distributionName:fbs, file:/Users/stp/Documents/Projects/ocb-tools/src/test/resources/opencat-business/distributions/fbs/system-tests/bog-cases.json}, {distributionName:fbs, file:/Users/stp/Documents/Projects/ocb-tools/src/test/resources/opencat-business/distributions/fbs/system-tests/film-cases.json}]"
 
     //-------------------------------------------------------------------------
     //              Helpers

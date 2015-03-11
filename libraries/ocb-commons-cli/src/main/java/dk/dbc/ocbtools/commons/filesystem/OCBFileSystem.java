@@ -61,15 +61,17 @@ public class OCBFileSystem {
         }
     }
 
-    public List<File> findSystemtests() throws IOException {
+    public List<SystemTest> findSystemtests() throws IOException {
         logger.entry();
 
-        List<File> result = new ArrayList<>();
+        List<SystemTest> result = new ArrayList<>();
         try {
             for( String distName : findDistributions() ) {
                 File systemTestsDir = new File( String.format( SYSTEMTESTS_DIR_PATTERN, baseDir.getCanonicalPath(), distName) );
                 if( systemTestsDir.exists() ) {
-                    result.addAll( findFiles( systemTestsDir, new FileExtensionFilter( SYSTEMTESTS_FILE_EXT ) ) );
+                    for( File file : findFiles( systemTestsDir, new FileExtensionFilter( SYSTEMTESTS_FILE_EXT ) ) ) {
+                        result.add( new SystemTest( distName, file ) );
+                    }
                 }
             }
 

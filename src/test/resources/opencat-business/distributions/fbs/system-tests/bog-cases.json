@@ -2,10 +2,7 @@
     {
         "name": "book-t01",
         "description": "Beskrivelse af book-t01",
-        "records": {
-            "files": [ "" ],
-            "directory":
-        }
+        "records": [ "rec1.xml" ]
     },
     {
         "name": "book-t02",

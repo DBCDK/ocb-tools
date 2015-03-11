@@ -2,11 +2,12 @@
 package dk.dbc.ocbtools.testengine.testcases;
 
 //-----------------------------------------------------------------------------
+
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
+import dk.dbc.ocbtools.commons.filesystem.SystemTest;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 
 //-----------------------------------------------------------------------------
@@ -23,8 +24,8 @@ public class TestcaseRepositoryFactory {
 
         TestcaseRepository result = new TestcaseRepository();
         try {
-            for( File file : fs.findSystemtests() ) {
-                result.addAll( TestcaseFactory.newInstancesFromFile( file ) );
+            for( SystemTest systemTest : fs.findSystemtests() ) {
+                result.addAll( TestcaseFactory.newInstances( systemTest ) );
             }
 
             return result;

@@ -58,7 +58,7 @@ public class CliExecutor {
                 cmdArgs = Arrays.copyOfRange( args, 1, args.length );
             }
 
-            logger.info( "Using Opencat-business directory: {}", baseDir != null ? baseDir.getCanonicalPath() : "(null)" );
+            output.info( "Using Opencat-business directory: {}", baseDir != null ? baseDir.getCanonicalPath() : "(null)" );
 
             boolean commandFoundAndExecuted = false;
             for( SubcommandDefinition def : getSubcommandDefinitions() ) {
@@ -86,12 +86,15 @@ public class CliExecutor {
                         def.createExecutor( baseDir, line ).actionPerformed();
                         break;
                     }
+                    else {
+                        output.error( "Ukendt argument(er)." );
+                    }
                 }
             }
 
             if( !commandFoundAndExecuted ) {
-                logger.error( "Kommandoen '{}' findes ikke.", cmdName );
-                logger.error( "" );
+                output.error( "Kommandoen '{}' findes ikke.", cmdName );
+                output.error( "" );
                 printUsage();
             }
 
@@ -117,8 +120,8 @@ public class CliExecutor {
             System.exit( 0 );
         }
         catch( Exception ex ) {
-            logger.error( ex.getMessage() );
-            logger.error( "Error: {}", ex );
+            output.error( ex.getMessage() );
+            output.debug( "Error: ", ex );
 
             System.exit( 1 );
         }
@@ -262,8 +265,8 @@ public class CliExecutor {
     private void printUsage( Options options ) throws InstantiationException, IllegalAccessException {
         logger.entry( options );
         try {
-            logger.info( "Usage: {}", commandUsage() );
-            logger.info( "" );
+            output.info( "Usage: {}", commandUsage() );
+            output.info( "" );
 
             for( SubcommandDefinition def : getSubcommandDefinitions() ) {
                 Class<?> clazz = def.getClass();
@@ -277,8 +280,9 @@ public class CliExecutor {
                     }
                 }
             }
-        } finally {
-            logger.exit();
+        }
+        finally {
+            output.exit();
         }
     }
 
@@ -306,7 +310,8 @@ public class CliExecutor {
     //              Members
     //-------------------------------------------------------------------------
 
-    private static final XLogger logger = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
+    private static final XLogger logger = XLoggerFactory.getXLogger( CliExecutor.class );
+    private static final XLogger output = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
 
     private String commandName;
     private File baseDir;

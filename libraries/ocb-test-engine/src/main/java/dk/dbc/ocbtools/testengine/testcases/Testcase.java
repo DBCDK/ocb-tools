@@ -17,6 +17,7 @@ import java.util.List;
 public class Testcase {
     public Testcase() {
         this.name = "";
+        this.distributionName = "";
         this.description = "";
         this.records = null;
         this.expected = null;
@@ -33,6 +34,14 @@ public class Testcase {
 
     public void setName( String name ) {
         this.name = name;
+    }
+
+    public String getDistributionName() {
+        return distributionName;
+    }
+
+    public void setDistributionName( String distributionName ) {
+        this.distributionName = distributionName;
     }
 
     public String getDescription() {
@@ -119,6 +128,10 @@ public class Testcase {
     private static final XLogger logger = XLoggerFactory.getXLogger( Testcase.class );
 
     private String name;
+
+    @JsonIgnore
+    private String distributionName;
+
     private String description;
     private String templateName;
     private List<String> records;

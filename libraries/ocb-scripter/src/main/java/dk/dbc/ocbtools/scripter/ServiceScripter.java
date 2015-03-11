@@ -179,6 +179,8 @@ public class ServiceScripter {
 
             for( Distribution dist : distributions ) {
                 jsFileName = String.format( ENTRYPOINTS_PATTERN, baseDir, dist.getDirName(), serviceName, fileName );
+                logger.debug( "Calculated js filename: {}", jsFileName );
+
                 File file = new File( jsFileName );
                 if( file.exists() && file.isFile() ) {
                     logger.info( "Trying to evaluate {} in the new JavaScript Environment", jsFileName );
