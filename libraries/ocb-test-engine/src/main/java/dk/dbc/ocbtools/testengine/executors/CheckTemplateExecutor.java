@@ -59,8 +59,8 @@ public class CheckTemplateExecutor implements TestExecutor {
             settings.put( "javascript.basedir", baseDir.getAbsolutePath() );
             settings.put( "javascript.install.name", tc.getDistributionName() );
 
-            String message = String.format( "The template '%s' does not exist in testcase %s", tc.getTemplateName(), tc.getName() );
-            assertTrue( message, (Boolean) scripter.callMethod( SCRIPT_FILENAME, SCRIPT_FUNCTION, tc.getTemplateName(), settings ) );
+            String message = String.format( "The template '%s' does not exist in testcase %s", tc.getRequest().getTemplateName(), tc.getName() );
+            assertTrue( message, (Boolean) scripter.callMethod( SCRIPT_FILENAME, SCRIPT_FUNCTION, tc.getRequest().getTemplateName(), settings ) );
         }
         catch( IOException | ScripterException ex ) {
             throw new AssertionError( String.format( "Fatal error when checking template for testcase %s", tc.getName() ), ex );

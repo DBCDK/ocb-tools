@@ -59,6 +59,7 @@ public class CliExecutor {
             }
 
             output.info( "Using Opencat-business directory: {}", baseDir != null ? baseDir.getCanonicalPath() : "(null)" );
+            output.info( "" );
 
             boolean commandFoundAndExecuted = false;
             for( SubcommandDefinition def : getSubcommandDefinitions() ) {
@@ -80,7 +81,7 @@ public class CliExecutor {
                     CommandLine line = parseArguments( options, cmdArgs );
                     if( line != null ) {
                         if( line.hasOption( "help" ) ) {
-                            printUsage();
+                            printUsage( options );
                             return;
                         }
                         def.createExecutor( baseDir, line ).actionPerformed();

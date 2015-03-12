@@ -9,7 +9,8 @@ import dk.dbc.ocbtools.commons.cli.CliException;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.testengine.executors.CheckTemplateExecutor;
 import dk.dbc.ocbtools.testengine.executors.TestExecutor;
-import dk.dbc.ocbtools.testengine.reports.TextReport;
+import dk.dbc.ocbtools.testengine.executors.ValidateRecordExecutor;
+import dk.dbc.ocbtools.testengine.reports.TestReport;
 import dk.dbc.ocbtools.testengine.runners.TestResult;
 import dk.dbc.ocbtools.testengine.runners.TestRunner;
 import dk.dbc.ocbtools.testengine.runners.TestRunnerItem;
@@ -29,9 +30,10 @@ import java.util.List;
  * Created by stp on 11/03/15.
  */
 public class RunExecutor implements SubcommandExecutor {
-    public RunExecutor( File baseDir, List<String> tcNames ) {
+    public RunExecutor( File baseDir, List<String> tcNames, List<TestReport> reports ) {
         this.baseDir = baseDir;
         this.tcNames = tcNames;
+        this.reports = reports;
 
     }
 
@@ -51,14 +53,19 @@ public class RunExecutor implements SubcommandExecutor {
 
                 List<TestExecutor> executors = new ArrayList<>();
                 executors.add( new CheckTemplateExecutor( baseDir, tc ) );
+                if( tc.getValidation() != null ) {
+                    executors.add( new ValidateRecordExecutor( baseDir, tc ) );
+                }
 
                 items.add( new TestRunnerItem( tc, executors ) );
             }
 
             TestRunner runner = new TestRunner( items );
             TestResult testResult = runner.run();
-            TextReport report = new TextReport( testResult );
-            report.printReport();
+
+            for( TestReport report : reports ) {
+                report.produce( testResult );
+            }
 
             if( testResult.hasError() ) {
                 output.error( "" );
@@ -96,4 +103,5 @@ public class RunExecutor implements SubcommandExecutor {
 
     private File baseDir;
     private List<String> tcNames;
+    private List<TestReport> reports;
 }

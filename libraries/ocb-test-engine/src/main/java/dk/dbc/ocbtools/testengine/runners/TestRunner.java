@@ -4,6 +4,7 @@ package dk.dbc.ocbtools.testengine.runners;
 //-----------------------------------------------------------------------------
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.testengine.executors.TestExecutor;
+import org.perf4j.StopWatch;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -26,11 +27,14 @@ public class TestRunner {
             TestResult testResult = new TestResult();
 
             for( TestRunnerItem item : items ) {
+                output.info( "Running testcase '{}'", item.getTestcase().getName() );
+
                 TestcaseResult tcResult = runTestcase( item );
                 if( tcResult != null ) {
                     testResult.add( tcResult );
                 }
             }
+            output.info( "" );
 
             return testResult;
         }
@@ -51,15 +55,23 @@ public class TestRunner {
         try {
             ArrayList<TestExecutorResult> testExecutorResults = new ArrayList<>();
             for( TestExecutor exec : testRunnerItem.getExecutors() ) {
+                StopWatch watch = new StopWatch();
+
                 try {
                     exec.setup();
                     exec.executeTests();
                     exec.teardown();
 
-                    testExecutorResults.add( new TestExecutorResult( 0, exec, null ) );
+                    watch.stop();
+                    TestExecutorResult testExecutorResult = new TestExecutorResult( 0, exec, null );
+                    testExecutorResult.setTime( watch.getElapsedTime() );
+                    testExecutorResults.add( testExecutorResult );
                 }
                 catch( AssertionError ex ) {
-                    testExecutorResults.add( new TestExecutorResult( 0, exec, ex ) );
+                    watch.stop();
+                    TestExecutorResult testExecutorResult = new TestExecutorResult( 0, exec, ex );
+                    testExecutorResult.setTime( watch.getElapsedTime() );
+                    testExecutorResults.add( testExecutorResult );
                 }
             }
 

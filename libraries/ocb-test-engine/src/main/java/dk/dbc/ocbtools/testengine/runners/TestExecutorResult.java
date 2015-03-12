@@ -21,6 +21,10 @@ public class TestExecutorResult {
         return time;
     }
 
+    public void setTime( long time ) {
+        this.time = time;
+    }
+
     public TestExecutor getExecutor() {
         return executor;
     }

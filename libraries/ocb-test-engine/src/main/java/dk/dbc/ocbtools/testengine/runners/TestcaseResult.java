@@ -36,6 +36,15 @@ public class TestcaseResult {
         return false;
     }
 
+    public long getTime() {
+        long time = 0;
+        for( TestExecutorResult testExecutorResult : results ) {
+            time += testExecutorResult.getTime();
+        }
+
+        return time;
+    }
+
     //-------------------------------------------------------------------------
     //              Members
     //-------------------------------------------------------------------------

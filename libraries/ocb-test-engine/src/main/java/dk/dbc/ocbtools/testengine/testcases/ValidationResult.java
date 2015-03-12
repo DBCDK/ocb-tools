@@ -2,6 +2,13 @@
 package dk.dbc.ocbtools.testengine.testcases;
 
 //-----------------------------------------------------------------------------
+
+import dk.dbc.iscrum.utils.json.Json;
+import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
+import org.slf4j.ext.XLogger;
+import org.slf4j.ext.XLoggerFactory;
+
+import java.io.IOException;
 import java.util.HashMap;
 
 //-----------------------------------------------------------------------------
@@ -34,10 +41,56 @@ public class ValidationResult {
         this.params = params;
     }
 
+    @Override
+    public boolean equals( Object o ) {
+        if( this == o ) {
+            return true;
+        }
+        if( o == null || getClass() != o.getClass() ) {
+            return false;
+        }
+
+        ValidationResult that = (ValidationResult) o;
+
+        if( params != null ? !params.equals( that.params ) : that.params != null ) {
+            return false;
+        }
+        if( type != that.type ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type != null ? type.hashCode() : 0;
+        result = 31 * result + ( params != null ? params.hashCode() : 0 );
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        logger.entry();
+
+        try {
+            return Json.encode( this );
+        }
+        catch( IOException ex ) {
+            output.error( "Unable to encode ValidationResult", ex );
+            return "";
+        }
+        finally {
+            logger.exit();
+        }
+    }
 
     //-------------------------------------------------------------------------
     //              Members
     //-------------------------------------------------------------------------
+
+    private static final XLogger logger = XLoggerFactory.getXLogger( ValidationResult.class );
+    private static final XLogger output = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
 
     /**
      * Contains the type of this validation error.

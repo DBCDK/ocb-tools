@@ -3,11 +3,16 @@ package dk.dbc.ocbtools.testengine.testcases;
 
 //-----------------------------------------------------------------------------
 
+import dk.dbc.iscrum.records.MarcRecord;
+import dk.dbc.iscrum.records.MarcRecordFactory;
+import dk.dbc.iscrum.utils.IOUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
 
 //-----------------------------------------------------------------------------
@@ -19,8 +24,8 @@ public class Testcase {
         this.name = "";
         this.distributionName = "";
         this.description = "";
-        this.records = null;
-        this.expected = null;
+        this.request = null;
+        this.validation = null;
         this.file = null;
     }
 
@@ -52,12 +57,20 @@ public class Testcase {
         this.description = description;
     }
 
-    public String getTemplateName() {
-        return templateName;
+    public TestcaseRequest getRequest() {
+        return request;
     }
 
-    public void setTemplateName( String templateName ) {
-        this.templateName = templateName;
+    public void setRequest( TestcaseRequest request ) {
+        this.request = request;
+    }
+
+    public List<ValidationResult> getValidation() {
+        return validation;
+    }
+
+    public void setValidation( List<ValidationResult> validation ) {
+        this.validation = validation;
     }
 
     public File getFile() {
@@ -68,20 +81,29 @@ public class Testcase {
         this.file = file;
     }
 
-    public List<String> getRecords() {
-        return records;
-    }
+    //-------------------------------------------------------------------------
+    //              Factories
+    //-------------------------------------------------------------------------
 
-    public void setRecords( List<String> records ) {
-        this.records = records;
-    }
+    public MarcRecord loadRecord() throws IOException {
+        logger.entry();
 
-    public Expected getExpected() {
-        return expected;
-    }
+        try {
+            if( file == null ) {
+                return null;
+            }
 
-    public void setExpected( Expected expected ) {
-        this.expected = expected;
+            if( !file.isFile() ) {
+                return null;
+            }
+
+            File recordFile = new File( file.getParent() + "/" + request.getRecord() );
+            FileInputStream fis = new FileInputStream( recordFile );
+            return MarcRecordFactory.readRecord( IOUtils.readAll( fis, "UTF-8" ) );
+        }
+        finally {
+            logger.exit();
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -133,9 +155,8 @@ public class Testcase {
     private String distributionName;
 
     private String description;
-    private String templateName;
-    private List<String> records;
-    private Expected expected;
+    private TestcaseRequest request;
+    private List<ValidationResult> validation;
 
     /**
      * The file that this Testcase was created from.
