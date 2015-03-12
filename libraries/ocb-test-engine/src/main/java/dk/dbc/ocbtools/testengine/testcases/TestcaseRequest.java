@@ -2,32 +2,41 @@
 package dk.dbc.ocbtools.testengine.testcases;
 
 //-----------------------------------------------------------------------------
-import java.util.List;
-
 //-----------------------------------------------------------------------------
 /**
  * Created by stp on 16/02/15.
  */
-public class Expected {
-    public Expected() {
-        this.validationResults = null;
+public class TestcaseRequest {
+    public TestcaseRequest() {
+        this.templateName = null;
+        this.record = null;
     }
 
     //-------------------------------------------------------------------------
     //              Properties
     //-------------------------------------------------------------------------
 
-    public List<ValidationResult> getValidationResults() {
-        return validationResults;
+    public String getTemplateName() {
+        return templateName;
     }
 
-    public void setValidationResults( List<ValidationResult> validationResults ) {
-        this.validationResults = validationResults;
+    public void setTemplateName( String templateName ) {
+        this.templateName = templateName;
     }
+
+    public String getRecord() {
+        return record;
+    }
+
+    public void setRecord( String record ) {
+        this.record = record;
+    }
+
 
     //-------------------------------------------------------------------------
     //              Members
     //-------------------------------------------------------------------------
 
-    private List<ValidationResult> validationResults;
+    private String templateName;
+    private String record;
 }
