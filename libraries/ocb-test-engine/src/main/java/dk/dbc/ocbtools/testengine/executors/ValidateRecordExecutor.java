@@ -52,7 +52,7 @@ public class ValidateRecordExecutor implements TestExecutor {
             Map<String, String> settings = createSettings();
 
             Object jsResult = scripter.callMethod( SCRIPT_FILENAME, SCRIPT_FUNCTION,
-                                                   tc.getRequest().getTemplateName(), Json.encode( record ), settings );
+                                                   tc, Json.encode( record ), settings );
             List<ValidationResult> valErrors = Json.decodeArray( jsResult.toString(), ValidationResult.class );
 
             if( !tc.getValidation().equals( valErrors ) ) {
@@ -87,6 +87,7 @@ public class ValidateRecordExecutor implements TestExecutor {
         HashMap<String, String> settings = new HashMap<>();
         settings.put( "javascript.basedir", baseDir.getAbsolutePath() );
         settings.put( "javascript.install.name", tc.getDistributionName() );
+        settings.put( "solr.url", "" );
 
         return settings;
     }

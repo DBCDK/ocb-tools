@@ -52,9 +52,11 @@ public class RunExecutor implements SubcommandExecutor {
                 }
 
                 List<TestExecutor> executors = new ArrayList<>();
-                executors.add( new CheckTemplateExecutor( baseDir, tc ) );
                 if( tc.getValidation() != null ) {
                     executors.add( new ValidateRecordExecutor( baseDir, tc ) );
+                }
+                else {
+                    executors.add( new CheckTemplateExecutor( baseDir, tc ) );
                 }
 
                 items.add( new TestRunnerItem( tc, executors ) );

@@ -24,6 +24,7 @@ public class Testcase {
         this.name = "";
         this.distributionName = "";
         this.description = "";
+        this.setup = null;
         this.request = null;
         this.validation = null;
         this.file = null;
@@ -55,6 +56,14 @@ public class Testcase {
 
     public void setDescription( String description ) {
         this.description = description;
+    }
+
+    public TestcaseSetup getSetup() {
+        return setup;
+    }
+
+    public void setSetup( TestcaseSetup setup ) {
+        this.setup = setup;
     }
 
     public TestcaseRequest getRequest() {
@@ -155,6 +164,7 @@ public class Testcase {
     private String distributionName;
 
     private String description;
+    private TestcaseSetup setup;
     private TestcaseRequest request;
     private List<ValidationResult> validation;
 
