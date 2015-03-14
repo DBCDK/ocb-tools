@@ -6,6 +6,7 @@ package dk.dbc.ocbtools.commons.cli;
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.Subcommand;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
+import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import org.apache.commons.cli.*;
 import org.reflections.Reflections;
 import org.slf4j.ext.XLogger;
@@ -84,7 +85,10 @@ public class CliExecutor {
                             printUsage( options );
                             return;
                         }
-                        def.createExecutor( baseDir, line ).actionPerformed();
+                        final SubcommandExecutor executor = def.createExecutor( baseDir, line );
+                        if( executor != null ) {
+                            executor.actionPerformed();
+                        }
                         break;
                     }
                     else {

@@ -27,6 +27,33 @@ public class TestResult extends ArrayList<TestcaseResult> {
         return false;
     }
 
+    public long getTime() {
+        long time = 0;
+        for( TestcaseResult testcaseResult : this ) {
+            time += testcaseResult.getTime();
+        }
+
+        return time;
+    }
+
+    public int countErrors() {
+        int errors = 0;
+        for( TestcaseResult testcaseResult : this ) {
+            errors += testcaseResult.countErrors();
+        }
+
+        return errors;
+    }
+
+    public int countTests() {
+        int tests = 0;
+        for( TestcaseResult testcaseResult : this ) {
+            tests += testcaseResult.countTests();
+        }
+
+        return tests;
+    }
+
     //-------------------------------------------------------------------------
     //              Members
     //-------------------------------------------------------------------------

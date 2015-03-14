@@ -45,6 +45,25 @@ public class TestcaseResult {
         return time;
     }
 
+    public int countErrors() {
+        int errors = 0;
+        for( TestExecutorResult testExecutorResult : results ) {
+            if( testExecutorResult.getAssertionError() != null )
+                errors++;
+        }
+
+        return errors;
+    }
+
+    public int countTests() {
+        int tests = 0;
+        for( TestExecutorResult testExecutorResult : results ) {
+            tests++;
+        }
+
+        return tests;
+    }
+
     //-------------------------------------------------------------------------
     //              Members
     //-------------------------------------------------------------------------
