@@ -78,7 +78,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/../../../target/dist/bin</outputDirectory>
+                            <outputDirectory>${project.build.directory}/../../../target/dist/ocb-tools-${ocbtools.version}/bin</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${project.build.directory}</directory>
@@ -98,7 +98,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/../../../target/dist/bin</outputDirectory>
+                            <outputDirectory>${project.build.directory}/../../../target/dist/ocb-tools-${ocbtools.version}/bin</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>scripts</directory>
