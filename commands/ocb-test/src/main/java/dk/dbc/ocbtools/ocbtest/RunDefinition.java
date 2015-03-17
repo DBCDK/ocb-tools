@@ -26,7 +26,7 @@ import java.util.List;
  */
 @Subcommand( name = "run",
              description = "Udfører en, flere eller alle testcases",
-             usage = "[testcases, ...]" )
+             usage = "[options] [testcase1, testcase2, ...]" )
 public class RunDefinition implements SubcommandDefinition {
     public RunDefinition() {
     }

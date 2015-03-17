@@ -79,10 +79,10 @@ public class CliExecutor {
 
                     logger.debug( "Arguments to sub command: {}", Arrays.toString( cmdArgs ) );
 
-                    CommandLine line = parseArguments( options, cmdArgs );
+                    CommandLine line = parseArguments( subCommand, options, cmdArgs );
                     if( line != null ) {
                         if( line.hasOption( "help" ) ) {
-                            printUsage( options );
+                            printUsage( subCommand, options );
                             return;
                         }
                         final SubcommandExecutor executor = def.createExecutor( baseDir, line );
@@ -223,7 +223,7 @@ public class CliExecutor {
         }
     }
 
-    private CommandLine parseArguments( Options options, String[] args ) throws IllegalAccessException, InstantiationException {
+    private CommandLine parseArguments( Subcommand subCommand, Options options, String[] args ) throws IllegalAccessException, InstantiationException {
         logger.entry( options, args );
         CommandLineParser parser = new GnuParser();
 
@@ -231,10 +231,10 @@ public class CliExecutor {
             return parser.parse( options, args );
         } catch ( ParseException exp ) {
             if ( !isHelpInArgsList( args ) ) {
-                logger.error( "Parsing failed. Reason: " + exp.getMessage() );
+                output.error( "Parsing failed. Reason: " + exp.getMessage() );
             }
             logger.debug( "Exception: {}", exp );
-            printUsage( options );
+            printUsage( subCommand, options );
             return null;
         } finally {
             logger.exit();
@@ -260,16 +260,6 @@ public class CliExecutor {
     private void printUsage() throws InstantiationException, IllegalAccessException {
         logger.entry();
         try {
-            printUsage( null );
-        }
-        finally {
-            logger.exit();
-        }
-    }
-
-    private void printUsage( Options options ) throws InstantiationException, IllegalAccessException {
-        logger.entry( options );
-        try {
             output.info( "Usage: {}", commandUsage() );
             output.info( "" );
 
@@ -277,14 +267,19 @@ public class CliExecutor {
                 Class<?> clazz = def.getClass();
                 Subcommand subCommand = clazz.getAnnotation( Subcommand.class );
 
-                if( subCommand != null ) {
-                    logger.info( "{}: {}", subCommand.name(), subCommand.description() );
-                    if ( options != null ) {
-                        HelpFormatter formatter = new HelpFormatter();
-                        formatter.printHelp( subCommandUsage( subCommand.name() ), options );
-                    }
-                }
+                output.info( "{}: {}", subCommand.name(), subCommand.description() );
             }
+        }
+        finally {
+            logger.exit();
+        }
+    }
+
+    private void printUsage( Subcommand subCommand, Options options ) throws InstantiationException, IllegalAccessException {
+        logger.entry( options );
+        try {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp( subCommandUsage( subCommand.name() ), options );
         }
         finally {
             output.exit();
