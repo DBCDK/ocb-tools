@@ -1,9 +1,5 @@
 ocb-test
 
-    Kommandoen har følgende use cases:
-
-    * Kør en eller flere tests eller systemtests.
-
 * Syntaks
 
 +---------------------
@@ -15,39 +11,48 @@ ocb-test [delkommando] [options]
 *--------------+------------------------------------------------------------+
 || Delkommando || Beskrivelse                                               |
 *--------------+------------------------------------------------------------+
-| list         | Lister alle testcases i den aktuelle mappe og undermapper. |
-*--------------+------------------------------------------------------------+
 | js-tests     | Udfør unittests for en eller alle JavaScript-filer.        |
 *--------------+------------------------------------------------------------+
+| list         | Lister alle testcases i den aktuelle mappe og undermapper. |
+*--------------+------------------------------------------------------------+
+| run          | Kører en eller flere testcases imod valideringslogik'en    |
+*--------------+------------------------------------------------------------+
 
-* Formating code
+* Eksempler
 
-    Disse 2 eksempler er blot tests af hvordan Doxia formattere Java og json.
-
-+---------------------
-@Subcommand( name = "run",
-             description = "Kører og tester en eller alle testcases" )
-public class RunDefinition implements SubcommandDefinition {
-    public RunDefinition() {
-    }
-
-    @Override
-    public List<Option> createOptions() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public SubcommandExecutor createExecutor( CommandLine line ) {
-        return new RunExecutor( line );
-    }
-}
-+---------------------
+    Hjælp til kommandoen eller dens delkommandoer kan fås ved:
 
 +---------------------
-{
-    "obj": {
-        "prop1": "value",
-        "prop2": "value"
-    }
-}
+ocb-test --help
+ocb-test list --help
++---------------------
+
+    List testcases for alle distributioner:
+
++---------------------
+ocb-test list
++---------------------
+
+    Kør alle testcases:
+
++---------------------
+ocb-test run
++---------------------
+
+    Kør testcases med opsummering af tidsforbrug:
+
++---------------------
+ocb-test run -s
++---------------------
+
+    Kør udvalgte testcases:
+
++---------------------
+ocb-test run mandatory-fields
++---------------------
+
+    Kør testcases med opsummering af tidsforbrug:
+
++---------------------
+ocb-test run -s mandatory-fields
 +---------------------

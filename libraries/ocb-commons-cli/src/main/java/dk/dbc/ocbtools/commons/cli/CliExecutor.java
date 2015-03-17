@@ -7,6 +7,7 @@ import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.Subcommand;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
+import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import org.apache.commons.cli.*;
 import org.reflections.Reflections;
 import org.slf4j.ext.XLogger;
@@ -29,15 +30,6 @@ import java.util.Set;
 public class CliExecutor {
     public CliExecutor( String commandName ) {
         this.commandName = commandName;
-        this.baseDir = extractBaseDir( new File( "." ) );
-    }
-
-    //-------------------------------------------------------------------------
-    //              Properties
-    //-------------------------------------------------------------------------
-
-    public File getBaseDir() {
-        return this.baseDir;
     }
 
     //-------------------------------------------------------------------------
@@ -59,7 +51,8 @@ public class CliExecutor {
                 cmdArgs = Arrays.copyOfRange( args, 1, args.length );
             }
 
-            output.info( "Using Opencat-business directory: {}", baseDir != null ? baseDir.getCanonicalPath() : "(null)" );
+            OCBFileSystem fs = new OCBFileSystem();
+            output.info( "Using Opencat-business directory: {}", fs.getBaseDir() != null ? fs.getBaseDir().getCanonicalPath() : "(null)" );
             output.info( "" );
 
             boolean commandFoundAndExecuted = false;
@@ -85,7 +78,7 @@ public class CliExecutor {
                             printUsage( subCommand, options );
                             return;
                         }
-                        final SubcommandExecutor executor = def.createExecutor( baseDir, line );
+                        final SubcommandExecutor executor = def.createExecutor( fs.getBaseDir(), line );
                         if( executor != null ) {
                             executor.actionPerformed();
                         }
@@ -314,5 +307,4 @@ public class CliExecutor {
     private static final XLogger output = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
 
     private String commandName;
-    private File baseDir;
 }

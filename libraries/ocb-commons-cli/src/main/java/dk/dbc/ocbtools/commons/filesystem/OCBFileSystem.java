@@ -23,7 +23,7 @@ public class OCBFileSystem {
     }
 
     public OCBFileSystem( String path ) throws IOException {
-        this( new File( path ) );
+        this( new File( path ).getAbsoluteFile() );
     }
 
     public OCBFileSystem( File file ) throws IOException {

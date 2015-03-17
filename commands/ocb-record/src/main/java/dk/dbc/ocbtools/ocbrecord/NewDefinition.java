@@ -47,7 +47,7 @@ public class NewDefinition implements SubcommandDefinition {
 
     @Override
     public SubcommandExecutor createExecutor( File baseDir, CommandLine line ) {
-        output.entry( line );
+        output.entry( baseDir, line );
         try {
             OCBRecordData ocbRecordData = new OCBRecordData();
             ocbRecordData.setBaseDir( baseDir );

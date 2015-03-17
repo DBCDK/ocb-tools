@@ -32,7 +32,7 @@ public class ListDefinition implements SubcommandDefinition {
 
     @Override
     public SubcommandExecutor createExecutor( File baseDir, CommandLine line ) {
-        logger.entry( line );
+        logger.entry( baseDir, line );
 
         try {
             return new ListExecutor( baseDir, line.getArgList() );

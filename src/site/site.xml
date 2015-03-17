@@ -23,8 +23,13 @@
         -->
         <menu ref="reports" />
 
-        <menu name="Commands" ref="commands">
+        <menu name="Kommandoer" ref="commands">
+            <item name="ocb-record" href="cmd_ocbrecord.html" />
             <item name="ocb-test" href="cmd_ocbtest.html" />
+        </menu>
+
+        <menu name="Formater" ref="formats">
+            <item name="Testcases" href="format_testcases.html" />
         </menu>
     </body>
 </project>

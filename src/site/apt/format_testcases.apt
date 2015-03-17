@@ -1,0 +1,118 @@
+Testcases
+
+    For at kommandoen <<<ocb-test>>> kan udføre sin tests skal den have nogle beskrivelse af hvilke tests som den
+    skal prøve at udføre. Disse tests er beskrevet i en række testcase-filer.
+
+    En testcase-fil er en json-fil som beskriver en eller flere testcases som skal udføres. Denne side beskriver
+    syntaksen for disse filer.
+
+* Syntaks og placering
+
+    En testcasefil er en json-fil som indeholder et Array af objekter, da filen kan indeholde flere testcases.
+
+    Der kan oprettes lige så mange testcasefiler, som man ønsker og de kan placeret i en vilkårlig mappe struktur
+    under mappen <<<system-tests>>> under hver distribution.
+
+    Det er vigtigt at placere testcasen under den rigtige distribution, da det er distributionen som definere hvilke
+    skabeloner og JS-logik som testen afvikles på.
+
+    Eksempel:
+
++---------------------
+- opencat-business
+| - distributions
+  | - fbs
+    | - system-tests
+      | - books
+        | - single.json
+        | - main.json
+        | - volume.json
+      | - mandatory-fields.json
++---------------------
+
+    Eksemplet viser 4 testcasefiler under distributionen <<<fbs>>>. 3 for test af bøger og en med tests af obligatoriske felter
+    for alle skabelonerne i distributionen <<<fbs>>>.
+
+** Definition af en testcase
+
+    En testcase er et json-objekter som en række properties, som beskriver hvordan testen skal udføres og dets forventet output.
+
+    Samlet set kan en testcase se således ud:
+
++---------------------
+{
+    "name": "<testcasens navn>",
+    "description": "<beskrivelse af testcasen>",
+    "setup": {
+        "rawrepo": [
+            {
+                "record": "<filnavn på en post som skal være gemt i råpostrepositoriet>"
+            }
+        ],
+        "solr": [
+            {
+                "query": "<query som skal hitte i solr>",
+                "numFound": <antal hits for query'en>
+            }
+        ]
+    },
+    "request": {
+        "templateName": "<skabelonens navn>",
+        "record": "<filnavn på den post som skal testes>"
+    },
+    "validation": [
+        {
+            "type": "ERROR",
+            "params": {
+                "url": "http://www.kat-format.dk/danMARC2/Danmarc2.9.htm",
+                "message": "Delfelt 008o må ikke anvendes i posten '5 161 764 9', da delfeltet allerede er anvendt i flerbindsværket.",
+                "fieldno": 3,
+                "subfieldno": 5
+            }
+        }
+    ]
+}
++---------------------
+
+    Følgende properties er obligatoriske:
+
+    * name
+
+    * description
+
+    * request
+
+    * validation
+
+    Disse properties er valgfrie:
+
+    * setup
+
+    * setup -> rawrepo
+
+    * setup -> solr
+
+    <<<validation>>> indeholder de forventede valideringsfejl. I strukturen er følgende valgfrit:
+
+    * params -> fieldno
+
+    * params -> subfieldno
+
+** Poster
+
+    Poster er refereret i testcasen via deres filnavn. Filen antages være i linieformat i tegnsættet UTF-8.
+
+    Der kan angives en relativ path til filen. Denne path skal være relativ i forhold til den mappe som testcasefilen
+    er placeret i.
+
+** Opslag i solr
+
+    Hvis valideringslogikken laver et opslag i solr som ikke er angivet i testcasen gives en specifik fejlmeddelelse om dette.
+
+    Ellers returneres valideringsfejl på normal vis ved "opslag" i solr, ved at logikken simulere et opslag i solr ud fra de
+    værdier, som er angivet i testcasen.
+
+** Opslag i råpostrepositoriet
+
+    Som ved solr er opslag i råpostrepositoriet simuleret ved at anvende de værdier som er angivet i testcasen. Man kan sige at
+    vi anvender testcasen som råpostrepositorie i stedet for en rigtig database.
