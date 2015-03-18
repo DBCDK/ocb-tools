@@ -134,7 +134,9 @@ public class JUnitReport implements TestReport {
                 Element testcaseElement = doc.createElement( "testcase" );
 
                 testcaseElement.setAttribute( "time", String.format( "%s", testExecutorResult.getTime() / 1000.0 ) );
-                testcaseElement.setAttribute( "classname", testcaseResult.getTestcase().getName() );
+
+                String classname = testcaseResult.getTestcase().getDistributionName() + "." + testcaseResult.getTestcase().getName();
+                testcaseElement.setAttribute( "classname", classname );
                 testcaseElement.setAttribute( "name", testExecutorResult.getExecutor().getClass().getName() );
 
                 if( testExecutorResult.getAssertionError() != null ) {
