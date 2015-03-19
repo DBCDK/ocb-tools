@@ -3,12 +3,10 @@ package dk.dbc.ocbtools.testengine.testcases;
 
 //-----------------------------------------------------------------------------
 
-import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 //-----------------------------------------------------------------------------
@@ -71,18 +69,10 @@ public class ValidationResult {
 
     @Override
     public String toString() {
-        logger.entry();
-
-        try {
-            return Json.encode( this );
-        }
-        catch( IOException ex ) {
-            output.error( "Unable to encode ValidationResult", ex );
-            return "";
-        }
-        finally {
-            logger.exit();
-        }
+        return "ValidationResult{" +
+                "type=" + type +
+                ", params=" + params +
+                '}';
     }
 
     //-------------------------------------------------------------------------

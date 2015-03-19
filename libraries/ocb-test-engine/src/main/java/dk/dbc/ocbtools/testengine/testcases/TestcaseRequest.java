@@ -32,6 +32,13 @@ public class TestcaseRequest {
         this.record = record;
     }
 
+    @Override
+    public String toString() {
+        return "TestcaseRequest{" +
+                "templateName='" + templateName + '\'' +
+                ", record='" + record + '\'' +
+                '}';
+    }
 
     //-------------------------------------------------------------------------
     //              Members

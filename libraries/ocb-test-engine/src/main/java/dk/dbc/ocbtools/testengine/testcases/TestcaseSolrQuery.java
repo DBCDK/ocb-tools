@@ -29,6 +29,13 @@ public class TestcaseSolrQuery {
         this.numFound = numFound;
     }
 
+    @Override
+    public String toString() {
+        return "TestcaseSolrQuery{" +
+                "query='" + query + '\'' +
+                ", numFound=" + numFound +
+                '}';
+    }
 
     //-------------------------------------------------------------------------
     //              Members
