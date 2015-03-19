@@ -5,13 +5,11 @@ package dk.dbc.ocbtools.commons.filesystem;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 //-----------------------------------------------------------------------------
 /**
@@ -79,6 +77,26 @@ public class OCBFileSystem {
         }
         finally {
             logger.exit( result );
+        }
+    }
+
+    /**
+     * Loads a properties file from the baseDir of this file system.
+     */
+    public Properties loadSettings( String filename ) throws IOException {
+        logger.entry();
+
+        try {
+            String dirPath = baseDir.getCanonicalFile() + "/etc";
+
+            Properties props = new Properties();
+            FileInputStream fileInputStream = new FileInputStream( dirPath + "/" + filename );
+            props.load( fileInputStream );
+
+            return props;
+        }
+        finally {
+            logger.exit();
         }
     }
 

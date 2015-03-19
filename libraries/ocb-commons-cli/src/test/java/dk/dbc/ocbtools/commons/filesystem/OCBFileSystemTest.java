@@ -54,6 +54,14 @@ public class OCBFileSystemTest {
         assertEquals( expected, actual );
     }
 
+    @Test
+    public void testLoadSettings() throws Exception {
+        OCBFileSystem instance = newInstance();
+
+        Properties settings = instance.loadSettings( "servers.properties" );
+        assertEquals( "http://ifish_i01:20080", settings.getProperty( "updateservice.dataio.url" ) );
+    }
+
     //-------------------------------------------------------------------------
     //              Helpers
     //-------------------------------------------------------------------------
