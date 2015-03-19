@@ -8,6 +8,7 @@ import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.cli.CliException;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.testengine.executors.CheckTemplateExecutor;
+import dk.dbc.ocbtools.testengine.executors.RemoteValidateExecutor;
 import dk.dbc.ocbtools.testengine.executors.TestExecutor;
 import dk.dbc.ocbtools.testengine.executors.ValidateRecordExecutor;
 import dk.dbc.ocbtools.testengine.reports.TestReport;
@@ -30,11 +31,23 @@ import java.util.List;
  * Created by stp on 11/03/15.
  */
 public class RunExecutor implements SubcommandExecutor {
-    public RunExecutor( File baseDir, List<String> tcNames, List<TestReport> reports ) {
+    public RunExecutor( File baseDir ) {
         this.baseDir = baseDir;
-        this.tcNames = tcNames;
-        this.reports = reports;
+        this.useRemote = false;
+        this.tcNames = null;
+        this.reports = null;
+    }
 
+    public void setUseRemote( boolean useRemote ) {
+        this.useRemote = useRemote;
+    }
+
+    public void setTcNames( List<String> tcNames ) {
+        this.tcNames = tcNames;
+    }
+
+    public void setReports( List<TestReport> reports ) {
+        this.reports = reports;
     }
 
     @Override
@@ -52,11 +65,19 @@ public class RunExecutor implements SubcommandExecutor {
                 }
 
                 List<TestExecutor> executors = new ArrayList<>();
-                if( tc.getValidation() != null ) {
-                    executors.add( new ValidateRecordExecutor( baseDir, tc ) );
+
+                if( !this.useRemote ) {
+                    if( tc.getValidation() != null ) {
+                        executors.add( new ValidateRecordExecutor( baseDir, tc ) );
+                    }
+                    else {
+                        executors.add( new CheckTemplateExecutor( baseDir, tc ) );
+                    }
                 }
                 else {
-                    executors.add( new CheckTemplateExecutor( baseDir, tc ) );
+                    if( tc.getValidation() != null ) {
+                        executors.add( new RemoteValidateExecutor( tc ) );
+                    }
                 }
 
                 items.add( new TestRunnerItem( tc, executors ) );
@@ -104,6 +125,9 @@ public class RunExecutor implements SubcommandExecutor {
     private static final XLogger output = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
 
     private File baseDir;
+
+    private boolean useRemote;
     private List<String> tcNames;
+
     private List<TestReport> reports;
 }

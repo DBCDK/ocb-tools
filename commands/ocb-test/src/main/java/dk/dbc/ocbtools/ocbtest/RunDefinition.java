@@ -36,6 +36,8 @@ public class RunDefinition implements SubcommandDefinition {
         List<Option> options = new ArrayList<>();
 
         Option option;
+        option = new Option( "r", "remote", false, "Udfør de enkelte testcases imod en remote installation af UpdateService" );
+        options.add( option );
         option = new Option( "s", "summary", false, "Udskriver en opsummering af testen efter den er udført." );
         options.add( option );
 
@@ -59,7 +61,12 @@ public class RunDefinition implements SubcommandDefinition {
             JUnitReport junitReport = new JUnitReport( new File( baseDir.getCanonicalPath() + "/target/surefire-reports" ) );
             reports.add( junitReport );
 
-            return new RunExecutor( baseDir, line.getArgList(), reports );
+            RunExecutor runExecutor = new RunExecutor( baseDir );
+            runExecutor.setUseRemote( line.hasOption( "r" ) );
+            runExecutor.setTcNames(  line.getArgList() );
+            runExecutor.setReports( reports );
+
+            return runExecutor;
         }
         catch( IOException ex ) {
             output.error( "Unable to execute command 'run': " + ex.getMessage(), ex );
