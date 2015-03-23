@@ -54,22 +54,7 @@ public class ValidateRecordExecutor implements TestExecutor {
             Object jsResult = scripter.callMethod( SCRIPT_FILENAME, SCRIPT_FUNCTION,
                                                    tc, Json.encode( record ), settings );
             List<ValidationResult> valErrors = Json.decodeArray( jsResult.toString(), ValidationResult.class );
-
-            if( !tc.getValidation().equals( valErrors ) ) {
-                if( tc.getValidation().size() != valErrors.size() ) {
-                    throw new AssertionError( String.format( "Number of validation errors differ.\nExpected:\n%s\nActual:\n%s\n", Json.encodePretty( tc.getValidation() ), Json.encodePretty( valErrors ) ) );
-                }
-
-                for( int i = 0; i < tc.getValidation().size(); i++ ) {
-                    if( !tc.getValidation().get( i ).equals( valErrors.get( i ) ) ) {
-                        throw new AssertionError( String.format( "Validation error at position %s differ.\n" +
-                                "Expected:\n" +
-                                "%s\n" +
-                                "Actual:\n" +
-                                "%s\n", i + 1, Json.encodePretty( tc.getValidation().get( i ) ), Json.encodePretty( valErrors.get( i ) ) ) );
-                    }
-                }
-            }
+            Asserter.assertValidation( tc.getValidation(), valErrors );
         }
         catch( IOException | ScripterException ex ) {
             throw new AssertionError( String.format( "Fatal error when checking template for testcase %s", tc.getName() ), ex );

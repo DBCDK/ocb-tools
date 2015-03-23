@@ -2,6 +2,9 @@
 package dk.dbc.ocbtools.commons.filesystem;
 
 //-----------------------------------------------------------------------------
+import dk.dbc.iscrum.records.MarcRecord;
+import dk.dbc.iscrum.records.MarcRecordFactory;
+import dk.dbc.iscrum.utils.IOUtils;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -77,6 +80,30 @@ public class OCBFileSystem {
         }
         finally {
             logger.exit( result );
+        }
+    }
+
+    /**
+     * Loads a MarcRecord from a file
+     */
+    public MarcRecord loadRecord( File baseDir, String filename ) throws IOException {
+        logger.entry();
+
+        try {
+            if( baseDir == null ) {
+                throw new IllegalArgumentException( "baseDir can not be (null)" );
+            }
+
+            if( !baseDir.isDirectory() ) {
+                return null;
+            }
+
+            File recordFile = new File( baseDir.getCanonicalPath() + "/" + filename );
+            FileInputStream fis = new FileInputStream( recordFile );
+            return MarcRecordFactory.readRecord( IOUtils.readAll( fis, "UTF-8" ) );
+        }
+        finally {
+            logger.exit();
         }
     }
 

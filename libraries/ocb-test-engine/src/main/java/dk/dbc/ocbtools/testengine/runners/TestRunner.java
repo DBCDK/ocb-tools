@@ -59,13 +59,23 @@ public class TestRunner {
 
                 try {
                     exec.setup();
-                    exec.executeTests();
-                    exec.teardown();
 
-                    watch.stop();
-                    TestExecutorResult testExecutorResult = new TestExecutorResult( 0, exec, null );
-                    testExecutorResult.setTime( watch.getElapsedTime() );
-                    testExecutorResults.add( testExecutorResult );
+                    try {
+                        exec.executeTests();
+
+                        watch.stop();
+                        TestExecutorResult testExecutorResult = new TestExecutorResult( 0, exec, null );
+                        testExecutorResult.setTime( watch.getElapsedTime() );
+                        testExecutorResults.add( testExecutorResult );
+                    }
+                    catch( AssertionError ex ) {
+                        watch.stop();
+                        TestExecutorResult testExecutorResult = new TestExecutorResult( 0, exec, ex );
+                        testExecutorResult.setTime( watch.getElapsedTime() );
+                        testExecutorResults.add( testExecutorResult );
+                    }
+
+                    exec.teardown();
                 }
                 catch( AssertionError ex ) {
                     watch.stop();

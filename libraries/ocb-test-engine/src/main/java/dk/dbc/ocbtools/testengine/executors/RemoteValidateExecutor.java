@@ -6,6 +6,7 @@ package dk.dbc.ocbtools.testengine.executors;
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.testengine.testcases.Testcase;
+import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.updateservice.client.BibliographicRecordFactory;
 import dk.dbc.updateservice.client.UpdateService;
 import dk.dbc.updateservice.integration.service.*;
@@ -18,6 +19,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
@@ -33,10 +36,72 @@ public class RemoteValidateExecutor implements TestExecutor {
 
     @Override
     public void setup() {
+        logger.entry();
+
+        try {
+            if( !hasRawRepoSetup( tc ) ) {
+                return;
+            }
+
+            OCBFileSystem fs = new OCBFileSystem();
+            Properties settings = fs.loadSettings( "servers.properties" );
+
+            RawRepo.setupDatabase( settings );
+
+            try( Connection conn = RawRepo.getConnection( settings ) ) {
+                RawRepo rawRepo = null;
+
+                try {
+                    rawRepo = new RawRepo( conn );
+                    rawRepo.saveRecords( tc.getFile().getParentFile(), tc.getSetup().getRawrepo() );
+
+                    conn.commit();
+                }
+                catch( JAXBException | RawRepoException ex ) {
+                    if( rawRepo != null ) {
+                        conn.rollback();
+                    }
+
+                    output.error( "Unable to run testcase '{}': {}", tc.getName(), ex.getMessage() );
+                    logger.debug( "Stacktrace:", ex );
+                }
+            }
+
+            if( hasSolrSetup( tc ) ) {
+                Solr.waitForIndex( settings );
+            }
+        }
+        catch( ClassNotFoundException | SQLException | IOException ex ) {
+            output.error( "Unable to setup testcase '{}': {}", tc.getName(), ex.getMessage() );
+            logger.debug( "Stacktrace:", ex );
+        }
+        finally {
+            logger.exit();
+        }
     }
 
     @Override
     public void teardown() {
+        logger.entry();
+
+        try {
+            if( !hasRawRepoSetup( tc ) ) {
+                return;
+            }
+
+            OCBFileSystem fs = new OCBFileSystem();
+            Properties settings = fs.loadSettings( "servers.properties" );
+
+            RawRepo.teardownDatabase( settings );
+            Solr.clearIndex( settings );
+        }
+        catch( ClassNotFoundException | SQLException | IOException ex ) {
+            output.error( "Unable to teardown testcase '{}': {}", tc.getName(), ex.getMessage() );
+            logger.debug( "Stacktrace:", ex );
+        }
+        finally {
+            logger.exit();
+        }
     }
 
     @Override
@@ -45,10 +110,10 @@ public class RemoteValidateExecutor implements TestExecutor {
 
         try {
             assertNotNull( "Property'en 'request' er obligatorisk.", tc.getRequest() );
-            assertNotNull( "Property'en 'authentication' er obligatorisk.", tc.getRequest().getAuthentication() );
-            assertNotNull( "Property'en 'group' er obligatorisk.", tc.getRequest().getAuthentication().getGroup() );
-            assertNotNull( "Property'en 'user' er obligatorisk.", tc.getRequest().getAuthentication().getUser() );
-            assertNotNull( "Property'en 'password' er obligatorisk.", tc.getRequest().getAuthentication().getPassword() );
+            assertNotNull( "Property'en 'request.authentication' er obligatorisk.", tc.getRequest().getAuthentication() );
+            assertNotNull( "Property'en 'request.authentication.group' er obligatorisk.", tc.getRequest().getAuthentication().getGroup() );
+            assertNotNull( "Property'en 'request.authentication.user' er obligatorisk.", tc.getRequest().getAuthentication().getUser() );
+            assertNotNull( "Property'en 'request.authentication.password' er obligatorisk.", tc.getRequest().getAuthentication().getPassword() );
 
             OCBFileSystem fs = new OCBFileSystem();
             Properties settings = fs.loadSettings( "servers.properties" );
@@ -111,6 +176,44 @@ public class RemoteValidateExecutor implements TestExecutor {
         }
         finally {
             logger.exit();
+        }
+    }
+
+    private boolean hasRawRepoSetup( Testcase tc ) {
+        logger.entry( tc );
+
+        boolean result = true;
+        try {
+            if( tc.getSetup() == null ) {
+                result = false;
+            }
+            else if( tc.getSetup().getRawrepo() == null ) {
+                result = false;
+            }
+
+            return result;
+        }
+        finally {
+            logger.exit( result );
+        }
+    }
+
+    private boolean hasSolrSetup( Testcase tc ) {
+        logger.entry( tc );
+
+        boolean result = true;
+        try {
+            if( tc.getSetup() == null ) {
+                result = false;
+            }
+            else if( tc.getSetup().getSolr() == null ) {
+                result = false;
+            }
+
+            return result;
+        }
+        finally {
+            logger.exit( result );
         }
     }
 
