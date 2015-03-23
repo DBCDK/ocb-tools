@@ -135,9 +135,14 @@ public class OCBRecordData {
                 ", outputFile='" + outputFile + '\'' +
                 ", template='" + template + '\'' +
                 ", format='" + format + '\'' +
+                ", formatType=" + formatType +
                 ", faustNumber='" + faustNumber + '\'' +
                 ", buildUrl='" + buildUrl + '\'' +
                 ", openNumberRollUrl='" + openNumberRollUrl + '\'' +
+                ", inputFile='" + inputFile + '\'' +
+                ", inputFileContentString='" + inputFileContentString + '\'' +
+                ", inputFileContentList=" + inputFileContentList +
+                ", inputEncoding='" + inputEncoding + '\'' +
                 '}';
     }
 }

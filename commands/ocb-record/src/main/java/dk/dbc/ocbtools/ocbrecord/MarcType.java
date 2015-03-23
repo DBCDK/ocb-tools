@@ -25,6 +25,10 @@ public enum MarcType {
         throw new IllegalArgumentException(v);
     }
 
+    public String typeToString() {
+        return value;
+    }
+
     @Override
     public String toString() {
         return "MarcType{" +

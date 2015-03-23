@@ -75,8 +75,8 @@ public class NewExecutor implements SubcommandExecutor {
             ocbRecordData = readPropertiesFile( ocbRecordData );
             ocbRecordData = parseFormatFromInput( ocbRecordData );
             ocbRecordData = getFaustNumberFromOpenNumberRoll( ocbRecordData );
-            printProgramInfo( ocbRecordData );
             validateProgramParameters( ocbRecordData );
+            printProgramInfo( ocbRecordData );
             ocbRecordData = readInputFileIntoData( ocbRecordData );
 
             ServiceScripter serviceScripter = getNewScripterService( ocbRecordData );
@@ -123,8 +123,6 @@ public class NewExecutor implements SubcommandExecutor {
                     default:
                         throw new CliException( "Fejl ved bestemmelse af input filformat" );
                 }
-                output.info( "\n------------------------ getInputFileAsJsonString ORIGINAL ------------------------\n" + ocbRecordData.getInputFileContentString() + "\n------------------------ getInputFileAsJsonString ORIGINAL ------------------------");
-                output.info( "\n------------------------ getInputFileAsJsonString JSON ------------------------\n" + res + "\n------------------------ getInputFileAsJsonString JSON ------------------------");
             }
             return res;
         } finally {
@@ -365,13 +363,23 @@ public class NewExecutor implements SubcommandExecutor {
             output.info( "ocb-record parametre:");
             output.info( "Distribution: " + ocbRecordData.getDistribution() );
             if ( ocbRecordData.getOutputFile() != null ) {
-                output.info( "Filnavn.....: " + ocbRecordData.getOutputFile() );
+                output.info( "Output filnavn: " + ocbRecordData.getOutputFile() );
             } else {
-                output.info( "Filnavn.....: n/a (direkte til skærm)" );
+                output.info( "Output filnavn: ingen (direkte til skærm)" );
             }
-            output.info( "Skabelon....: " + ocbRecordData.getTemplate() );
-            output.info( "Format......: " + ocbRecordData.getFormat() );
-            output.info( "Faust nummer: " + ocbRecordData.getFaustNumber() );
+            if ( ocbRecordData.getInputFile() != null ) {
+                output.info( "Input filnavn.: " + ocbRecordData.getInputFile() );
+            } else {
+                output.info( "Input filnavn.: ingen (ny post genereres)" );
+            }
+            output.info( "Skabelon......: " + ocbRecordData.getTemplate() );
+            output.info( "Format........: " + ocbRecordData.getFormatType().typeToString() );
+            output.info( "Faust nummer..: " + ocbRecordData.getFaustNumber() );
+            if ( ocbRecordData.getInputEncoding() != null && ocbRecordData.getInputFile() != null ) {
+                output.info( "Filkodning....: " + ocbRecordData.getInputEncoding() );
+            } else {
+                output.info( "Filkodning....: ignoreret (ingen inputfil angivet)" );
+            }
         } finally {
             output.exit();
         }
@@ -403,6 +411,9 @@ public class NewExecutor implements SubcommandExecutor {
             if ( ocbRecordData.getInputFile() != null ) {
                 if ( !validateProgramParametersInputFile( ocbRecordData ) ) {
                     throw new CliException( "Kunne ikke finde input fil: " + ocbRecordData.getTemplate() );
+                }
+                if ( !validateProgramParametersCharset( ocbRecordData ) ) {
+                    throw new  CliException( "Ukendst fil koding: " + ocbRecordData.getInputEncoding() );
                 }
             }
         } finally {
@@ -479,14 +490,14 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
-    private Boolean validateProgramParametersFormat( OCBRecordData ocbRecordData ) throws CliException {
+    private Boolean validateProgramParametersFormat( OCBRecordData ocbRecordData ) {
         output.entry( ocbRecordData );
-        Boolean res = false;
+        Boolean res = true;
         try {
             if ( ocbRecordData.getFormat() != null ) {
                 String format = ocbRecordData.getFormat();
-                if ( ( "MARC".equalsIgnoreCase( format ) || "MARCXCHANGE".equalsIgnoreCase( format ) || "JSON".equalsIgnoreCase( format ) ) ) {
-                    res = true;
+                if ( !( "MARC".equalsIgnoreCase( format ) || "MARCXCHANGE".equalsIgnoreCase( format ) || "JSON".equalsIgnoreCase( format ) ) ) {
+                    res = false;
                 }
             }
             return res;
@@ -495,13 +506,44 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
-    private Boolean validateProgramParametersInputFile( OCBRecordData ocbRecordData ) throws CliException {
+    private Boolean validateProgramParametersInputFile( OCBRecordData ocbRecordData ) {
         output.entry( ocbRecordData );
         Boolean res = false;
         try {
             if ( ocbRecordData.getInputFile() != null ) {
                 File file = new File( ocbRecordData.getInputFile() );
                 res = file.exists();
+            }
+            return res;
+        } finally {
+            output.exit( res );
+        }
+    }
+
+    private Boolean validateProgramParametersCharset( OCBRecordData ocbRecordData ) {
+        output.entry( ocbRecordData );
+        Boolean res = true;
+        try {
+            if ( ocbRecordData.getInputEncoding() != null ) {
+                if ( !( "UTF-8".equalsIgnoreCase( ocbRecordData.getInputEncoding() )
+                        || "UTF8".equalsIgnoreCase( ocbRecordData.getInputEncoding() )
+                        || "LATIN-1".equalsIgnoreCase( ocbRecordData.getInputEncoding() )
+                        || "LATIN1".equalsIgnoreCase( ocbRecordData.getInputEncoding() ) ) ) {
+                    res = false;
+                }
+            }
+            return res;
+        } finally {
+            output.exit( res );
+        }
+    }
+
+    private Boolean validateProgramParametersInputAndCharset( OCBRecordData ocbRecordData )  {
+        output.entry( ocbRecordData );
+        Boolean res = true;
+        try {
+            if ( ocbRecordData.getInputEncoding() != null && ocbRecordData.getInputFile() == null ) {
+                res = false;
             }
             return res;
         } finally {
@@ -546,7 +588,7 @@ public class NewExecutor implements SubcommandExecutor {
             if ( ocbRecordData.getInputEncoding() != null ) {
                 if ( "UTF8".equalsIgnoreCase( ocbRecordData.getInputEncoding() ) ) {
                     charset = Charset.forName( "UTF-8" );
-                } else if ( "ISO8859".equalsIgnoreCase( ocbRecordData.getInputEncoding() ) ) {
+                } else if ( "LATIN1".equalsIgnoreCase( ocbRecordData.getInputEncoding() ) ) {
                     charset = Charset.forName( "ISO-8859-1" );
                 } else {
                     charset = Charset.forName( "UTF-8" );
@@ -587,7 +629,7 @@ public class NewExecutor implements SubcommandExecutor {
                 res.setInputFileContentList( inputFileContentStringList );
                 String inputFileContentString = getInputFileAsString( res );
                 res.setInputFileContentString( inputFileContentString );
-                output.info( "Input type: " + detectInputFileContentType( ocbRecordData ) );
+                output.info( "Detekteret følgende input filtype: " + detectInputFileContentType( ocbRecordData ).typeToString() );
             }
             return res;
         } finally {
@@ -599,7 +641,7 @@ public class NewExecutor implements SubcommandExecutor {
         output.entry( ocbRecordData );
         OCBRecordData res = ocbRecordData;
         try {
-            if ( ocbRecordData.getFormat() != null ) {
+            if ( res.getFormat() != null ) {
                 if ( "MARC".equalsIgnoreCase( ocbRecordData.getFormat() ) ) {
                     res.setFormatType( MarcType.MARC );
                 } else if ( "MARCXCHANGE".equalsIgnoreCase( ocbRecordData.getFormat() ) ) {

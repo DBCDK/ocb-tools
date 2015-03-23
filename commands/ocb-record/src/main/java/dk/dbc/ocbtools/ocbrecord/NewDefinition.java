@@ -40,7 +40,7 @@ public class NewDefinition implements SubcommandDefinition {
         options.add( option );
         option = new Option( "i", "input", true, "Fil der skal bruges som base for ny post. Hvis denne parameter ikke angives oprettes en ny post ud fra den angivne skabelon." );
         options.add( option );
-        option = new Option( "c", "charset", true, "Fil kodning. Hvis denne parameter ikke angives antages UTF8. Mulige værdier: UTF8, ISO8859." );
+        option = new Option( "c", "charset", true, "Fil kodning. Hvis denne parameter ikke angives antages UTF8. Mulige værdier: UTF8, LATIN1." );
         options.add( option );
         return options;
     }
