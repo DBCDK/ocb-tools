@@ -6,10 +6,12 @@ package dk.dbc.ocbtools.testengine.executors;
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.testengine.testcases.Testcase;
+import dk.dbc.ocbtools.testengine.testcases.TestcaseSolrQuery;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.updateservice.client.BibliographicRecordFactory;
 import dk.dbc.updateservice.client.UpdateService;
-import dk.dbc.updateservice.integration.service.*;
+import dk.dbc.updateservice.service.api.*;
+import org.perf4j.StopWatch;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 import org.xml.sax.SAXException;
@@ -124,18 +126,30 @@ public class RemoteValidateExecutor implements TestExecutor {
 
             UpdateRecordRequest request = createRequest();
 
-            logger.debug( "Sending request '{}' to {}", request.getTrackingId(), url );
-            UpdateRecordResult response = caller.createPort().updateRecord( request );
+            StopWatch watch = new StopWatch();
 
-            Asserter.assertValidation( tc.getValidation(), response.getValidateInstance() );
-            if( tc.getValidation().isEmpty() ) {
-                assertEquals( UpdateStatusEnum.VALIDATE_ONLY, response.getUpdateStatus() );
-                assertNull( response.getValidateInstance() );
+            logger.debug( "Sending request '{}' to {}", request.getTrackingId(), url );
+            watch.start();
+            UpdateRecordResult response = caller.createPort().updateRecord( request );
+            watch.stop();
+            logger.debug( "Receive response in {} ms: {}", watch.getElapsedTime(), response );
+
+            watch.start();
+            try {
+                Asserter.assertValidation( tc.getValidation(), response.getValidateInstance() );
+                if( tc.getValidation().isEmpty() ) {
+                    assertEquals( UpdateStatusEnum.VALIDATE_ONLY, response.getUpdateStatus() );
+                    assertNull( response.getValidateInstance() );
+                }
+                else {
+                    assertEquals( UpdateStatusEnum.VALIDATION_ERROR, response.getUpdateStatus() );
+                }
+                assertNull( response.getError() );
             }
-            else {
-                assertEquals( UpdateStatusEnum.VALIDATION_ERROR, response.getUpdateStatus() );
+            finally {
+                watch.stop();
+                logger.debug( "Test response in {} ms", watch.getElapsedTime() );
             }
-            assertNull( response.getError() );
         }
         catch( SAXException | ParserConfigurationException | JAXBException | IOException ex ) {
             output.error( "Unable to run testcase '{}': {}", tc.getName(), ex.getMessage() );
@@ -204,10 +218,18 @@ public class RemoteValidateExecutor implements TestExecutor {
         boolean result = true;
         try {
             if( tc.getSetup() == null ) {
-                result = false;
+                return result = false;
             }
-            else if( tc.getSetup().getSolr() == null ) {
-                result = false;
+
+            if( tc.getSetup().getSolr() == null ) {
+                return result = false;
+            }
+
+            for( TestcaseSolrQuery solrQuery : tc.getSetup().getSolr() ) {
+                result = solrQuery.getNumFound() > 0;
+                if( result ) {
+                    return result;
+                }
             }
 
             return result;

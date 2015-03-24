@@ -6,9 +6,9 @@ package dk.dbc.ocbtools.testengine.executors;
 import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.ocbtools.testengine.testcases.ValidationResult;
 import dk.dbc.ocbtools.testengine.testcases.ValidationResultType;
-import dk.dbc.updateservice.integration.service.ValidateEntry;
-import dk.dbc.updateservice.integration.service.ValidateInstance;
-import dk.dbc.updateservice.integration.service.ValidateWarningOrErrorEnum;
+import dk.dbc.updateservice.service.api.ValidateEntry;
+import dk.dbc.updateservice.service.api.ValidateInstance;
+import dk.dbc.updateservice.service.api.ValidateWarningOrErrorEnum;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
