@@ -12,6 +12,13 @@
     <artifactId>ocb-test-engine</artifactId>
     <name>OCB-Test-Engine</name>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>mavenrepo.dbc.dk</id>
+            <url>http://mavenrepo.dbc.dk/content/groups/public</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <dependencies>
         <dependency>
             <groupId>org.postgresql</groupId>
