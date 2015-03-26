@@ -8,6 +8,7 @@ import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.ocbtools.scripter.Distribution;
 import dk.dbc.ocbtools.scripter.ScripterException;
 import dk.dbc.ocbtools.scripter.ServiceScripter;
+import dk.dbc.ocbtools.testengine.asserters.Asserter;
 import dk.dbc.ocbtools.testengine.testcases.Testcase;
 import dk.dbc.ocbtools.testengine.testcases.ValidationResult;
 import org.slf4j.ext.XLogger;
@@ -22,7 +23,9 @@ import java.util.Map;
 
 //-----------------------------------------------------------------------------
 /**
- * Created by stp on 19/02/15.
+ * Executor to test a testcase against the JavaScript logic.
+ * <p/>
+ * No external web services are used in this executor.
  */
 public class ValidateRecordExecutor implements TestExecutor {
     public ValidateRecordExecutor( File baseDir, Testcase tc ) {
@@ -33,6 +36,11 @@ public class ValidateRecordExecutor implements TestExecutor {
     //-------------------------------------------------------------------------
     //              TestExecutor interface
     //-------------------------------------------------------------------------
+
+    @Override
+    public String name() {
+        return "Validate record with locale JavaScript";
+    }
 
     @Override
     public void setup() {
@@ -54,7 +62,7 @@ public class ValidateRecordExecutor implements TestExecutor {
             Object jsResult = scripter.callMethod( SCRIPT_FILENAME, SCRIPT_FUNCTION,
                                                    tc, Json.encode( record ), settings );
             List<ValidationResult> valErrors = Json.decodeArray( jsResult.toString(), ValidationResult.class );
-            Asserter.assertValidation( tc.getValidation(), valErrors );
+            Asserter.assertValidation( tc.getExpected().getValidation(), valErrors );
         }
         catch( IOException | ScripterException ex ) {
             throw new AssertionError( String.format( "Fatal error when checking template for testcase %s", tc.getName() ), ex );

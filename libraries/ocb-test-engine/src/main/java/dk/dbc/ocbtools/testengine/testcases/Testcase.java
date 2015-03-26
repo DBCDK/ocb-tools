@@ -13,7 +13,6 @@ import org.slf4j.ext.XLoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
 
 //-----------------------------------------------------------------------------
 /**
@@ -26,7 +25,7 @@ public class Testcase {
         this.description = "";
         this.setup = null;
         this.request = null;
-        this.validation = null;
+        this.expected = null;
         this.file = null;
     }
 
@@ -74,12 +73,12 @@ public class Testcase {
         this.request = request;
     }
 
-    public List<ValidationResult> getValidation() {
-        return validation;
+    public TestcaseExpectedResult getExpected() {
+        return expected;
     }
 
-    public void setValidation( List<ValidationResult> validation ) {
-        this.validation = validation;
+    public void setExpected( TestcaseExpectedResult expected ) {
+        this.expected = expected;
     }
 
     public File getFile() {
@@ -166,7 +165,7 @@ public class Testcase {
     private String description;
     private TestcaseSetup setup;
     private TestcaseRequest request;
-    private List<ValidationResult> validation;
+    private TestcaseExpectedResult expected;
 
     /**
      * The file that this Testcase was created from.

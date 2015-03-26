@@ -2,30 +2,28 @@
 package dk.dbc.ocbtools.testengine.testcases;
 
 //-----------------------------------------------------------------------------
-import java.util.ArrayList;
 import java.util.List;
 
 //-----------------------------------------------------------------------------
 /**
- * Represents a setup structure in a testcase json file.
+ * Defines the expected update result of a testcase in json.
  */
-public class TestcaseSetup {
-    public TestcaseSetup() {
-        this.holdings = new ArrayList<>();
+public class TestcaseExpectedUpdateResult {
+    public TestcaseExpectedUpdateResult() {
+        this.errors = null;
         this.rawrepo = null;
-        this.solr = null;
     }
 
     //-------------------------------------------------------------------------
     //              Properties
     //-------------------------------------------------------------------------
 
-    public List<Integer> getHoldings() {
-        return holdings;
+    public List<ValidationResult> getErrors() {
+        return errors;
     }
 
-    public void setHoldings( List<Integer> holdings ) {
-        this.holdings = holdings;
+    public void setErrors( List<ValidationResult> errors ) {
+        this.errors = errors;
     }
 
     public List<TestcaseRecord> getRawrepo() {
@@ -36,20 +34,16 @@ public class TestcaseSetup {
         this.rawrepo = rawrepo;
     }
 
-    public List<TestcaseSolrQuery> getSolr() {
-        return solr;
-    }
 
-    public void setSolr( List<TestcaseSolrQuery> solr ) {
-        this.solr = solr;
-    }
+    //-------------------------------------------------------------------------
+    //              Object
+    //-------------------------------------------------------------------------
 
     @Override
     public String toString() {
-        return "TestcaseSetup{" +
-                "holdings=" + holdings +
+        return "TestcaseExpectedUpdateResult{" +
+                "errors=" + errors +
                 ", rawrepo=" + rawrepo +
-                ", solr=" + solr +
                 '}';
     }
 
@@ -57,7 +51,6 @@ public class TestcaseSetup {
     //              Members
     //-------------------------------------------------------------------------
 
-    private List<Integer> holdings;
+    private List<ValidationResult> errors;
     private List<TestcaseRecord> rawrepo;
-    private List<TestcaseSolrQuery> solr;
 }

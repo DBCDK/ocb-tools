@@ -1,5 +1,7 @@
+//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.reports;
 
+//-----------------------------------------------------------------------------
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.testengine.runners.TestExecutorResult;
 import dk.dbc.ocbtools.testengine.runners.TestResult;
@@ -7,10 +9,12 @@ import dk.dbc.ocbtools.testengine.runners.TestcaseResult;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+//-----------------------------------------------------------------------------
 /**
  * Class to produce a test report based on TestResult.
  */
@@ -33,6 +37,7 @@ public class TextReport implements TestReport {
 
         try {
             if( !testResult.hasError() ) {
+                output.info( "" );
                 output.info( "No errors found." );
             }
             else {
@@ -43,8 +48,11 @@ public class TextReport implements TestReport {
 
                     for( TestExecutorResult testExecutorResult : testcaseResult.getResults() ) {
                         if( testExecutorResult.hasError() ) {
-                            output.error( "Testcase '{}' has an error: {}", testcaseResult.getTestcase().getName(), testExecutorResult.getAssertionError().getMessage() );
+                            output.error( "Testcase '{}' has an error with this executor: {}", testcaseResult.getTestcase().getName(), testExecutorResult.getExecutor().name() );
+                            output.error( "The testcase is found in file: {}", testcaseResult.getTestcase().getFile().getCanonicalPath() );
+                            output.error( "Error message: {}", testExecutorResult.getAssertionError().getMessage() );
                             output.debug( "\tStacktrace: ", testExecutorResult.getAssertionError() );
+                            output.error( "" );
                         }
                     }
                 }
@@ -53,6 +61,10 @@ public class TextReport implements TestReport {
             if( printSummary ) {
                 produceSummary( testResult );
             }
+        }
+        catch( IOException ex ) {
+            output.error( "Generating text report error: {}", ex.getMessage() );
+            output.debug( "Stacktrace", ex );
         }
         finally {
             output.exit();

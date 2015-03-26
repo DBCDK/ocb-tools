@@ -3,9 +3,12 @@ package dk.dbc.ocbtools.testengine.executors;
 
 //-----------------------------------------------------------------------------
 
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
+import dk.dbc.holdingsitems.HoldingsItemsException;
+import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
+import dk.dbc.ocbtools.testengine.asserters.Asserter;
 import dk.dbc.ocbtools.testengine.testcases.Testcase;
+import dk.dbc.ocbtools.testengine.testcases.TestcaseRecord;
 import dk.dbc.ocbtools.testengine.testcases.TestcaseSolrQuery;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.updateservice.client.BibliographicRecordFactory;
@@ -29,11 +32,18 @@ import static org.junit.Assert.*;
 
 //-----------------------------------------------------------------------------
 /**
- * Created by stp on 19/03/15.
+ * Executor to test a testcase against the validation operation on an external
+ * installation of Update.
  */
 public class RemoteValidateExecutor implements TestExecutor {
     public RemoteValidateExecutor( Testcase tc ) {
+        logger = XLoggerFactory.getXLogger( RemoteValidateExecutor.class );
         this.tc = tc;
+    }
+
+    @Override
+    public String name() {
+        return "Validate record against remote UpdateService";
     }
 
     @Override
@@ -41,14 +51,15 @@ public class RemoteValidateExecutor implements TestExecutor {
         logger.entry();
 
         try {
-            if( !hasRawRepoSetup( tc ) ) {
-                return;
-            }
-
             OCBFileSystem fs = new OCBFileSystem();
             Properties settings = fs.loadSettings( "servers.properties" );
 
             RawRepo.setupDatabase( settings );
+            Holdings.setupDatabase( settings );
+
+            if( !hasRawRepoSetup( tc ) ) {
+                return;
+            }
 
             try( Connection conn = RawRepo.getConnection( settings ) ) {
                 RawRepo rawRepo = null;
@@ -56,6 +67,7 @@ public class RemoteValidateExecutor implements TestExecutor {
                 try {
                     rawRepo = new RawRepo( conn );
                     rawRepo.saveRecords( tc.getFile().getParentFile(), tc.getSetup().getRawrepo() );
+                    setupRelations( fs, rawRepo );
 
                     conn.commit();
                 }
@@ -64,18 +76,56 @@ public class RemoteValidateExecutor implements TestExecutor {
                         conn.rollback();
                     }
 
-                    output.error( "Unable to run testcase '{}': {}", tc.getName(), ex.getMessage() );
-                    logger.debug( "Stacktrace:", ex );
+                    throw new AssertionError( ex.getMessage(), ex );
                 }
             }
 
             if( hasSolrSetup( tc ) ) {
                 Solr.waitForIndex( settings );
             }
+
+            if( tc.getSetup() != null && !tc.getSetup().getHoldings().isEmpty() ) {
+                try( Connection conn = Holdings.getConnection( settings ) ) {
+                    MarcRecord marcRecord = fs.loadRecord( tc.getFile().getParentFile(), tc.getRequest().getRecord() );
+
+                    Holdings.saveHoldings( conn, marcRecord, tc.getSetup().getHoldings() );
+                }
+            }
         }
-        catch( ClassNotFoundException | SQLException | IOException ex ) {
-            output.error( "Unable to setup testcase '{}': {}", tc.getName(), ex.getMessage() );
-            logger.debug( "Stacktrace:", ex );
+        catch( ClassNotFoundException | SQLException | IOException | HoldingsItemsException ex ) {
+            throw new AssertionError( ex.getMessage(), ex );
+        }
+        finally {
+            logger.exit();
+        }
+    }
+
+    private void setupRelations( OCBFileSystem fs, RawRepo rawRepo ) throws IOException, RawRepoException {
+        logger.entry( fs, rawRepo );
+
+        try {
+            File baseDir = tc.getFile().getParentFile();
+            for( TestcaseRecord record : tc.getSetup().getRawrepo() ) {
+                MarcRecord commonOrParentRecord = null;
+
+                if( record.getChildren() != null ) {
+                    commonOrParentRecord = fs.loadRecord( baseDir, record.getRecord() );
+
+                    for( String enrichmentOrChildFilename : record.getChildren() ) {
+                        rawRepo.saveRelation( commonOrParentRecord, fs.loadRecord( baseDir, enrichmentOrChildFilename ) );
+                    }
+                }
+
+                if( record.getEnrichments() != null ) {
+                    if( commonOrParentRecord == null ) {
+                        commonOrParentRecord = fs.loadRecord( baseDir, record.getRecord() );
+                    }
+
+                    for( String enrichmentOrChildFilename : record.getEnrichments() ) {
+                        rawRepo.saveRelation( commonOrParentRecord, fs.loadRecord( baseDir, enrichmentOrChildFilename ) );
+                    }
+                }
+            }
         }
         finally {
             logger.exit();
@@ -87,19 +137,16 @@ public class RemoteValidateExecutor implements TestExecutor {
         logger.entry();
 
         try {
-            if( !hasRawRepoSetup( tc ) ) {
-                return;
-            }
-
             OCBFileSystem fs = new OCBFileSystem();
             Properties settings = fs.loadSettings( "servers.properties" );
 
             RawRepo.teardownDatabase( settings );
             Solr.clearIndex( settings );
+
+            Holdings.teardownDatabase( settings );
         }
         catch( ClassNotFoundException | SQLException | IOException ex ) {
-            output.error( "Unable to teardown testcase '{}': {}", tc.getName(), ex.getMessage() );
-            logger.debug( "Stacktrace:", ex );
+            throw new AssertionError( ex.getMessage(), ex );
         }
         finally {
             logger.exit();
@@ -136,8 +183,8 @@ public class RemoteValidateExecutor implements TestExecutor {
 
             watch.start();
             try {
-                Asserter.assertValidation( tc.getValidation(), response.getValidateInstance() );
-                if( tc.getValidation().isEmpty() ) {
+                Asserter.assertValidation( tc.getExpected().getValidation(), response.getValidateInstance() );
+                if( tc.getExpected().getValidation().isEmpty() ) {
                     assertEquals( UpdateStatusEnum.VALIDATE_ONLY, response.getUpdateStatus() );
                     assertNull( response.getValidateInstance() );
                 }
@@ -152,8 +199,7 @@ public class RemoteValidateExecutor implements TestExecutor {
             }
         }
         catch( SAXException | ParserConfigurationException | JAXBException | IOException ex ) {
-            output.error( "Unable to run testcase '{}': {}", tc.getName(), ex.getMessage() );
-            logger.debug( "Stacktrace:", ex );
+            throw new AssertionError( ex.getMessage(), ex );
         }
         finally {
             logger.exit();
@@ -164,7 +210,7 @@ public class RemoteValidateExecutor implements TestExecutor {
     //              Helpers
     //-------------------------------------------------------------------------
 
-    private UpdateRecordRequest createRequest() throws IOException, JAXBException, SAXException, ParserConfigurationException {
+    protected UpdateRecordRequest createRequest() throws IOException, JAXBException, SAXException, ParserConfigurationException {
         logger.entry();
 
         try {
@@ -177,7 +223,7 @@ public class RemoteValidateExecutor implements TestExecutor {
 
             request.setAuthentication( auth );
             request.setSchemaName( tc.getRequest().getTemplateName() );
-            request.setTrackingId( String.format( TRACKING_ID_FORMAT, System.getProperty( "user.name" ), tc.getName() ) );
+            request.setTrackingId( String.format( TRACKING_ID_FORMAT, System.getProperty( "user.name" ), tc.getName(), getClass().getSimpleName() ) );
 
             Options options = new Options();
             options.getOption().add( UpdateOptionEnum.VALIDATE_ONLY );
@@ -243,9 +289,8 @@ public class RemoteValidateExecutor implements TestExecutor {
     //              Members
     //-------------------------------------------------------------------------
 
-    private static final XLogger output = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
-    private static final XLogger logger = XLoggerFactory.getXLogger( RemoteValidateExecutor.class );
-    private static final String TRACKING_ID_FORMAT = "ocbtools-%s-%s";
+    protected static final String TRACKING_ID_FORMAT = "ocbtools-%s-%s-%s";
 
-    private Testcase tc;
+    protected XLogger logger;
+    protected Testcase tc;
 }

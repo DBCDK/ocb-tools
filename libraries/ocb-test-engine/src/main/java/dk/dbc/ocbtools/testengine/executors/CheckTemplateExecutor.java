@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 
 //-----------------------------------------------------------------------------
 /**
- * Created by stp on 19/02/15.
+ * Test executor that checks that a template exists and can be loaded.
  */
 public class CheckTemplateExecutor implements TestExecutor {
     public CheckTemplateExecutor( File baseDir, Testcase tc ) {
@@ -30,6 +30,11 @@ public class CheckTemplateExecutor implements TestExecutor {
     //-------------------------------------------------------------------------
     //              TestExecutor interface
     //-------------------------------------------------------------------------
+
+    @Override
+    public String name() {
+        return "Check Template";
+    }
 
     @Override
     public void setup() {

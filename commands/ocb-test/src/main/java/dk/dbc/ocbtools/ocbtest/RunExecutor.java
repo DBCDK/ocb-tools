@@ -7,10 +7,7 @@ import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.cli.CliException;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
-import dk.dbc.ocbtools.testengine.executors.CheckTemplateExecutor;
-import dk.dbc.ocbtools.testengine.executors.RemoteValidateExecutor;
-import dk.dbc.ocbtools.testengine.executors.TestExecutor;
-import dk.dbc.ocbtools.testengine.executors.ValidateRecordExecutor;
+import dk.dbc.ocbtools.testengine.executors.*;
 import dk.dbc.ocbtools.testengine.reports.TestReport;
 import dk.dbc.ocbtools.testengine.runners.TestResult;
 import dk.dbc.ocbtools.testengine.runners.TestRunner;
@@ -18,6 +15,7 @@ import dk.dbc.ocbtools.testengine.runners.TestRunnerItem;
 import dk.dbc.ocbtools.testengine.testcases.Testcase;
 import dk.dbc.ocbtools.testengine.testcases.TestcaseRepository;
 import dk.dbc.ocbtools.testengine.testcases.TestcaseRepositoryFactory;
+import dk.dbc.ocbtools.testengine.testcases.ValidationResult;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -28,7 +26,7 @@ import java.util.List;
 
 //-----------------------------------------------------------------------------
 /**
- * Created by stp on 11/03/15.
+ * Executes the 'run' subcommand.
  */
 public class RunExecutor implements SubcommandExecutor {
     public RunExecutor( File baseDir ) {
@@ -67,7 +65,7 @@ public class RunExecutor implements SubcommandExecutor {
                 List<TestExecutor> executors = new ArrayList<>();
 
                 if( !this.useRemote ) {
-                    if( tc.getValidation() != null ) {
+                    if( tc.getExpected().getValidation() != null ) {
                         executors.add( new ValidateRecordExecutor( baseDir, tc ) );
                     }
                     else {
@@ -75,8 +73,16 @@ public class RunExecutor implements SubcommandExecutor {
                     }
                 }
                 else {
-                    if( tc.getValidation() != null ) {
+                    List<ValidationResult> validation = tc.getExpected().getValidation();
+                    if( validation != null ) {
                         executors.add( new RemoteValidateExecutor( tc ) );
+                    }
+
+                    if( tc.getExpected().getUpdate() != null ) {
+                        executors.add( new RemoteUpdateExecutor( tc ) );
+                    }
+                    else if( validation != null && !validation.isEmpty() ) {
+                        executors.add( new RemoteUpdateExecutor( tc ) );
                     }
                 }
 
@@ -104,7 +110,7 @@ public class RunExecutor implements SubcommandExecutor {
     }
 
     private boolean matchAnyNames( Testcase tc, List<String> names ) {
-        output.entry();
+        output.entry( tc, names );
 
         try {
             if( names.isEmpty() ) {

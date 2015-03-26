@@ -3,15 +3,25 @@ package dk.dbc.ocbtools.testengine.testcases;
 
 //-----------------------------------------------------------------------------
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+//-----------------------------------------------------------------------------
 /**
- * Created by stp on 13/03/15.
+ * Represents a record structure in a testcase json file.
  */
 public class TestcaseRecord {
     public TestcaseRecord() {
         this.record = "";
+        this.recordFile = null;
         this.type = null;
         this.deleted = false;
-        this.link = null;
+        this.children = new ArrayList<>();
+        this.enrichments = new ArrayList<>();
+        this.enqueued = false;
     }
 
     //-------------------------------------------------------------------------
@@ -24,6 +34,14 @@ public class TestcaseRecord {
 
     public void setRecord( String record ) {
         this.record = record;
+    }
+
+    public File getRecordFile() {
+        return recordFile;
+    }
+
+    public void setRecordFile( File recordFile ) {
+        this.recordFile = recordFile;
     }
 
     public TestcaseRecordType getType() {
@@ -42,12 +60,28 @@ public class TestcaseRecord {
         this.deleted = deleted;
     }
 
-    public String getLink() {
-        return link;
+    public List<String> getChildren() {
+        return children;
     }
 
-    public void setLink( String link ) {
-        this.link = link;
+    public void setChildren( List<String> children ) {
+        this.children = children;
+    }
+
+    public List<String> getEnrichments() {
+        return enrichments;
+    }
+
+    public void setEnrichments( List<String> enrichments ) {
+        this.enrichments = enrichments;
+    }
+
+    public Boolean isEnqueued() {
+        return enqueued;
+    }
+
+    public void setEnqueued( Boolean enqueued ) {
+        this.enqueued = enqueued;
     }
 
     //-------------------------------------------------------------------------
@@ -58,9 +92,12 @@ public class TestcaseRecord {
     public String toString() {
         return "TestcaseRecord{" +
                 "record='" + record + '\'' +
+                ", recordFile=" + recordFile +
                 ", type=" + type +
                 ", deleted=" + deleted +
-                ", link='" + link + '\'' +
+                ", children=" + children +
+                ", enrichments=" + enrichments +
+                ", enqueued=" + enqueued +
                 '}';
     }
 
@@ -69,7 +106,12 @@ public class TestcaseRecord {
     //-------------------------------------------------------------------------
 
     private String record;
+
+    @JsonIgnore
+    private File recordFile;
     private TestcaseRecordType type;
     private boolean deleted;
-    private String link;
+    private List<String> children;
+    private List<String> enrichments;
+    private Boolean enqueued;
 }

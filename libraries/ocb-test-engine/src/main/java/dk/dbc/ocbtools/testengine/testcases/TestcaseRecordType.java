@@ -1,9 +1,12 @@
+//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.testcases;
 
+//-----------------------------------------------------------------------------
 import dk.dbc.marcxmerge.MarcXChangeMimeType;
 
+//-----------------------------------------------------------------------------
 /**
- * Created by stp on 20/03/15.
+ * Represents a record type in json testcases.
  */
 public enum TestcaseRecordType {
     COMMON( MarcXChangeMimeType.MARCXCHANGE ),

@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-package dk.dbc.ocbtools.testengine.executors;
+package dk.dbc.ocbtools.testengine.asserters;
 
 //-----------------------------------------------------------------------------
 
@@ -17,12 +17,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+//-----------------------------------------------------------------------------
 /**
- * Created by stp on 19/03/15.
+ * Helper class to assert validation results for equality.
  */
 public class Asserter {
     public static void assertValidation( List<ValidationResult> expected, List<ValidationResult> actual ) throws IOException {
-        logger.entry();
+        logger.entry( expected, actual );
 
         try {
             if( !expected.equals( actual ) ) {
@@ -47,7 +48,7 @@ public class Asserter {
     }
 
     public static void assertValidation( List<ValidationResult> expected, ValidateInstance actual ) throws IOException {
-        logger.entry();
+        logger.entry( expected, actual );
 
         try {
             assertValidation( expected, convertValidateInstanceToValidationResults( actual ) );
@@ -62,7 +63,7 @@ public class Asserter {
     //-------------------------------------------------------------------------
 
     private static List<ValidationResult> convertValidateInstanceToValidationResults( ValidateInstance instance ) {
-        logger.entry();
+        logger.entry( instance );
 
         List<ValidationResult> result = new ArrayList<>();
         try {

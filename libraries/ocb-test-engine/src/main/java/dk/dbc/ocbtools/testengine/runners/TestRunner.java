@@ -13,7 +13,7 @@ import java.util.List;
 
 //-----------------------------------------------------------------------------
 /**
- * Created by stp on 20/02/15.
+ * Class to run tests for a number of testcases.
  */
 public class TestRunner {
     public TestRunner( List<TestRunnerItem> items ) {
@@ -50,7 +50,7 @@ public class TestRunner {
     }
 
     public TestcaseResult runTestcase( TestRunnerItem testRunnerItem ) {
-        output.entry();
+        output.entry( testRunnerItem );
 
         try {
             ArrayList<TestExecutorResult> testExecutorResults = new ArrayList<>();
@@ -74,12 +74,24 @@ public class TestRunner {
                         testExecutorResult.setTime( watch.getElapsedTime() );
                         testExecutorResults.add( testExecutorResult );
                     }
+                    catch( Error | Exception ex ) {
+                        watch.stop();
+                        TestExecutorResult testExecutorResult = new TestExecutorResult( 0, exec, new AssertionError( ex.getMessage(), ex ) );
+                        testExecutorResult.setTime( watch.getElapsedTime() );
+                        testExecutorResults.add( testExecutorResult );
+                    }
 
                     exec.teardown();
                 }
                 catch( AssertionError ex ) {
                     watch.stop();
                     TestExecutorResult testExecutorResult = new TestExecutorResult( 0, exec, ex );
+                    testExecutorResult.setTime( watch.getElapsedTime() );
+                    testExecutorResults.add( testExecutorResult );
+                }
+                catch( Error | Exception ex ) {
+                    watch.stop();
+                    TestExecutorResult testExecutorResult = new TestExecutorResult( 0, exec, new AssertionError( ex.getMessage(), ex ) );
                     testExecutorResult.setTime( watch.getElapsedTime() );
                     testExecutorResults.add( testExecutorResult );
                 }
