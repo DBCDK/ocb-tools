@@ -36,9 +36,10 @@ import static org.junit.Assert.*;
  * installation of Update.
  */
 public class RemoteValidateExecutor implements TestExecutor {
-    public RemoteValidateExecutor( Testcase tc ) {
+    public RemoteValidateExecutor( Testcase tc, Properties settings ) {
         logger = XLoggerFactory.getXLogger( RemoteValidateExecutor.class );
         this.tc = tc;
+        this.settings = settings;
     }
 
     @Override
@@ -52,7 +53,10 @@ public class RemoteValidateExecutor implements TestExecutor {
 
         try {
             OCBFileSystem fs = new OCBFileSystem();
-            Properties settings = fs.loadSettings( "servers.properties" );
+
+            RawRepo.teardownDatabase( settings );
+            Solr.clearIndex( settings );
+            Holdings.teardownDatabase( settings );
 
             RawRepo.setupDatabase( settings );
             Holdings.setupDatabase( settings );
@@ -137,16 +141,6 @@ public class RemoteValidateExecutor implements TestExecutor {
         logger.entry();
 
         try {
-            OCBFileSystem fs = new OCBFileSystem();
-            Properties settings = fs.loadSettings( "servers.properties" );
-
-            RawRepo.teardownDatabase( settings );
-            Solr.clearIndex( settings );
-
-            Holdings.teardownDatabase( settings );
-        }
-        catch( ClassNotFoundException | SQLException | IOException ex ) {
-            throw new AssertionError( ex.getMessage(), ex );
         }
         finally {
             logger.exit();
@@ -163,9 +157,6 @@ public class RemoteValidateExecutor implements TestExecutor {
             assertNotNull( "Property'en 'request.authentication.group' er obligatorisk.", tc.getRequest().getAuthentication().getGroup() );
             assertNotNull( "Property'en 'request.authentication.user' er obligatorisk.", tc.getRequest().getAuthentication().getUser() );
             assertNotNull( "Property'en 'request.authentication.password' er obligatorisk.", tc.getRequest().getAuthentication().getPassword() );
-
-            OCBFileSystem fs = new OCBFileSystem();
-            Properties settings = fs.loadSettings( "servers.properties" );
 
             String key = String.format( "updateservice.%s.url", tc.getDistributionName() );
             URL url = new URL( settings.getProperty( key ) );
@@ -293,4 +284,5 @@ public class RemoteValidateExecutor implements TestExecutor {
 
     protected XLogger logger;
     protected Testcase tc;
+    protected Properties settings;
 }

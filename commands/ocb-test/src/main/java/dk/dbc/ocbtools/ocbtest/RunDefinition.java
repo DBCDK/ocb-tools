@@ -38,6 +38,8 @@ public class RunDefinition implements SubcommandDefinition {
         Option option;
         option = new Option( "r", "remote", false, "Udfør de enkelte testcases imod en remote installation af UpdateService" );
         options.add( option );
+        option = new Option( "c", "config", true, "Navn på konfiguration som skal anvendes sammen med --remote" );
+        options.add( option );
         option = new Option( "s", "summary", false, "Udskriver en opsummering af testen efter den er udført." );
         options.add( option );
 
@@ -63,6 +65,9 @@ public class RunDefinition implements SubcommandDefinition {
 
             RunExecutor runExecutor = new RunExecutor( baseDir );
             runExecutor.setUseRemote( line.hasOption( "r" ) );
+            if( line.hasOption( "c" ) ) {
+                runExecutor.setConfigName( line.getOptionValue( "c" ) );
+            }
             runExecutor.setTcNames(  line.getArgList() );
             runExecutor.setReports( reports );
 

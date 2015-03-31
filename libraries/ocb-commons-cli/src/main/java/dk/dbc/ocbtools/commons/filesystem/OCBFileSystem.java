@@ -110,21 +110,49 @@ public class OCBFileSystem {
     /**
      * Loads a properties file from the baseDir of this file system.
      */
-    public Properties loadSettings( String filename ) throws IOException {
-        logger.entry();
+    public Properties loadSettings( String name ) throws IOException {
+        logger.entry( name );
 
+        Properties props = null;
         try {
-            String dirPath = baseDir.getCanonicalFile() + "/etc";
+            String[] filenames = {
+                System.getProperty( "user.home" ) + "/.ocb-tools/" + name + ".properties",
+                baseDir.getCanonicalFile() + "/etc/" + name + ".properties"
+            };
 
-            Properties props = new Properties();
-            FileInputStream fileInputStream = new FileInputStream( dirPath + "/" + filename );
+            for( String filename : filenames ) {
+                File file = new File( filename );
+
+                if( file.exists() ) {
+                    return props = loadSettings( file );
+                }
+            }
+
+            return props = null;
+        }
+        finally {
+            logger.exit( props );
+        }
+    }
+
+    /**
+     * Loads properties from a File instance.
+     */
+    public Properties loadSettings( File file ) throws IOException {
+        logger.entry( file );
+
+        Properties props = new Properties();
+        try {
+            logger.debug( "Loads settings from '{}'", file.getCanonicalPath() );
+            FileInputStream fileInputStream = new FileInputStream( file );
             props.load( fileInputStream );
 
             return props;
         }
         finally {
-            logger.exit();
+            logger.exit( props );
         }
+
     }
 
     //-------------------------------------------------------------------------

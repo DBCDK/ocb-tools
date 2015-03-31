@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 //-----------------------------------------------------------------------------
 /**
@@ -32,12 +33,17 @@ public class RunExecutor implements SubcommandExecutor {
     public RunExecutor( File baseDir ) {
         this.baseDir = baseDir;
         this.useRemote = false;
+        this.configName = "servers";
         this.tcNames = null;
         this.reports = null;
     }
 
     public void setUseRemote( boolean useRemote ) {
         this.useRemote = useRemote;
+    }
+
+    public void setConfigName( String configName ) {
+        this.configName = configName;
     }
 
     public void setTcNames( List<String> tcNames ) {
@@ -73,16 +79,18 @@ public class RunExecutor implements SubcommandExecutor {
                     }
                 }
                 else {
+                    Properties settings = fs.loadSettings( this.configName );
+
                     List<ValidationResult> validation = tc.getExpected().getValidation();
                     if( validation != null ) {
-                        executors.add( new RemoteValidateExecutor( tc ) );
+                        executors.add( new RemoteValidateExecutor( tc, settings ) );
                     }
 
                     if( tc.getExpected().getUpdate() != null ) {
-                        executors.add( new RemoteUpdateExecutor( tc ) );
+                        executors.add( new RemoteUpdateExecutor( tc, settings ) );
                     }
                     else if( validation != null && !validation.isEmpty() ) {
-                        executors.add( new RemoteUpdateExecutor( tc ) );
+                        executors.add( new RemoteUpdateExecutor( tc, settings ) );
                     }
                 }
 
@@ -133,6 +141,7 @@ public class RunExecutor implements SubcommandExecutor {
     private File baseDir;
 
     private boolean useRemote;
+    private String configName;
     private List<String> tcNames;
 
     private List<TestReport> reports;

@@ -36,8 +36,8 @@ import static org.junit.Assert.*;
  * installation of Update.
  */
 public class RemoteUpdateExecutor extends RemoteValidateExecutor {
-    public RemoteUpdateExecutor( Testcase tc ) {
-        super( tc );
+    public RemoteUpdateExecutor( Testcase tc, Properties settings ) {
+        super( tc, settings );
         this.logger = XLoggerFactory.getXLogger( RemoteUpdateExecutor.class );
     }
 
@@ -58,7 +58,6 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
             assertNotNull( "Property'en 'request.authentication.password' er obligatorisk.", tc.getRequest().getAuthentication().getPassword() );
 
             OCBFileSystem fs = new OCBFileSystem();
-            Properties settings = fs.loadSettings( "servers.properties" );
 
             String key = String.format( "updateservice.%s.url", tc.getDistributionName() );
             URL url = new URL( settings.getProperty( key ) );
