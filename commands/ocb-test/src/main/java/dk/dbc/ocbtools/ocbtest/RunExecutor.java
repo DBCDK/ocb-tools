@@ -34,6 +34,7 @@ public class RunExecutor implements SubcommandExecutor {
         this.baseDir = baseDir;
         this.useRemote = false;
         this.configName = "servers";
+        this.printDemoInfo = false;
         this.tcNames = null;
         this.reports = null;
     }
@@ -44,6 +45,10 @@ public class RunExecutor implements SubcommandExecutor {
 
     public void setConfigName( String configName ) {
         this.configName = configName;
+    }
+
+    public void setPrintDemoInfo( boolean printDemoInfo ) {
+        this.printDemoInfo = printDemoInfo;
     }
 
     public void setTcNames( List<String> tcNames ) {
@@ -72,7 +77,7 @@ public class RunExecutor implements SubcommandExecutor {
 
                 if( !this.useRemote ) {
                     if( tc.getExpected().getValidation() != null ) {
-                        executors.add( new ValidateRecordExecutor( baseDir, tc ) );
+                        executors.add( new ValidateRecordExecutor( baseDir, tc, this.printDemoInfo ) );
                     }
                     else {
                         executors.add( new CheckTemplateExecutor( baseDir, tc ) );
@@ -83,14 +88,14 @@ public class RunExecutor implements SubcommandExecutor {
 
                     List<ValidationResult> validation = tc.getExpected().getValidation();
                     if( validation != null ) {
-                        executors.add( new RemoteValidateExecutor( tc, settings ) );
+                        executors.add( new RemoteValidateExecutor( tc, settings, this.printDemoInfo ) );
                     }
 
                     if( tc.getExpected().getUpdate() != null ) {
-                        executors.add( new RemoteUpdateExecutor( tc, settings ) );
+                        executors.add( new RemoteUpdateExecutor( tc, settings, this.printDemoInfo ) );
                     }
                     else if( validation != null && !validation.isEmpty() ) {
-                        executors.add( new RemoteUpdateExecutor( tc, settings ) );
+                        executors.add( new RemoteUpdateExecutor( tc, settings, this.printDemoInfo ) );
                     }
                 }
 
@@ -142,6 +147,7 @@ public class RunExecutor implements SubcommandExecutor {
 
     private boolean useRemote;
     private String configName;
+    private boolean printDemoInfo;
     private List<String> tcNames;
 
     private List<TestReport> reports;

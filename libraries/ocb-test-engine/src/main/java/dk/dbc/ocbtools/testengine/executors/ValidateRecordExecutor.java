@@ -28,9 +28,14 @@ import java.util.Map;
  * No external web services are used in this executor.
  */
 public class ValidateRecordExecutor implements TestExecutor {
-    public ValidateRecordExecutor( File baseDir, Testcase tc ) {
+    public ValidateRecordExecutor( File baseDir, Testcase tc, boolean printDemoInfo ) {
         this.baseDir = baseDir;
         this.tc = tc;
+        this.demoInfoPrinter = null;
+
+        if( printDemoInfo ) {
+            this.demoInfoPrinter = new DemoInfoPrinter();
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -44,10 +49,17 @@ public class ValidateRecordExecutor implements TestExecutor {
 
     @Override
     public void setup() {
+        if( this.demoInfoPrinter != null ) {
+            demoInfoPrinter.printHeader( this.tc );
+            demoInfoPrinter.printSetup( this.tc );
+        }
     }
 
     @Override
     public void teardown() {
+        if( this.demoInfoPrinter != null ) {
+            demoInfoPrinter.printFooter();
+        }
     }
 
     @Override
@@ -55,6 +67,10 @@ public class ValidateRecordExecutor implements TestExecutor {
         logger.entry();
 
         try {
+            if( this.demoInfoPrinter != null ) {
+                demoInfoPrinter.printLocaleRequest( tc );
+            }
+
             MarcRecord record = tc.loadRecord();
             ServiceScripter scripter = createScripter();
             Map<String, String> settings = createSettings();
@@ -111,5 +127,6 @@ public class ValidateRecordExecutor implements TestExecutor {
     private static final String SERVICE_NAME = "ocb-test";
 
     private File baseDir;
+    private DemoInfoPrinter demoInfoPrinter;
     private Testcase tc;
 }

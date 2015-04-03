@@ -36,10 +36,15 @@ import static org.junit.Assert.*;
  * installation of Update.
  */
 public class RemoteValidateExecutor implements TestExecutor {
-    public RemoteValidateExecutor( Testcase tc, Properties settings ) {
+    public RemoteValidateExecutor( Testcase tc, Properties settings, boolean printDemoInfo ) {
         logger = XLoggerFactory.getXLogger( RemoteValidateExecutor.class );
         this.tc = tc;
         this.settings = settings;
+        this.demoInfoPrinter = null;
+
+        if( printDemoInfo ) {
+            this.demoInfoPrinter = new DemoInfoPrinter();
+        }
     }
 
     @Override
@@ -52,6 +57,10 @@ public class RemoteValidateExecutor implements TestExecutor {
         logger.entry();
 
         try {
+            if( this.demoInfoPrinter != null ) {
+                demoInfoPrinter.printHeader( this.tc );
+            }
+
             OCBFileSystem fs = new OCBFileSystem();
 
             RawRepo.teardownDatabase( settings );
@@ -141,6 +150,9 @@ public class RemoteValidateExecutor implements TestExecutor {
         logger.entry();
 
         try {
+            if( this.demoInfoPrinter != null ) {
+                demoInfoPrinter.printFooter();
+            }
         }
         finally {
             logger.exit();
@@ -285,4 +297,5 @@ public class RemoteValidateExecutor implements TestExecutor {
     protected XLogger logger;
     protected Testcase tc;
     protected Properties settings;
+    protected DemoInfoPrinter demoInfoPrinter;
 }

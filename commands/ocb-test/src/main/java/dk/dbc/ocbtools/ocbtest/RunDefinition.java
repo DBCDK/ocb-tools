@@ -42,6 +42,8 @@ public class RunDefinition implements SubcommandDefinition {
         options.add( option );
         option = new Option( "s", "summary", false, "Udskriver en opsummering af testen efter den er udført." );
         options.add( option );
+        option = new Option( "dm", "demo", false, "Udskriver ekstra oplysninger om råpostrepo før/efter testcasen." );
+        options.add( option );
 
         return options;
     }
@@ -68,6 +70,7 @@ public class RunDefinition implements SubcommandDefinition {
             if( line.hasOption( "c" ) ) {
                 runExecutor.setConfigName( line.getOptionValue( "c" ) );
             }
+            runExecutor.setPrintDemoInfo( line.hasOption( "dm" ) );
             runExecutor.setTcNames(  line.getArgList() );
             runExecutor.setReports( reports );
 

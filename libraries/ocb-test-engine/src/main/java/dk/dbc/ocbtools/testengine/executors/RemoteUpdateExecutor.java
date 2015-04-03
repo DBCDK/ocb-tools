@@ -36,8 +36,8 @@ import static org.junit.Assert.*;
  * installation of Update.
  */
 public class RemoteUpdateExecutor extends RemoteValidateExecutor {
-    public RemoteUpdateExecutor( Testcase tc, Properties settings ) {
-        super( tc, settings );
+    public RemoteUpdateExecutor( Testcase tc, Properties settings, boolean printDemoInfo ) {
+        super( tc, settings, printDemoInfo );
         this.logger = XLoggerFactory.getXLogger( RemoteUpdateExecutor.class );
     }
 

@@ -12,15 +12,6 @@
     <artifactId>ocb-commands</artifactId>
     <packaging>pom</packaging>
 
-    <properties>
-        <!--
-            This property must be specified in each command submodule.
-            It is only specified here to avoid IntelliJ from marking the property read in the editor.
-        -->
-        <command.main.classname>dk.dbc.ocbtools.ocbtest.OCBRecord</command.main.classname>
-        <command.main.classname>dk.dbc.ocbtools.ocbtest.OCBTest</command.main.classname>
-    </properties>
-
     <name>OCB-Commands</name>
     <modules>
         <module>ocb-record</module>
@@ -44,74 +35,6 @@
         </resources>
 
         <plugins>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <archive>
-                        <manifest>
-                            <mainClass>${command.main.classname}</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-my-jar-with-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.7</version>
-                <executions>
-                    <execution>
-                        <id>copy-jar</id>
-                        <!-- here the phase you need -->
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/../../../target/dist/ocb-tools-${ocbtools.version}/bin</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${project.build.directory}</directory>
-                                    <includes>
-                                        <include>${project.artifactId}-${project.version}-jar-with-dependencies.jar</include>
-                                    </includes>
-                                    <filtering>false</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-scripts</id>
-                        <!-- here the phase you need -->
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/../../../target/dist/ocb-tools-${ocbtools.version}/bin</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>scripts</directory>
-                                    <includes>
-                                        <include>*</include>
-                                    </includes>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.reflections</groupId>
                 <artifactId>reflections-maven</artifactId>

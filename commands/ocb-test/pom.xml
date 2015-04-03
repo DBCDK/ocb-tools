@@ -29,4 +29,77 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>${command.main.classname}</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-my-jar-with-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.7</version>
+                <executions>
+                    <execution>
+                        <id>copy-jar</id>
+                        <!-- here the phase you need -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/../../../target/dist/ocb-tools-${ocbtools.version}/bin</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}</directory>
+                                    <includes>
+                                        <include>${project.artifactId}-${project.version}-jar-with-dependencies.jar</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-scripts</id>
+                        <!-- here the phase you need -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/../../../target/dist/ocb-tools-${ocbtools.version}/bin</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>scripts</directory>
+                                    <includes>
+                                        <include>*</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
