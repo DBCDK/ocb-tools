@@ -50,7 +50,7 @@ public class ValidateRecordExecutor implements TestExecutor {
     @Override
     public void setup() {
         if( this.demoInfoPrinter != null ) {
-            demoInfoPrinter.printHeader( this.tc );
+            demoInfoPrinter.printHeader( this.tc, this );
             demoInfoPrinter.printSetup( this.tc );
         }
     }

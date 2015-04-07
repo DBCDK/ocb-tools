@@ -43,7 +43,7 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
 
     @Override
     public String name() {
-        return "Update record against remote UpdateService";
+        return String.format( "Update record against remote UpdateService: %s", createServiceUrl() );
     }
 
     @Override
@@ -69,10 +69,16 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
             StopWatch watch = new StopWatch();
 
             logger.debug( "Sending request '{}' to {}", request.getTrackingId(), url );
+            if( demoInfoPrinter != null ) {
+                demoInfoPrinter.printRequest( request, tc.loadRecord() );
+            }
             watch.start();
             UpdateRecordResult response = caller.createPort().updateRecord( request );
             watch.stop();
             logger.debug( "Receive response in {} ms: {}", watch.getElapsedTime(), response );
+            if( demoInfoPrinter != null ) {
+                demoInfoPrinter.printResponse( response );
+            }
 
             watch.start();
             try {

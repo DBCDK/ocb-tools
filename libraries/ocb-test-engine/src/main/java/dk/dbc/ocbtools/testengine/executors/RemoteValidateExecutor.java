@@ -5,6 +5,7 @@ package dk.dbc.ocbtools.testengine.executors;
 
 import dk.dbc.holdingsitems.HoldingsItemsException;
 import dk.dbc.iscrum.records.MarcRecord;
+import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.testengine.asserters.Asserter;
 import dk.dbc.ocbtools.testengine.testcases.Testcase;
@@ -23,6 +24,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -49,7 +51,7 @@ public class RemoteValidateExecutor implements TestExecutor {
 
     @Override
     public String name() {
-        return "Validate record against remote UpdateService";
+        return String.format( "Validate record against remote UpdateService: %s", createServiceUrl() );
     }
 
     @Override
@@ -58,7 +60,7 @@ public class RemoteValidateExecutor implements TestExecutor {
 
         try {
             if( this.demoInfoPrinter != null ) {
-                demoInfoPrinter.printHeader( this.tc );
+                demoInfoPrinter.printHeader( this.tc, this );
             }
 
             OCBFileSystem fs = new OCBFileSystem();
@@ -104,8 +106,12 @@ public class RemoteValidateExecutor implements TestExecutor {
                     Holdings.saveHoldings( conn, marcRecord, tc.getSetup().getHoldings() );
                 }
             }
+
+            if( this.demoInfoPrinter != null ) {
+                demoInfoPrinter.printRemoteDatabases( this.tc, settings );
+            }
         }
-        catch( ClassNotFoundException | SQLException | IOException | HoldingsItemsException ex ) {
+        catch( ClassNotFoundException | SQLException | IOException | HoldingsItemsException | RawRepoException ex ) {
             throw new AssertionError( ex.getMessage(), ex );
         }
         finally {
@@ -151,8 +157,15 @@ public class RemoteValidateExecutor implements TestExecutor {
 
         try {
             if( this.demoInfoPrinter != null ) {
+                demoInfoPrinter.printRemoteDatabases( this.tc, settings );
+            }
+
+            if( this.demoInfoPrinter != null ) {
                 demoInfoPrinter.printFooter();
             }
+        }
+        catch( ClassNotFoundException | SQLException | HoldingsItemsException | RawRepoException ex ) {
+            throw new AssertionError( ex.getMessage(), ex );
         }
         finally {
             logger.exit();
@@ -170,8 +183,7 @@ public class RemoteValidateExecutor implements TestExecutor {
             assertNotNull( "Property'en 'request.authentication.user' er obligatorisk.", tc.getRequest().getAuthentication().getUser() );
             assertNotNull( "Property'en 'request.authentication.password' er obligatorisk.", tc.getRequest().getAuthentication().getPassword() );
 
-            String key = String.format( "updateservice.%s.url", tc.getDistributionName() );
-            URL url = new URL( settings.getProperty( key ) );
+            URL url = createServiceUrl();
             UpdateService caller = new UpdateService( url );
 
             UpdateRecordRequest request = createRequest();
@@ -179,10 +191,16 @@ public class RemoteValidateExecutor implements TestExecutor {
             StopWatch watch = new StopWatch();
 
             logger.debug( "Sending request '{}' to {}", request.getTrackingId(), url );
+            if( demoInfoPrinter != null ) {
+                demoInfoPrinter.printRequest( request, tc.loadRecord() );
+            }
             watch.start();
             UpdateRecordResult response = caller.createPort().updateRecord( request );
             watch.stop();
             logger.debug( "Receive response in {} ms: {}", watch.getElapsedTime(), response );
+            if( demoInfoPrinter != null ) {
+                demoInfoPrinter.printResponse( response );
+            }
 
             watch.start();
             try {
@@ -212,6 +230,22 @@ public class RemoteValidateExecutor implements TestExecutor {
     //-------------------------------------------------------------------------
     //              Helpers
     //-------------------------------------------------------------------------
+
+    protected URL createServiceUrl() {
+        logger.entry();
+
+        URL result = null;
+        try {
+            String key = String.format( "updateservice.%s.url", tc.getDistributionName() );
+            return result = new URL( settings.getProperty( key ) );
+        }
+        catch( MalformedURLException ex ) {
+            throw new AssertionError( String.format( "Unable to create url to webservice: %s", ex.getMessage() ), ex );
+        }
+        finally {
+            logger.exit( result );
+        }
+    }
 
     protected UpdateRecordRequest createRequest() throws IOException, JAXBException, SAXException, ParserConfigurationException {
         logger.entry();
@@ -292,6 +326,7 @@ public class RemoteValidateExecutor implements TestExecutor {
     //              Members
     //-------------------------------------------------------------------------
 
+    private static final XLogger output = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
     protected static final String TRACKING_ID_FORMAT = "ocbtools-%s-%s-%s";
 
     protected XLogger logger;

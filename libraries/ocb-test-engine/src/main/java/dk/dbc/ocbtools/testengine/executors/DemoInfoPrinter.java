@@ -2,18 +2,29 @@
 package dk.dbc.ocbtools.testengine.executors;
 
 //-----------------------------------------------------------------------------
+import dk.dbc.holdingsitems.HoldingsItemsException;
+import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
-import dk.dbc.ocbtools.testengine.testcases.Testcase;
-import dk.dbc.ocbtools.testengine.testcases.TestcaseRecord;
-import dk.dbc.ocbtools.testengine.testcases.TestcaseRequest;
-import dk.dbc.ocbtools.testengine.testcases.TestcaseSetup;
+import dk.dbc.ocbtools.testengine.testcases.*;
+import dk.dbc.rawrepo.RawRepoException;
+import dk.dbc.rawrepo.Record;
+import dk.dbc.rawrepo.RecordId;
+import dk.dbc.updateservice.service.api.UpdateRecordRequest;
+import dk.dbc.updateservice.service.api.UpdateRecordResponse;
+import dk.dbc.updateservice.service.api.UpdateRecordResult;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 //-----------------------------------------------------------------------------
 /**
@@ -23,12 +34,13 @@ public class DemoInfoPrinter {
     public DemoInfoPrinter() {
     }
 
-    public void printHeader( Testcase tc ) {
+    public void printHeader( Testcase tc, TestExecutor executor ) {
         output.info( "" );
         output.info( HEADER_LINE );
         output.info( "Testing {}", tc.getName() );
         output.info( SEP_LINE );
         output.info( "" );
+        output.info( "Executor: {}", executor.name() );
         output.info( "Distribution: {}", tc.getDistributionName() );
         output.info( "File: {}", tc.getFile().getAbsolutePath() );
         output.info( "Description: {}", tc.getDescription() );
@@ -95,6 +107,97 @@ public class DemoInfoPrinter {
         catch( Exception ex ) {
             output.error( "Failed to print setup: {}", ex.getMessage() );
             logger.debug( "Stacktrace: ", ex );
+        }
+    }
+
+    public void printRemoteDatabases( Testcase tc, Properties settings ) throws SQLException, ClassNotFoundException, HoldingsItemsException, RawRepoException {
+        try {
+            output.info( SEP_LINE );
+            output.info( "" );
+
+            try( Connection conn = Holdings.getConnection( settings ) ) {
+                output.info( "Holdings: {}", Holdings.loadHoldingsForRecord( conn, tc.loadRecord() ) );
+            }
+
+            List<Record> rawRepoRecords = RawRepo.loadRecords( settings );
+            if( rawRepoRecords == null || rawRepoRecords.isEmpty() ) {
+                output.info( "Rawrepo: Empty" );
+            }
+            else {
+                output.info( "Rawrepo:" );
+                output.info( SEP_LINE );
+
+                for( Record rawRepoRecord : rawRepoRecords ) {
+                    output.info( "Id: [{}:{}]", rawRepoRecord.getId().getBibliographicRecordId(), rawRepoRecord.getId().getAgencyId() );
+                    output.info( "Mimetype: {}", TestcaseRecordType.fromValue( rawRepoRecord.getMimeType() ) );
+                    output.info( "Deleted: {}", rawRepoRecord.isDeleted() );
+                    output.info( "" );
+                    output.info( "Children: {}", formatRecordIds( RawRepo.loadRelations( settings, rawRepoRecord.getId(), RawRepoRelationType.CHILD ) ) );
+                    output.info( "Siblings: {}", formatRecordIds( RawRepo.loadRelations( settings, rawRepoRecord.getId(), RawRepoRelationType.SIBLING ) ) );
+                    output.info( "" );
+                    output.info( "Content:\n{}", RawRepo.decodeRecord( rawRepoRecord.getContent() ) );
+                }
+
+                output.info( "Queued records: {}", formatRecordIds( RawRepo.loadQueuedRecords( settings ) ) );
+            }
+
+            output.info( SEP_LINE );
+            output.info( "" );
+        }
+        catch( IOException ex ) {
+            output.error( "Failed to print setup: {}", ex.getMessage() );
+            logger.debug( "Stacktrace: ", ex );
+        }
+    }
+
+    public void printRequest( UpdateRecordRequest request, MarcRecord record ) throws IOException {
+        logger.entry();
+
+        try {
+            output.info( "Request record:\n{}", record );
+            output.info( "Webservice Request: {}", Json.encodePretty( request ) );
+        }
+        finally {
+            logger.exit();
+        }
+    }
+
+    public void printResponse( UpdateRecordResult response ) throws IOException {
+        logger.entry();
+
+        try {
+            output.info( "Response: {}", Json.encodePretty( response ) );
+        }
+        finally {
+            logger.exit();
+        }
+    }
+
+    public String formatRecordIds( Iterable<RecordId> ids ) {
+        logger.entry();
+
+        String result = "";
+        try {
+            StringBuilder sb = new StringBuilder();
+
+            String sep = "";
+            sb.append( '[' );
+            for( RecordId recordId : ids ) {
+                sb.append( sep );
+                sb.append( '{' );
+                sb.append( recordId.getBibliographicRecordId() );
+                sb.append( ':' );
+                sb.append( recordId.getAgencyId() );
+                sb.append( '}' );
+
+                sep = ", ";
+            }
+            sb.append( ']' );
+
+            return result = sb.toString();
+        }
+        finally {
+            logger.exit( result );
         }
     }
 

@@ -17,6 +17,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 //-----------------------------------------------------------------------------
 /**
@@ -60,6 +61,21 @@ public class Holdings {
         }
         finally {
             logger.exit();
+        }
+    }
+
+    public static Set<Integer> loadHoldingsForRecord( Connection conn, MarcRecord record ) throws HoldingsItemsException {
+        logger.entry();
+
+        Set<Integer> result = null;
+        try {
+            HoldingsItemsDAO dao = HoldingsItemsDAO.newInstance( conn );
+            RecordId recordId = RawRepo.getRecordId( record );
+
+            return result = dao.getAgenciesThatHasHoldingsFor( recordId.getBibliographicRecordId() );
+        }
+        finally {
+            logger.exit( result );
         }
     }
 
