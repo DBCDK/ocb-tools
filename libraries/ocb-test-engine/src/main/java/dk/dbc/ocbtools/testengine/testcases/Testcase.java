@@ -13,6 +13,8 @@ import org.slf4j.ext.XLoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 //-----------------------------------------------------------------------------
 /**
@@ -21,6 +23,7 @@ import java.io.IOException;
 public class Testcase {
     public Testcase() {
         this.name = "";
+        this.bugs = new ArrayList<>();
         this.distributionName = "";
         this.description = "";
         this.setup = null;
@@ -39,6 +42,14 @@ public class Testcase {
 
     public void setName( String name ) {
         this.name = name;
+    }
+
+    public List<String> getBugs() {
+        return bugs;
+    }
+
+    public void setBugs( List<String> bugs ) {
+        this.bugs = bugs;
     }
 
     public String getDistributionName() {
@@ -158,6 +169,14 @@ public class Testcase {
     private static final XLogger logger = XLoggerFactory.getXLogger( Testcase.class );
 
     private String name;
+
+    /**
+     * Numbers of bugs in Bugzilla that is related to this testcase.
+     * <p/>
+     * This property is not used, but defined here so it is posible to use the property
+     * in json.
+     */
+    private List<String> bugs;
 
     @JsonIgnore
     private String distributionName;
