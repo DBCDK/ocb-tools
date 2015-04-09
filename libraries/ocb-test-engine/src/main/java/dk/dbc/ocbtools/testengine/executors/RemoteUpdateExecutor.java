@@ -84,20 +84,22 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
             try {
                 assertNotNull( "No expected results found.", tc.getExpected() );
 
+                UpdateStatusEnum expectedUpdateStatus = UpdateStatusEnum.VALIDATION_ERROR;
                 List<ValidationResult> errors = tc.getExpected().getValidation();
                 if( errors == null || errors.isEmpty() ) {
                     assertNotNull( "No expected update result found", tc.getExpected().getUpdate() );
                     errors = tc.getExpected().getUpdate().getErrors();
+                    expectedUpdateStatus = UpdateStatusEnum.FAILED_UPDATE_INTERNAL_ERROR;
                 }
                 assertNotNull( "No expected validation or update errors found.", errors );
 
-                Asserter.assertValidation( errors, response.getValidateInstance() );
+                Asserter.assertValidation( Asserter.UPDATE_PREFIX_KEY, errors, response.getValidateInstance() );
                 if( errors.isEmpty() ) {
                     assertEquals( UpdateStatusEnum.OK, response.getUpdateStatus() );
                     assertNull( response.getValidateInstance() );
                 }
                 else {
-                    assertEquals( UpdateStatusEnum.VALIDATION_ERROR, response.getUpdateStatus() );
+                    assertEquals( expectedUpdateStatus, response.getUpdateStatus() );
                 }
                 assertNull( response.getError() );
 
@@ -105,8 +107,14 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
                     return;
                 }
 
-                RawRepoAsserter.assertRecordListEquals( tc.getExpected().getUpdate().getRawrepo(), RawRepo.loadRecords( settings ) );
-                RawRepoAsserter.assertQueueRecords( tc.getExpected().getUpdate().getRawrepo(), RawRepo.loadQueuedRecords( settings ) );
+                if( tc.getExpected().getUpdate().getRawrepo() != null ) {
+                    RawRepoAsserter.assertRecordListEquals( tc.getExpected().getUpdate().getRawrepo(), RawRepo.loadRecords( settings ) );
+                    RawRepoAsserter.assertQueueRecords( tc.getExpected().getUpdate().getRawrepo(), RawRepo.loadQueuedRecords( settings ) );
+                }
+                else if( tc.getSetup() != null && tc.getSetup().getRawrepo() != null ) {
+                    RawRepoAsserter.assertRecordListEquals( tc.getSetup().getRawrepo(), RawRepo.loadRecords( settings ) );
+                    RawRepoAsserter.assertQueueRecords( tc.getSetup().getRawrepo(), RawRepo.loadQueuedRecords( settings ) );
+                }
 
                 checkRelations( fs, settings, RawRepoRelationType.CHILD );
                 checkRelations( fs, settings, RawRepoRelationType.SIBLING );
@@ -128,11 +136,18 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
         logger.entry( fs, settings, relationType );
 
         try {
-            for( TestcaseRecord testcaseRecord : tc.getExpected().getUpdate().getRawrepo() ) {
-                MarcRecord record = fs.loadRecord( testcaseRecord.getRecordFile().getParentFile(), testcaseRecord.getRecord() );
-                RecordId recordId = RawRepo.getRecordId( record );
+            List<TestcaseRecord> expectedRecords = tc.getExpected().getUpdate().getRawrepo();
+            if( expectedRecords == null && tc.getSetup() != null ) {
+                expectedRecords = tc.getSetup().getRawrepo();
+            }
 
-                RawRepoAsserter.assertRecordRelations( testcaseRecord, relationType, RawRepo.loadRelations( settings, recordId, relationType ) );
+            if( expectedRecords != null ) {
+                for( TestcaseRecord testcaseRecord : expectedRecords ) {
+                    MarcRecord record = fs.loadRecord( testcaseRecord.getRecordFile().getParentFile(), testcaseRecord.getRecord() );
+                    RecordId recordId = RawRepo.getRecordId( record );
+
+                    RawRepoAsserter.assertRecordRelations( testcaseRecord, relationType, RawRepo.loadRelations( settings, recordId, relationType ) );
+                }
             }
         }
         finally {

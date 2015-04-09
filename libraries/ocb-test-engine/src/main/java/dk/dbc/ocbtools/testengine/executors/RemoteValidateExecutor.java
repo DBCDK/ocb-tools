@@ -204,7 +204,7 @@ public class RemoteValidateExecutor implements TestExecutor {
 
             watch.start();
             try {
-                Asserter.assertValidation( tc.getExpected().getValidation(), response.getValidateInstance() );
+                Asserter.assertValidation( Asserter.VALIDATION_PREFIX_KEY, tc.getExpected().getValidation(), response.getValidateInstance() );
                 if( tc.getExpected().getValidation().isEmpty() ) {
                     assertEquals( UpdateStatusEnum.VALIDATE_ONLY, response.getUpdateStatus() );
                     assertNull( response.getValidateInstance() );

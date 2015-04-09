@@ -3,6 +3,7 @@ package dk.dbc.ocbtools.testengine.asserters;
 
 //-----------------------------------------------------------------------------
 
+import dk.dbc.iscrum.utils.ResourceBundles;
 import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.ocbtools.testengine.testcases.ValidationResult;
 import dk.dbc.ocbtools.testengine.testcases.ValidationResultType;
@@ -13,45 +14,50 @@ import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 //-----------------------------------------------------------------------------
 /**
  * Helper class to assert validation results for equality.
  */
 public class Asserter {
-    public static void assertValidation( List<ValidationResult> expected, List<ValidationResult> actual ) throws IOException {
+    public static final String VALIDATION_PREFIX_KEY = "validation";
+    public static final String UPDATE_PREFIX_KEY = "update";
+
+    public static void assertValidation( String bundleKeyPrefix, List<ValidationResult> expected, List<ValidationResult> actual ) throws IOException {
         logger.entry( expected, actual );
 
         try {
+            ResourceBundle bundle = ResourceBundles.getBundle( Asserter.class.getPackage().getName() + ".messages" );
+            String errorCountKey = "assert." + bundleKeyPrefix + ".error.count";
+            String errorKey = "assert." + bundleKeyPrefix + ".error";
+
             if( !expected.equals( actual ) ) {
                 if( expected.size() != actual.size() ) {
-                    throw new AssertionError( String.format( "Number of validation errors differ.\nExpected:\n%s\nActual:\n%s\n", Json.encodePretty( expected ), Json.encodePretty( actual ) ) );
+                    throw new AssertionError( String.format( bundle.getString( errorCountKey ), Json.encodePretty( expected ), Json.encodePretty( actual ) ) );
                 }
 
                 for( int i = 0; i < expected.size(); i++ ) {
                     if( !expected.get( i ).equals( actual.get( i ) ) ) {
-                        throw new AssertionError( String.format( "Validation error at position %s differ.\n" +
-                                "Expected:\n" +
-                                "%s\n" +
-                                "Actual:\n" +
-                                "%s\n", i + 1, Json.encodePretty( expected.get( i ) ), Json.encodePretty( actual.get( i ) ) ) );
+                        throw new AssertionError( String.format( bundle.getString( errorKey ), i + 1, Json.encodePretty( expected.get( i ) ), Json.encodePretty( actual.get( i ) ) ) );
                     }
                 }
             }
+        }
+        catch( RuntimeException ex ) {
+            logger.debug( "RuntimeException", ex );
+            throw ex;
         }
         finally {
             logger.exit();
         }
     }
 
-    public static void assertValidation( List<ValidationResult> expected, ValidateInstance actual ) throws IOException {
+    public static void assertValidation( String bundleKeyPrefix, List<ValidationResult> expected, ValidateInstance actual ) throws IOException {
         logger.entry( expected, actual );
 
         try {
-            assertValidation( expected, convertValidateInstanceToValidationResults( actual ) );
+            assertValidation( bundleKeyPrefix, expected, convertValidateInstanceToValidationResults( actual ) );
         }
         finally {
             logger.exit();
