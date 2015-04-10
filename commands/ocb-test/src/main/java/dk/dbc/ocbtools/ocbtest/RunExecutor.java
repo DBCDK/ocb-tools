@@ -68,6 +68,11 @@ public class RunExecutor implements SubcommandExecutor {
             TestcaseRepository repo = TestcaseRepositoryFactory.newInstanceWithTestcases( fs );
 
             Properties settings = fs.loadSettings( this.configName );
+            if( settings == null ) {
+                output.error( "Unable to load config '{}'", this.configName );
+                return;
+            }
+
             output.info( "Using dataio url: {}", settings.getProperty( "updateservice.dataio.url" ) );
             output.info( "Using fbs url: {}", settings.getProperty( "updateservice.fbs.url" ) );
             output.info( "Using rawrepo database: {}", settings.getProperty( "rawrepo.jdbc.conn.url" ) );
