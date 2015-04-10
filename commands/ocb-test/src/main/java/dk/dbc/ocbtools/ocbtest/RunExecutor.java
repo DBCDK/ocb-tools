@@ -67,6 +67,13 @@ public class RunExecutor implements SubcommandExecutor {
             OCBFileSystem fs = new OCBFileSystem();
             TestcaseRepository repo = TestcaseRepositoryFactory.newInstanceWithTestcases( fs );
 
+            Properties settings = fs.loadSettings( this.configName );
+            output.info( "Using dataio url: {}", settings.getProperty( "updateservice.dataio.url" ) );
+            output.info( "Using fbs url: {}", settings.getProperty( "updateservice.fbs.url" ) );
+            output.info( "Using rawrepo database: {}", settings.getProperty( "rawrepo.jdbc.conn.url" ) );
+            output.info( "Using holding items database: {}", settings.getProperty( "holdings.jdbc.conn.url" ) );
+            output.info( "" );
+
             List<TestRunnerItem> items = new ArrayList<>();
             for( Testcase tc : repo.findAll() ) {
                 if( !matchAnyNames( tc, tcNames ) ) {
@@ -84,8 +91,6 @@ public class RunExecutor implements SubcommandExecutor {
                     }
                 }
                 else {
-                    Properties settings = fs.loadSettings( this.configName );
-
                     List<ValidationResult> validation = tc.getExpected().getValidation();
                     if( validation != null ) {
                         executors.add( new RemoteValidateExecutor( tc, settings, this.printDemoInfo ) );
