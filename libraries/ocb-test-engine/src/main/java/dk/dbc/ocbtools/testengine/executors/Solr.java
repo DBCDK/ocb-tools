@@ -43,9 +43,11 @@ public class Solr {
 
         String url = "";
         try {
-            url = settings.getProperty( "solr.url" );
-            SolrServer solr = new CommonsHttpSolrServer( url );
-            solr.deleteByQuery("*:*");
+            if( settings.containsKey( "solr.url" ) ) {
+                url = settings.getProperty( "solr.url" );
+                SolrServer solr = new CommonsHttpSolrServer( url );
+                solr.deleteByQuery( "*:*" );
+            }
         }
         catch( IOException | SolrServerException ex ) {
             output.error( "Unable to clear the solr index at {}: {}", url, ex.getMessage() );
