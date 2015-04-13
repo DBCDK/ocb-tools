@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -48,12 +49,14 @@ public class Holdings {
             HoldingsItemsDAO dao = HoldingsItemsDAO.newInstance( conn );
             RecordId recordId = RawRepo.getRecordId( record );
 
-            for( Integer agencyId : agencies ) {
-                RecordCollection collection = new RecordCollection( recordId.getBibliographicRecordId(), agencyId, "issue", dao );
-                collection.save();
-            }
+            if( recordId != null ) {
+                for( Integer agencyId : agencies ) {
+                    RecordCollection collection = new RecordCollection( recordId.getBibliographicRecordId(), agencyId, "issue", dao );
+                    collection.save();
+                }
 
-            conn.commit();
+                conn.commit();
+            }
         }
         catch( HoldingsItemsException ex ) {
             conn.rollback();
@@ -72,7 +75,11 @@ public class Holdings {
             HoldingsItemsDAO dao = HoldingsItemsDAO.newInstance( conn );
             RecordId recordId = RawRepo.getRecordId( record );
 
-            return result = dao.getAgenciesThatHasHoldingsFor( recordId.getBibliographicRecordId() );
+            if( recordId != null ) {
+                return result = dao.getAgenciesThatHasHoldingsFor( recordId.getBibliographicRecordId() );
+            }
+
+            return new HashSet<>();
         }
         finally {
             logger.exit( result );

@@ -73,11 +73,13 @@ public class RunExecutor implements SubcommandExecutor {
                 return;
             }
 
-            output.info( "Using dataio url: {}", settings.getProperty( "updateservice.dataio.url" ) );
-            output.info( "Using fbs url: {}", settings.getProperty( "updateservice.fbs.url" ) );
-            output.info( "Using rawrepo database: {}", settings.getProperty( "rawrepo.jdbc.conn.url" ) );
-            output.info( "Using holding items database: {}", settings.getProperty( "holdings.jdbc.conn.url" ) );
-            output.info( "" );
+            if( this.useRemote ) {
+                output.info( "Using dataio url: {}", settings.getProperty( "updateservice.dataio.url" ) );
+                output.info( "Using fbs url: {}", settings.getProperty( "updateservice.fbs.url" ) );
+                output.info( "Using rawrepo database: {}", settings.getProperty( "rawrepo.jdbc.conn.url" ) );
+                output.info( "Using holding items database: {}", settings.getProperty( "holdings.jdbc.conn.url" ) );
+                output.info( "" );
+            }
 
             List<TestRunnerItem> items = new ArrayList<>();
             for( Testcase tc : repo.findAll() ) {

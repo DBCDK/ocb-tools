@@ -83,14 +83,16 @@ public class RawRepo {
             MarcRecord marcRecord = fs.loadRecord( baseDir, record.getRecord() );
             RecordId recId = getRecordId( marcRecord );
 
-            Record newRecord = dao.fetchRecord( recId.getBibliographicRecordId(), recId.getAgencyId() );
-            newRecord.setDeleted( record.isDeleted() );
-            newRecord.setMimeType( record.getType().value() );
-            newRecord.setContent( encodeRecord( marcRecord ) );
-            dao.saveRecord( newRecord );
+            if( recId != null ) {
+                Record newRecord = dao.fetchRecord( recId.getBibliographicRecordId(), recId.getAgencyId() );
+                newRecord.setDeleted( record.isDeleted() );
+                newRecord.setMimeType( record.getType().value() );
+                newRecord.setContent( encodeRecord( marcRecord ) );
+                dao.saveRecord( newRecord );
 
-            if( record.isEnqueued() ) {
-                dao.changedRecord( PROVIDER_NAME, newRecord.getId(), newRecord.getMimeType() );
+                if( record.isEnqueued() ) {
+                    dao.changedRecord( PROVIDER_NAME, newRecord.getId(), newRecord.getMimeType() );
+                }
             }
         }
         finally {
@@ -102,10 +104,14 @@ public class RawRepo {
         logger.entry( commonOrParentRecord, enrichmentOrChildRecord );
 
         try {
-            final HashSet<RecordId> references = new HashSet<>();
-            references.add( getRecordId( commonOrParentRecord ) );
+            RecordId recordId = getRecordId( enrichmentOrChildRecord );
 
-            dao.setRelationsFrom( getRecordId( enrichmentOrChildRecord ), references );
+            if( recordId != null ) {
+                final HashSet<RecordId> references = new HashSet<>();
+                references.add( getRecordId( commonOrParentRecord ) );
+
+                dao.setRelationsFrom( recordId, references );
+            }
         }
         finally {
             logger.exit();
@@ -178,6 +184,9 @@ public class RawRepo {
             int agencyId = Integer.valueOf( MarcReader.getRecordValue( record, "001", "b" ), 10 );
 
             return new RecordId( recId, agencyId );
+        }
+        catch( NumberFormatException ex ) {
+            return null;
         }
         finally {
             logger.exit();

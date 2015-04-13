@@ -56,21 +56,21 @@ public class DemoInfoPrinter {
             output.info( SEP_LINE );
             output.info( "" );
 
-            if( tc.getSetup().getHoldings() == null || tc.getSetup().getHoldings().isEmpty() ) {
+            if( tc.getSetup() == null || tc.getSetup().getHoldings() == null || tc.getSetup().getHoldings().isEmpty() ) {
                 output.info( "Holdings: Ingen opsætning" );
             }
             else {
                 output.info( "Holdings: {}", tc.getSetup().getHoldings() );
             }
 
-            if( tc.getSetup().getSolr() == null || tc.getSetup().getSolr().isEmpty() ) {
+            if( tc.getSetup() == null || tc.getSetup().getSolr() == null || tc.getSetup().getSolr().isEmpty() ) {
                 output.info( "Solr: Ingen opsætning" );
             }
             else {
                 output.info( "Solr: \n{}", Json.encodePretty( tc.getSetup().getSolr() ) );
             }
 
-            if( tc.getSetup().getRawrepo() == null || tc.getSetup().getRawrepo().isEmpty() ) {
+            if( tc.getSetup() == null || tc.getSetup().getRawrepo() == null || tc.getSetup().getRawrepo().isEmpty() ) {
                 output.info( "Rawrepo: Ingen opsætning" );
             }
             else {
