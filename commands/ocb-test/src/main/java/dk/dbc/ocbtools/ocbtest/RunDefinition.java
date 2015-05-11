@@ -7,6 +7,7 @@ import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.Subcommand;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
+import dk.dbc.ocbtools.commons.cli.CliException;
 import dk.dbc.ocbtools.testengine.reports.JUnitReport;
 import dk.dbc.ocbtools.testengine.reports.TestReport;
 import dk.dbc.ocbtools.testengine.reports.TextReport;
@@ -32,7 +33,7 @@ public class RunDefinition implements SubcommandDefinition {
     }
 
     @Override
-    public List<Option> createOptions() {
+    public List<Option> createOptions() throws CliException {
         List<Option> options = new ArrayList<>();
 
         Option option;
@@ -49,7 +50,7 @@ public class RunDefinition implements SubcommandDefinition {
     }
 
     @Override
-    public SubcommandExecutor createExecutor( File baseDir, CommandLine line ) {
+    public SubcommandExecutor createExecutor( File baseDir, CommandLine line ) throws CliException {
         logger.entry( baseDir, line );
 
         try {

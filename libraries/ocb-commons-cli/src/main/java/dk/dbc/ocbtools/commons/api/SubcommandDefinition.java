@@ -3,6 +3,7 @@ package dk.dbc.ocbtools.commons.api;
 
 //-----------------------------------------------------------------------------
 
+import dk.dbc.ocbtools.commons.cli.CliException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
@@ -22,7 +23,7 @@ public interface SubcommandDefinition {
      *
      * @return List of options.
      */
-    public List<Option> createOptions();
+    List<Option> createOptions() throws CliException;
 
     /**
      * Factory method to create a CommandExecutor from the arguments parsed
@@ -35,5 +36,5 @@ public interface SubcommandDefinition {
      *
      * @return A command executor.
      */
-    public SubcommandExecutor createExecutor( File baseDir, CommandLine line );
+    SubcommandExecutor createExecutor( File baseDir, CommandLine line ) throws CliException;
 }
