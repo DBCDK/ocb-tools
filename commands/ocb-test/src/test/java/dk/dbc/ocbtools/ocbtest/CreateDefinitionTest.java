@@ -2,24 +2,30 @@
 package dk.dbc.ocbtools.ocbtest;
 
 //-----------------------------------------------------------------------------
+import dk.dbc.iscrum.records.providers.ISO2709Provider;
 import dk.dbc.iscrum.records.providers.MarcXChangeProvider;
 import dk.dbc.iscrum.utils.IOUtils;
 import dk.dbc.iscrum.utils.ResourceBundles;
+import dk.dbc.marc.DanMarc2Charset;
 import dk.dbc.ocbtools.commons.api.Subcommand;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.cli.CliException;
 import org.apache.commons.cli.*;
+import org.hamcrest.core.Is;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ResourceBundle;
 
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.*;
 
 //-----------------------------------------------------------------------------
@@ -106,7 +112,7 @@ public class CreateDefinitionTest {
     }
 
     @Test
-    public void testParseArgumentsOK() throws Exception {
+    public void testParseArgumentsXmlFileOK() throws Exception {
         CreateDefinition instance = new CreateDefinition();
         CommandLineParser parser = new GnuParser();
 
@@ -130,6 +136,90 @@ public class CreateDefinitionTest {
         assertEquals( "700400", executor.getAuthentication().getUser() );
         assertEquals( "20Koster", executor.getAuthentication().getPassword() );
         assertEquals( "bog", executor.getTemplateName() );
+    }
+
+    @Test
+    public void testParseArgumentsIso2709FileOK() throws Exception {
+        CreateDefinition instance = new CreateDefinition();
+        CommandLineParser parser = new GnuParser();
+
+        String[] args = {
+                "-tc", "records",
+                "-d", "description",
+                "-a", "netpunkt/700400/20Koster",
+                "-t", "bog",
+                "../../src/test/resources/records.iso", "tc_records.json"
+        };
+        CommandLine line = parser.parse( createOptions( instance ), args );
+        assertNotNull( line );
+
+        CreateExecutor executor = (CreateExecutor) instance.createExecutor( testDir, line );
+        assertEquals( testDir.getCanonicalPath() + "/tc_records.json", executor.getTestcaseFilename() );
+
+        assertTrue( executor.getRecordsProvider() instanceof ISO2709Provider );
+        ISO2709Provider provider = (ISO2709Provider) executor.getRecordsProvider();
+        assertThat( provider, notNullValue() );
+        assertThat( provider.getCharset(), is( StandardCharsets.UTF_8 ) );
+
+        assertEquals( "records", executor.getTestcaseName() );
+        assertEquals( "description", executor.getDescription() );
+        assertNotNull( executor.getAuthentication() );
+        assertEquals( "netpunkt", executor.getAuthentication().getGroup() );
+        assertEquals( "700400", executor.getAuthentication().getUser() );
+        assertEquals( "20Koster", executor.getAuthentication().getPassword() );
+        assertEquals( "bog", executor.getTemplateName() );
+    }
+
+    @Test
+    public void testParseArgumentsIso2709FileCharSetDanmarc2OK() throws Exception {
+        CreateDefinition instance = new CreateDefinition();
+        CommandLineParser parser = new GnuParser();
+
+        String[] args = {
+                "-tc", "records",
+                "-d", "description",
+                "-a", "netpunkt/700400/20Koster",
+                "-t", "bog",
+                "-c", "dm2",
+                "../../src/test/resources/records.iso", "tc_records.json"
+        };
+        CommandLine line = parser.parse( createOptions( instance ), args );
+        assertNotNull( line );
+
+        CreateExecutor executor = (CreateExecutor) instance.createExecutor( testDir, line );
+        assertEquals( testDir.getCanonicalPath() + "/tc_records.json", executor.getTestcaseFilename() );
+
+        assertTrue( executor.getRecordsProvider() instanceof ISO2709Provider );
+        ISO2709Provider provider = (ISO2709Provider) executor.getRecordsProvider();
+        assertThat( provider, notNullValue() );
+        assertThat( provider.getCharset(), Is.<Charset>is( new DanMarc2Charset() ) );
+
+        assertEquals( "records", executor.getTestcaseName() );
+        assertEquals( "description", executor.getDescription() );
+        assertNotNull( executor.getAuthentication() );
+        assertEquals( "netpunkt", executor.getAuthentication().getGroup() );
+        assertEquals( "700400", executor.getAuthentication().getUser() );
+        assertEquals( "20Koster", executor.getAuthentication().getPassword() );
+        assertEquals( "bog", executor.getTemplateName() );
+    }
+
+    @Test( expected = java.nio.charset.UnsupportedCharsetException.class )
+    public void testParseArgumentsIso2709FileUnknownCharset() throws Exception {
+        CreateDefinition instance = new CreateDefinition();
+        CommandLineParser parser = new GnuParser();
+
+        String[] args = {
+                "-tc", "records",
+                "-d", "description",
+                "-a", "netpunkt/700400/20Koster",
+                "-t", "bog",
+                "-c", "xxx-unknown",
+                "../../src/test/resources/records.iso", "tc_records.json"
+        };
+        CommandLine line = parser.parse( createOptions( instance ), args );
+        assertNotNull( line );
+
+        instance.createExecutor( testDir, line );
     }
 
     //-------------------------------------------------------------------------

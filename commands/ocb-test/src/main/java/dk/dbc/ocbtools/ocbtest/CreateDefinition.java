@@ -2,9 +2,11 @@
 package dk.dbc.ocbtools.ocbtest;
 
 //-----------------------------------------------------------------------------
+import dk.dbc.iscrum.records.providers.ISO2709Provider;
 import dk.dbc.iscrum.records.providers.MarcXChangeProvider;
 import dk.dbc.iscrum.utils.ResourceBundles;
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
+import dk.dbc.marc.DanMarc2Charset;
 import dk.dbc.ocbtools.commons.api.Subcommand;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
@@ -18,6 +20,8 @@ import org.slf4j.ext.XLoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -45,6 +49,8 @@ public class CreateDefinition implements SubcommandDefinition {
         option = new Option( "a", "auth", true, "Netpunkt-triple til authentication. Værdien skal være group/user/passwd adskilt med '/'" );
         options.add( option );
         option = new Option( "t", "template-name", true, "Navn på skabelon" );
+        options.add( option );
+        option = new Option( "c", "charset", true, "Tegnsæt til en iso2709-fil." );
         options.add( option );
 
         return options;
@@ -84,10 +90,26 @@ public class CreateDefinition implements SubcommandDefinition {
                 executor.setTemplateName( line.getOptionValue( "t" ) );
             }
 
+            Charset charset = StandardCharsets.UTF_8;
+            if( line.hasOption( "c" ) ) {
+                String charsetName = line.getOptionValue( "c" );
+                if( charsetName.equals( "dm2" ) ) {
+                    charset = new DanMarc2Charset();
+                }
+                else {
+                    charset = Charset.forName( charsetName );
+                }
+            }
+
             List<String> args = line.getArgList();
             if( !args.isEmpty() ) {
                 File recordsFile = new File( baseDir.getCanonicalPath() + "/" + args.get( 0 ) );
-                executor.setRecordsProvider( new MarcXChangeProvider( recordsFile ) );
+                if( recordsFile.getAbsolutePath().endsWith( ".xml" ) ) {
+                    executor.setRecordsProvider( new MarcXChangeProvider( recordsFile ) );
+                }
+                else if( recordsFile.getAbsolutePath().endsWith( ".iso" ) ) {
+                    executor.setRecordsProvider( new ISO2709Provider( new FileInputStream( recordsFile ), charset ) );
+                }
 
                 if( args.size() == 2 ) {
                     executor.setTestcaseFilename( baseDir.getCanonicalPath() + "/" + args.get( 1 ) );

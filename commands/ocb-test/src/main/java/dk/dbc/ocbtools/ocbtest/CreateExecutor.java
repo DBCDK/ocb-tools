@@ -130,6 +130,7 @@ public class CreateExecutor implements SubcommandExecutor {
 
                 recordNo++;
             }
+            this.recordsProvider.close();
 
             File file = new File( this.testcaseFilename );
             String testcasesEncoded = Json.encodePretty( testcases );
