@@ -34,6 +34,23 @@ public class TestcaseExpectedResult {
         this.update = update;
     }
 
+    //-------------------------------------------------------------------------
+    //              Checks
+    //-------------------------------------------------------------------------
+
+    public boolean hasValidationErrors() {
+        if( validation == null ) {
+            return false;
+        }
+
+        for( ValidationResult valResult : validation ) {
+            if( valResult.getType() == ValidationResultType.ERROR ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     //-------------------------------------------------------------------------
     //              Object

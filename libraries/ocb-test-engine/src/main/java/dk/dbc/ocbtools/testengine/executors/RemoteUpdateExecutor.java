@@ -25,6 +25,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -84,27 +85,26 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
             try {
                 assertNotNull( "No expected results found.", tc.getExpected() );
 
-                UpdateStatusEnum expectedUpdateStatus = UpdateStatusEnum.VALIDATION_ERROR;
-                List<ValidationResult> errors = tc.getExpected().getValidation();
-                if( errors == null || errors.isEmpty() ) {
-                    assertNotNull( "No expected update result found", tc.getExpected().getUpdate() );
-                    errors = tc.getExpected().getUpdate().getErrors();
-                    expectedUpdateStatus = UpdateStatusEnum.FAILED_UPDATE_INTERNAL_ERROR;
+                if( tc.getExpected().hasValidationErrors() ) {
+                    Asserter.assertValidation( Asserter.UPDATE_PREFIX_KEY, tc.getExpected().getValidation(), response.getValidateInstance() );
+                    assertEquals( UpdateStatusEnum.VALIDATION_ERROR, response.getUpdateStatus() );
                 }
-                assertNotNull( "No expected validation or update errors found.", errors );
-
-                Asserter.assertValidation( Asserter.UPDATE_PREFIX_KEY, errors, response.getValidateInstance() );
-                if( errors.isEmpty() ) {
-                    assertEquals( UpdateStatusEnum.OK, response.getUpdateStatus() );
-                    assertNull( response.getValidateInstance() );
-                }
-                else {
-                    assertEquals( expectedUpdateStatus, response.getUpdateStatus() );
-                }
-                assertNull( response.getError() );
 
                 if( tc.getExpected().getUpdate() == null ) {
                     return;
+                }
+
+                if( tc.getExpected().getUpdate().getErrors() == null || tc.getExpected().getUpdate().getErrors().isEmpty() ) {
+                    Asserter.assertValidation( Asserter.UPDATE_PREFIX_KEY, new ArrayList<ValidationResult>(), response.getValidateInstance() );
+                    assertEquals( UpdateStatusEnum.OK, response.getUpdateStatus() );
+                }
+                else if( tc.getExpected().getUpdate().hasUpdateErrors() ) {
+                    Asserter.assertValidation( Asserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getErrors(), response.getValidateInstance() );
+                    assertEquals( UpdateStatusEnum.VALIDATION_ERROR, response.getUpdateStatus() );
+                }
+                else {
+                    Asserter.assertValidation( Asserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getErrors(), response.getValidateInstance() );
+                    assertEquals( UpdateStatusEnum.OK, response.getUpdateStatus() );
                 }
 
                 if( tc.getExpected().getUpdate().getRawrepo() != null ) {

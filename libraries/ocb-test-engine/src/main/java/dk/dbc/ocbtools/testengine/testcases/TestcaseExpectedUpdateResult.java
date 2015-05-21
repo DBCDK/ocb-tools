@@ -34,6 +34,23 @@ public class TestcaseExpectedUpdateResult {
         this.rawrepo = rawrepo;
     }
 
+    //-------------------------------------------------------------------------
+    //              Checks
+    //-------------------------------------------------------------------------
+
+    public boolean hasUpdateErrors() {
+        if( errors == null ) {
+            return false;
+        }
+
+        for( ValidationResult errResult : errors ) {
+            if( errResult.getType() == ValidationResultType.ERROR ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     //-------------------------------------------------------------------------
     //              Object
