@@ -2,6 +2,7 @@ package dk.dbc.ocbtools.ocbrecord;
 
 import java.io.File;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by thl on 3/3/15.
@@ -14,14 +15,18 @@ public class OCBRecordData {
     private String format = null;
     private MarcType formatType = null;
     private String faustNumber = null;
-    private String buildUrl = null;
     private String openNumberRollUrl = null;
     private String inputFile = null;
     private String inputFileContentString = null;
     private List<String> inputFileContentList = null;
     private String inputEncoding = null;
+    private Boolean remote = false;
+    private String buildWsUrl = null;
+    private String uuid = null;
 
-    public OCBRecordData() {}
+    public OCBRecordData() {
+        this.uuid = UUID.randomUUID().toString();
+    }
 
     public File getBaseDir() {
         return baseDir;
@@ -79,14 +84,6 @@ public class OCBRecordData {
         this.faustNumber = faustNumber;
     }
 
-    public String getBuildUrl() {
-        return buildUrl;
-    }
-
-    public void setBuildUrl( String buildUrl ) {
-        this.buildUrl = buildUrl;
-    }
-
     public String getOpenNumberRollUrl() {
         return openNumberRollUrl;
     }
@@ -127,6 +124,30 @@ public class OCBRecordData {
         this.inputEncoding = inputEncoding;
     }
 
+    public Boolean isRemote() {
+        return remote;
+    }
+
+    public void setRemote( Boolean remote ) {
+        this.remote = remote;
+    }
+
+    public String getBuildWsUrl() {
+        return buildWsUrl;
+    }
+
+    public void setBuildWsUrl( String buildWsUrl ) {
+        this.buildWsUrl = buildWsUrl;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid( String uuid ) {
+        this.uuid = uuid;
+    }
+
     @Override
     public String toString() {
         return "OCBRecordData{" +
@@ -137,12 +158,14 @@ public class OCBRecordData {
                 ", format='" + format + '\'' +
                 ", formatType=" + formatType +
                 ", faustNumber='" + faustNumber + '\'' +
-                ", buildUrl='" + buildUrl + '\'' +
                 ", openNumberRollUrl='" + openNumberRollUrl + '\'' +
                 ", inputFile='" + inputFile + '\'' +
                 ", inputFileContentString='" + inputFileContentString + '\'' +
                 ", inputFileContentList=" + inputFileContentList +
                 ", inputEncoding='" + inputEncoding + '\'' +
+                ", remote=" + remote +
+                ", buildWsUrl='" + buildWsUrl + '\'' +
+                ", uuid='" + uuid + '\'' +
                 '}';
     }
 }

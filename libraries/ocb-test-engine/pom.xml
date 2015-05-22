@@ -6,7 +6,7 @@
         <artifactId>ocb-libraries</artifactId>
         <groupId>dk.dbc.ocb-tools</groupId>
         <version>1.0-SNAPSHOT</version>
-    </parent>
+    </parent >
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ocb-test-engine</artifactId>

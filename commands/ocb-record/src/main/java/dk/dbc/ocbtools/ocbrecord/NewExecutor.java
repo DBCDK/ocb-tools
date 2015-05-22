@@ -2,6 +2,13 @@ package dk.dbc.ocbtools.ocbrecord;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dk.dbc.buildservice.client.BuildService;
+import dk.dbc.buildservice.service.api.BibliographicRecord;
+import dk.dbc.buildservice.service.api.BuildPortType;
+import dk.dbc.buildservice.service.api.BuildRequest;
+import dk.dbc.buildservice.service.api.BuildResult;
+import dk.dbc.buildservice.service.api.ExtraRecordData;
+import dk.dbc.buildservice.service.api.RecordData;
 import dk.dbc.iscrum.records.MarcConverter;
 import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.records.MarcRecordFactory;
@@ -19,6 +26,7 @@ import dk.dbc.ocbtools.scripter.ServiceScripter;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -44,6 +52,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -69,24 +79,105 @@ public class NewExecutor implements SubcommandExecutor {
     }
 
     @Override
+    // Main command entrypoint
     public void actionPerformed() throws CliException {
         output.entry();
         try {
-            ocbRecordData = readPropertiesFile( ocbRecordData );
             ocbRecordData = parseFormatFromInput( ocbRecordData );
+            ocbRecordData = readPropertiesFile( ocbRecordData );
             ocbRecordData = getFaustNumberFromOpenNumberRoll( ocbRecordData );
             validateProgramParameters( ocbRecordData );
             printProgramInfo( ocbRecordData );
             ocbRecordData = readInputFileIntoData( ocbRecordData );
 
-            ServiceScripter serviceScripter = getNewScripterService( ocbRecordData );
-            String resultOfJavascriptCall = callJavascript( serviceScripter, ocbRecordData );
-            printGeneratedOutput( ocbRecordData, resultOfJavascriptCall );
+            if ( ocbRecordData.isRemote() ) {
+                String resultOfRemoteJavascriptCall = callWebService( ocbRecordData );
+                String generatedOutput = generateOutput( ocbRecordData, resultOfRemoteJavascriptCall );
+                printGeneratedOutput( ocbRecordData, generatedOutput );
+            } else {
+                ServiceScripter serviceScripter = getNewScripterService( ocbRecordData );
+                String resultOfLocalJavascriptCall = callJavascript( serviceScripter, ocbRecordData );
+                String generatedOutput = generateOutput( ocbRecordData, resultOfLocalJavascriptCall );
+                printGeneratedOutput( ocbRecordData, generatedOutput );
+            }
         } finally {
             output.exit();
         }
     }
 
+    // Call the build webservice and return the json result as a string
+    private String callWebService( OCBRecordData ocbRecordData ) throws CliException {
+        output.entry( ocbRecordData );
+        String res = null;
+        try {
+            String webServiceUrl = ocbRecordData.getBuildWsUrl();
+            URL url = new URL( webServiceUrl );
+            BuildService buildService = new BuildService( url );
+            BuildPortType buildPortType = buildService.createPort();
+
+            BuildRequest buildRequest = createBuildRequest( ocbRecordData );
+            BuildResult buildResult = buildPortType.build( buildRequest );
+            res = convertBuildResultToJson( buildResult );
+            return res;
+        } catch ( MalformedURLException e ) {
+            output.catching( e );
+            output.info( "Programmet fejlede med denne besked:" );
+            output.info( e.getMessage() );
+            throw new CliException( e.getMessage(), e );
+        } finally {
+            output.exit( res );
+        }
+    }
+
+    // Convert the buildresult to a json string
+    private String convertBuildResultToJson( BuildResult buildResult ) throws CliException {
+        output.entry( buildResult );
+        String res = null;
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            addJacksonMixInAnnotations( objectMapper );
+            MarcRecord record = null;
+            if ( buildResult != null && buildResult.getBibliographicRecord() != null && buildResult.getBibliographicRecord().getRecordData() != null) {
+                List<Object> list = buildResult.getBibliographicRecord().getRecordData().getContent();
+                for ( Object o : list ) {
+                    if ( o instanceof Node ) {
+                        record = MarcConverter.createFromMarcXChange( new DOMSource( ( Node ) o ) );
+                        res = objectMapper.writeValueAsString( record );
+                        break;
+                    }
+                }
+            }
+            return res;
+        } catch ( JsonProcessingException e ) {
+            throw new CliException( e.getMessage(), e );
+        } finally {
+            output.exit( res );
+        }
+    }
+
+    // Create buildservice request from ocbRecordData object
+    private BuildRequest createBuildRequest( OCBRecordData ocbRecordData ) throws CliException {
+        output.entry( ocbRecordData );
+        BuildRequest buildRequest = null;
+        try {
+            buildRequest = new BuildRequest();
+            buildRequest.setSchemaName( ocbRecordData.getTemplate() );
+            buildRequest.setTrackingId( ocbRecordData.getUuid() );
+            BibliographicRecord bibliographicRecord = new BibliographicRecord();
+            bibliographicRecord.setRecordPacking( OCBRecordStatics.RECORD_PACKING );
+            bibliographicRecord.setRecordSchema( OCBRecordStatics.RECORD_SCHEMA );
+            RecordData recordData = new RecordData();
+            bibliographicRecord.setRecordData( recordData );
+            ExtraRecordData extraRecordData = new ExtraRecordData();
+            bibliographicRecord.setExtraRecordData( extraRecordData );
+            buildRequest.setBibliographicRecord( bibliographicRecord );
+            return buildRequest;
+        } finally {
+            output.exit( buildRequest );
+        }
+    }
+
+    // Call the embedded buildservice javascript logic
     private String callJavascript( ServiceScripter serviceScripter, OCBRecordData ocbRecordData ) throws CliException {
         output.entry( serviceScripter, ocbRecordData );
         String res = null;
@@ -94,15 +185,16 @@ public class NewExecutor implements SubcommandExecutor {
             Properties properties = getPropertiesForJavascript( ocbRecordData );
             String inputStringAsJson = getInputFileAsJsonString( ocbRecordData );
             Object recordObj = serviceScripter.callMethod( "openbuild.js", "buildRecord", ocbRecordData.getTemplate(), inputStringAsJson, ocbRecordData.getFaustNumber(), properties );
-            res = generateOutput( ocbRecordData, recordObj.toString() );
+            res = recordObj.toString();
             return res;
-        } catch ( ScripterException ex ) {
-            throw new CliException( ex.getMessage(), ex );
+        } catch ( ScripterException e ) {
+            throw new CliException( e.getMessage(), e );
         } finally {
             output.exit( res );
         }
     }
 
+    // Read the requested inputfile and return it as a json string
     private String getInputFileAsJsonString( OCBRecordData ocbRecordData ) throws CliException {
         output.entry( ocbRecordData );
         String res = null;
@@ -130,6 +222,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Convert a MarXchange string to a json string
     private String convertMarcXchangeStringToJson( OCBRecordData ocbRecordData ) throws CliException {
         output.entry( ocbRecordData );
         String res = null;
@@ -146,6 +239,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Convert a Marc string to a json string
     private String convertMarcStringToJson( OCBRecordData ocbRecordData ) throws CliException {
         output.entry( ocbRecordData );
         String res = null;
@@ -162,6 +256,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Create a new scriptor service object. The scriptor service contains the javascript environment
     private ServiceScripter getNewScripterService( OCBRecordData ocbRecordData ) throws CliException {
         output.entry( ocbRecordData );
         ServiceScripter serviceScripter = null;
@@ -181,6 +276,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Write the formatted buildservice result string to a file
     private void writeResultToFile( OCBRecordData ocbRecordData, String result ) throws CliException {
         output.entry( ocbRecordData, result );
         try {
@@ -198,6 +294,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Generates output in the request format (JSON, MARC, MarcXchange) and returns it as a string
     private String generateOutput( OCBRecordData ocbRecordData, String result ) throws CliException {
         output.entry( ocbRecordData, result );
         String res = null;
@@ -221,6 +318,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Convert a json string to a MARC formatted string
     private String decodeJsonToMarc( String result ) throws CliException {
         output.entry( result );
         String res = null;
@@ -235,6 +333,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Convert a json string to a MarcXchange formatted string
     private String decodeJsonToMarcXchange( String result ) throws CliException {
         output.entry( result );
         String res = null;
@@ -277,47 +376,61 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Output the formatted result to either a file or screen
     private void printGeneratedOutput( OCBRecordData ocbRecordData, String result ) throws CliException {
         output.entry( ocbRecordData, result );
         try {
             if ( ocbRecordData.getOutputFile() != null ) {
                 writeResultToFile( ocbRecordData, result );
             } else {
-                output.info( "\n-------------- Output start --------------\n" + result + "-------------- Output slut ---------------" );
+                output.info( "\n-------------- Output start --------------\n" + result + "\n-------------- Output slut ---------------" );
             }
         } finally {
             output.exit();
         }
     }
 
+    // Read the properties file and populate internal data object
     private OCBRecordData readPropertiesFile( OCBRecordData ocbRecordData ) throws CliException {
-        output.entry();
-        OCBRecordData res = ocbRecordData;
+        output.entry( ocbRecordData );
         try {
             InputStream inputStream = new FileInputStream( "ocb-record.settings" );
             InputStreamReader inputStreamReader = new InputStreamReader( inputStream, "UTF8" );
             Properties properties = new Properties();
             properties.load( inputStreamReader );
-            if ( !properties.containsKey( OCBRecordStatics.PROP_BUILD_URL ) ) {
-                throw new CliException( "Property " + OCBRecordStatics.PROP_BUILD_URL + " ikke fundet i settings fil." );
+            String webserviceUrl;
+            if ( ocbRecordData.getDistribution().equalsIgnoreCase( "fbs" ) ) {
+                if ( !properties.containsKey( OCBRecordStatics.PROP_BUILD_FBS_URL ) ) {
+                    throw new CliException( "Property " + OCBRecordStatics.PROP_BUILD_FBS_URL + " ikke fundet i settings fil." );
+                }
+                webserviceUrl = properties.getProperty( OCBRecordStatics.PROP_BUILD_FBS_URL );
+            } else if ( ocbRecordData.getDistribution().equalsIgnoreCase( "dataio" ) ) {
+                if ( !properties.containsKey( OCBRecordStatics.PROP_BUILD_DATAIO_URL ) ) {
+                    throw new CliException( "Property " + OCBRecordStatics.PROP_BUILD_DATAIO_URL + " ikke fundet i settings fil." );
+                }
+                webserviceUrl = properties.getProperty( OCBRecordStatics.PROP_BUILD_DATAIO_URL );
+            } else {
+                // This shouldn't happen, but probably did anyway, bugger
+                throw new CliException( "Property " + OCBRecordStatics.PROP_BUILD_DATAIO_URL + " ikke fundet i settings fil." );
             }
+            ocbRecordData.setBuildWsUrl( webserviceUrl );
+
             if ( !properties.containsKey( OCBRecordStatics.PROP_OPENNUMBERROLL_URL ) ) {
                 throw new CliException( "Property " + OCBRecordStatics.PROP_OPENNUMBERROLL_URL + " ikke fundet i settings fil." );
             }
-            String buildUrl = properties.getProperty( OCBRecordStatics.PROP_BUILD_URL );
-            res.setBuildUrl( buildUrl );
             String openNumberRollUrl = properties.getProperty( OCBRecordStatics.PROP_OPENNUMBERROLL_URL );
-            res.setOpenNumberRollUrl( openNumberRollUrl );
-            return res;
+            ocbRecordData.setOpenNumberRollUrl( openNumberRollUrl );
+            return ocbRecordData;
         } catch ( FileNotFoundException ex ) {
             throw new CliException( "ocb-record.settings fil ikke fundet.", ex );
         } catch ( IOException ex ) {
             throw new CliException( ex.getMessage(), ex );
         } finally {
-            output.exit( res );
+            output.exit( ocbRecordData );
         }
     }
 
+    // Get faust number from opennumberroll
     private OCBRecordData getFaustNumberFromOpenNumberRoll( OCBRecordData ocbRecordData ) throws CliException {
         output.entry( ocbRecordData );
         OCBRecordData res = ocbRecordData;
@@ -338,6 +451,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Extract faustnumber from opennumberroll xml response
     private String getFaustNumberFromOpenNumberRollReponse( String openNumberRollResponse ) throws CliException {
         output.entry( openNumberRollResponse );
         String res = null;
@@ -357,34 +471,46 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Output program running parameters
     private void printProgramInfo( OCBRecordData ocbRecordData ) {
         output.entry( ocbRecordData );
         try {
             output.info( "ocb-record parametre:");
-            output.info( "Distribution: " + ocbRecordData.getDistribution() );
+            output.info( "Distribution.....: " + ocbRecordData.getDistribution() );
             if ( ocbRecordData.getOutputFile() != null ) {
-                output.info( "Output filnavn: " + ocbRecordData.getOutputFile() );
+                output.info( "Output filnavn...: " + ocbRecordData.getOutputFile() );
             } else {
-                output.info( "Output filnavn: ingen (direkte til skærm)" );
+                output.info( "Output filnavn...: ingen (direkte til skærm)" );
             }
             if ( ocbRecordData.getInputFile() != null ) {
-                output.info( "Input filnavn.: " + ocbRecordData.getInputFile() );
+                output.info( "Input filnavn....: " + ocbRecordData.getInputFile() );
             } else {
-                output.info( "Input filnavn.: ingen (ny post genereres)" );
+                output.info( "Input filnavn....: ingen (ny post genereres)" );
             }
-            output.info( "Skabelon......: " + ocbRecordData.getTemplate() );
-            output.info( "Format........: " + ocbRecordData.getFormatType().typeToString() );
-            output.info( "Faust nummer..: " + ocbRecordData.getFaustNumber() );
+            output.info( "Skabelon.........: " + ocbRecordData.getTemplate() );
+            output.info( "Format...........: " + ocbRecordData.getFormatType().typeToString() );
+            output.info( "Faust nummer.....: " + ocbRecordData.getFaustNumber() );
             if ( ocbRecordData.getInputEncoding() != null && ocbRecordData.getInputFile() != null ) {
-                output.info( "Filkodning....: " + ocbRecordData.getInputEncoding() );
+                output.info( "Filkodning.......: " + ocbRecordData.getInputEncoding() );
             } else {
-                output.info( "Filkodning....: ignoreret (ingen inputfil angivet)" );
+                output.info( "Filkodning.......: ignoreret (ingen inputfil angivet)" );
             }
+            if ( ocbRecordData.isRemote() ) {
+                output.info( "Remote...........: ja, mod webservice" );
+            } else {
+                output.info( "Remote...........: nej, lokalt" );
+            }
+            if ( ocbRecordData.isRemote() ) {
+                output.info( "Tracking id......: " + ocbRecordData.getUuid() );
+                output.info( "Build WS url.....: " + ocbRecordData.getBuildWsUrl() );
+            }
+            output.info( "Numberroll url...: " + ocbRecordData.getOpenNumberRollUrl() );
         } finally {
             output.exit();
         }
     }
 
+    // Validate input parameters
     private void validateProgramParameters( OCBRecordData ocbRecordData ) throws CliException {
         output.entry( ocbRecordData );
         try {
@@ -421,6 +547,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Validates program parameter basedir is correct
     private Boolean validateProgramParametersBaseDir( OCBRecordData ocbRecordData ) throws CliException {
         output.entry( ocbRecordData );
         Boolean res = false;
@@ -440,15 +567,18 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Validates program distribution is correct
     private Boolean validateProgramParametersDistribution( OCBRecordData ocbRecordData ) throws CliException {
         output.entry( ocbRecordData );
         Boolean res = false;
         try {
-            File baseDir = ocbRecordData.getBaseDir();
-            String distribution = ocbRecordData.getDistribution();
-            String distributionsDirName = baseDir.getCanonicalPath().concat( "/distributions/" ).concat( distribution );
-            Path path = Paths.get( distributionsDirName );
-            res = Files.isDirectory( path );
+            if ( ocbRecordData.getDistribution().equalsIgnoreCase( "fbs" ) || ocbRecordData.getDistribution().equalsIgnoreCase( "dataio" ) ) {
+                File baseDir = ocbRecordData.getBaseDir();
+                String distribution = ocbRecordData.getDistribution();
+                String distributionsDirName = baseDir.getCanonicalPath().concat( "/distributions/" ).concat( distribution );
+                Path path = Paths.get( distributionsDirName );
+                res = Files.isDirectory( path );
+            }
             return res;
         } catch ( IOException ex ) {
             throw new CliException( ex.getMessage(), ex );
@@ -457,6 +587,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Validates program parameter output is correct
     private Boolean validateProgramParametersOutputFile( OCBRecordData ocbRecordData ) throws CliException {
         output.entry( ocbRecordData );
         Boolean res = true;
@@ -471,6 +602,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Validates program parameter template (skabelon) is correct
     private Boolean validateProgramParametersTemplate( OCBRecordData ocbRecordData ) throws CliException {
         output.entry( ocbRecordData );
         Boolean res = false;
@@ -490,6 +622,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Validates program parameter format is correct
     private Boolean validateProgramParametersFormat( OCBRecordData ocbRecordData ) {
         output.entry( ocbRecordData );
         Boolean res = true;
@@ -506,6 +639,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Validates program parameter input file is correct
     private Boolean validateProgramParametersInputFile( OCBRecordData ocbRecordData ) {
         output.entry( ocbRecordData );
         Boolean res = false;
@@ -520,6 +654,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Validates program parameter input file charset is correct
     private Boolean validateProgramParametersCharset( OCBRecordData ocbRecordData ) {
         output.entry( ocbRecordData );
         Boolean res = true;
@@ -538,19 +673,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
-    private Boolean validateProgramParametersInputAndCharset( OCBRecordData ocbRecordData )  {
-        output.entry( ocbRecordData );
-        Boolean res = true;
-        try {
-            if ( ocbRecordData.getInputEncoding() != null && ocbRecordData.getInputFile() == null ) {
-                res = false;
-            }
-            return res;
-        } finally {
-            output.exit( res );
-        }
-    }
-
+    // Read javascript properties file
     private Properties getPropertiesForJavascript( OCBRecordData ocbRecordData ) throws CliException {
         output.entry( ocbRecordData );
         Properties properties = null;
@@ -566,6 +689,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Read input file as a string list
     private List<String> getInputFileAsStringList( OCBRecordData ocbRecordData ) throws CliException {
         output.entry( ocbRecordData );
         List<String> res = null;
@@ -581,6 +705,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Determine inputfile character encoding
     private Charset getInputFileEncoding( OCBRecordData ocbRecordData ) {
         output.entry( ocbRecordData );
         Charset charset = null;
@@ -602,6 +727,7 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Return input file as a string list
     private String getInputFileAsString( OCBRecordData ocbRecordData ) throws CliException {
         output.entry( ocbRecordData );
         String res = null;
@@ -620,46 +746,47 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Read input file into internal data object
     private OCBRecordData readInputFileIntoData( OCBRecordData ocbRecordData ) throws CliException {
         output.entry( ocbRecordData );
-        OCBRecordData res = ocbRecordData;
         try {
             if ( ocbRecordData.getInputFile() != null ) {
-                List<String> inputFileContentStringList = getInputFileAsStringList( res );
-                res.setInputFileContentList( inputFileContentStringList );
-                String inputFileContentString = getInputFileAsString( res );
-                res.setInputFileContentString( inputFileContentString );
+                List<String> inputFileContentStringList = getInputFileAsStringList( ocbRecordData );
+                ocbRecordData.setInputFileContentList( inputFileContentStringList );
+                String inputFileContentString = getInputFileAsString( ocbRecordData );
+                ocbRecordData.setInputFileContentString( inputFileContentString );
                 output.info( "Detekteret følgende input filtype: " + detectInputFileContentType( ocbRecordData ).typeToString() );
             }
-            return res;
+            return ocbRecordData;
         } finally {
-            output.exit( res );
+            output.exit( ocbRecordData );
         }
     }
 
+    // Parse input file by file type
     private OCBRecordData parseFormatFromInput( OCBRecordData ocbRecordData ) {
         output.entry( ocbRecordData );
-        OCBRecordData res = ocbRecordData;
         try {
-            if ( res.getFormat() != null ) {
+            if ( ocbRecordData.getFormat() != null ) {
                 if ( "MARC".equalsIgnoreCase( ocbRecordData.getFormat() ) ) {
-                    res.setFormatType( MarcType.MARC );
+                    ocbRecordData.setFormatType( MarcType.MARC );
                 } else if ( "MARCXCHANGE".equalsIgnoreCase( ocbRecordData.getFormat() ) ) {
-                    res.setFormatType( MarcType.MARCXCHANGE );
+                    ocbRecordData.setFormatType( MarcType.MARCXCHANGE );
                 } else if ( "JSON".equalsIgnoreCase( ocbRecordData.getFormat() ) ) {
-                    res.setFormatType( MarcType.JSON );
+                    ocbRecordData.setFormatType( MarcType.JSON );
                 } else {
-                    res.setFormatType( MarcType.MARC );
+                    ocbRecordData.setFormatType( MarcType.MARC );
                 }
             } else {
-                res.setFormatType( MarcType.MARC );
+                ocbRecordData.setFormatType( MarcType.MARC );
             }
-            return res;
+            return ocbRecordData;
         } finally {
-            output.exit( res );
+            output.exit( ocbRecordData );
         }
     }
 
+    // Determine file type of input file
     private MarcType detectInputFileContentType( OCBRecordData ocbRecordData ) {
         output.entry( ocbRecordData );
         MarcType res = MarcType.UNKNOWN;
@@ -683,9 +810,9 @@ public class NewExecutor implements SubcommandExecutor {
         }
     }
 
+    // Initialize jackson with annotation classes
     private void addJacksonMixInAnnotations( ObjectMapper objectMapper ) {
-        output.entry();
-        // Initialize jackson with annotation classes
+        output.entry( objectMapper );
         try {
             for ( Map.Entry<Class<?>, Class<?>> e : MixIns.getMixIns().entrySet() ) {
                 objectMapper.addMixInAnnotations( e.getKey(), e.getValue() );
