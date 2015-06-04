@@ -9,9 +9,9 @@ import dk.dbc.marcxmerge.MarcXChangeMimeType;
  * Represents a record type in json testcases.
  */
 public enum TestcaseRecordType {
-    COMMON( MarcXChangeMimeType.MARCXCHANGE ),
-    ENRICHMENT( MarcXChangeMimeType.ENRICHMENT ),
-    LOCALE( MarcXChangeMimeType.DECENTRAL );
+    MARCXCHANGE( MarcXChangeMimeType.MARCXCHANGE ),
+    DECENTRALE( MarcXChangeMimeType.DECENTRAL ),
+    ENRICHMENT( MarcXChangeMimeType.ENRICHMENT );
 
     //-------------------------------------------------------------------------
     //              Constructors
