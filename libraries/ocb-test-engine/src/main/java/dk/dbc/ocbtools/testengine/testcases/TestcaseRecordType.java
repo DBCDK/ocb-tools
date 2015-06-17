@@ -10,7 +10,6 @@ import dk.dbc.marcxmerge.MarcXChangeMimeType;
  */
 public enum TestcaseRecordType {
     MARCXCHANGE( MarcXChangeMimeType.MARCXCHANGE ),
-    DECENTRALE( MarcXChangeMimeType.DECENTRAL ),
     ENRICHMENT( MarcXChangeMimeType.ENRICHMENT );
 
     //-------------------------------------------------------------------------
