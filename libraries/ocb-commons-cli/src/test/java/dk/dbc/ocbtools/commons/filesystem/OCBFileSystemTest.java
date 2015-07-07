@@ -3,13 +3,19 @@ package dk.dbc.ocbtools.commons.filesystem;
 
 //-----------------------------------------------------------------------------
 
+import org.hamcrest.Matchers;
+import org.hamcrest.collection.IsIterableContainingInAnyOrder;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.*;
+
 
 /**
  * Created by stp on 14/02/15.
@@ -32,7 +38,7 @@ public class OCBFileSystemTest {
         OCBFileSystem instance = newInstance();
 
         String[] expected = { "dataio", "fbs" };
-        assertEquals( Arrays.asList( expected ), instance.findDistributions() );
+        assertThat(instance.findDistributions(), containsInAnyOrder(expected));
     }
 
     @Test

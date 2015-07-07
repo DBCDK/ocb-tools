@@ -97,7 +97,7 @@ public class ServiceScripter {
 
             return result;
         }
-        catch( JavaScriptException ex ) {
+        catch( Exception ex ) {
             throw new ScripterException( ex.getMessage(), ex );
         }
         finally {
@@ -192,7 +192,7 @@ public class ServiceScripter {
 
             throw new ScripterException( "Unable to find an environment for file %s", fileName );
         }
-        catch( IOException ex ) {
+        catch( Exception ex ) {
             logger.error( "Unable to load file {}: {}", jsFileName, ex.getMessage() );
             throw new ScripterException( ex.getMessage(), ex );
         }
