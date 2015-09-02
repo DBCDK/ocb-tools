@@ -51,7 +51,7 @@ public class Holdings {
 
             if( recordId != null ) {
                 for( Integer agencyId : agencies ) {
-                    RecordCollection collection = new RecordCollection( recordId.getBibliographicRecordId(), agencyId, "issue", dao );
+                    RecordCollection collection = new RecordCollection( recordId.getBibliographicRecordId(), agencyId, "issue", "trackingId", dao );
                     collection.save();
                 }
 
