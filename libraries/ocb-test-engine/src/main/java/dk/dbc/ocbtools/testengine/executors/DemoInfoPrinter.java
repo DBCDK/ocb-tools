@@ -131,6 +131,7 @@ public class DemoInfoPrinter {
                     output.info( "Id: [{}:{}]", rawRepoRecord.getId().getBibliographicRecordId(), rawRepoRecord.getId().getAgencyId() );
                     output.info( "Mimetype: {}", TestcaseRecordType.fromValue( rawRepoRecord.getMimeType() ) );
                     output.info( "Deleted: {}", rawRepoRecord.isDeleted() );
+                    output.info( "TrackingID: {}", rawRepoRecord.getTrackingId() );
                     output.info( "" );
                     output.info( "Children: {}", formatRecordIds( RawRepo.loadRelations( settings, rawRepoRecord.getId(), RawRepoRelationType.CHILD ) ) );
                     output.info( "Siblings: {}", formatRecordIds( RawRepo.loadRelations( settings, rawRepoRecord.getId(), RawRepoRelationType.SIBLING ) ) );
