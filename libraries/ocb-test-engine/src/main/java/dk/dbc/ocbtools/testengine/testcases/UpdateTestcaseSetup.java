@@ -2,15 +2,21 @@
 package dk.dbc.ocbtools.testengine.testcases;
 
 //-----------------------------------------------------------------------------
+
 import java.util.ArrayList;
 import java.util.List;
 
 //-----------------------------------------------------------------------------
+
 /**
  * Represents a setup structure in a testcase json file.
  */
-public class TestcaseSetup {
-    public TestcaseSetup() {
+public class UpdateTestcaseSetup {
+    private List<Integer> holdings;
+    private List<UpdateTestcaseRecord> rawrepo;
+    private List<TestcaseSolrQuery> solr;
+
+    public UpdateTestcaseSetup() {
         this.holdings = new ArrayList<>();
         this.rawrepo = null;
         this.solr = null;
@@ -24,15 +30,15 @@ public class TestcaseSetup {
         return holdings;
     }
 
-    public void setHoldings( List<Integer> holdings ) {
+    public void setHoldings(List<Integer> holdings) {
         this.holdings = holdings;
     }
 
-    public List<TestcaseRecord> getRawrepo() {
+    public List<UpdateTestcaseRecord> getRawrepo() {
         return rawrepo;
     }
 
-    public void setRawrepo( List<TestcaseRecord> rawrepo ) {
+    public void setRawrepo(List<UpdateTestcaseRecord> rawrepo) {
         this.rawrepo = rawrepo;
     }
 
@@ -40,7 +46,7 @@ public class TestcaseSetup {
         return solr;
     }
 
-    public void setSolr( List<TestcaseSolrQuery> solr ) {
+    public void setSolr(List<TestcaseSolrQuery> solr) {
         this.solr = solr;
     }
 
@@ -52,12 +58,4 @@ public class TestcaseSetup {
                 ", solr=" + solr +
                 '}';
     }
-
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private List<Integer> holdings;
-    private List<TestcaseRecord> rawrepo;
-    private List<TestcaseSolrQuery> solr;
 }

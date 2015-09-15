@@ -6,7 +6,6 @@ package dk.dbc.ocbtools.testengine.testcases;
 import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.records.MarcRecordFactory;
 import dk.dbc.iscrum.utils.IOUtils;
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -20,28 +19,26 @@ import java.util.List;
 /**
  * Defines a testcase that is stored in a json file.
  */
-public class Testcase {
-    public Testcase() {
-        this.name = "";
+public class UpdateTestcase extends BaseTestcase {
+    private static final XLogger logger = XLoggerFactory.getXLogger( UpdateTestcase.class );
+
+    /**
+     * Numbers of bugs in Bugzilla that is related to this testcase.
+     * <p/>
+     * This property is not used, but defined here so it is posible to use the property
+     * in json.
+     */
+    private List<String> bugs;
+
+    private UpdateTestcaseSetup setup;
+    private UpdateTestcaseRequest request;
+    private UpdateTestcaseExpectedResult expected;
+
+    public UpdateTestcase() {
         this.bugs = new ArrayList<>();
-        this.distributionName = "";
-        this.description = "";
         this.setup = null;
         this.request = null;
         this.expected = null;
-        this.file = null;
-    }
-
-    //-------------------------------------------------------------------------
-    //              Properties
-    //-------------------------------------------------------------------------
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName( String name ) {
-        this.name = name;
     }
 
     public List<String> getBugs() {
@@ -52,52 +49,28 @@ public class Testcase {
         this.bugs = bugs;
     }
 
-    public String getDistributionName() {
-        return distributionName;
-    }
-
-    public void setDistributionName( String distributionName ) {
-        this.distributionName = distributionName;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription( String description ) {
-        this.description = description;
-    }
-
-    public TestcaseSetup getSetup() {
+    public UpdateTestcaseSetup getSetup() {
         return setup;
     }
 
-    public void setSetup( TestcaseSetup setup ) {
+    public void setSetup( UpdateTestcaseSetup setup ) {
         this.setup = setup;
     }
 
-    public TestcaseRequest getRequest() {
+    public UpdateTestcaseRequest getRequest() {
         return request;
     }
 
-    public void setRequest( TestcaseRequest request ) {
+    public void setRequest( UpdateTestcaseRequest request ) {
         this.request = request;
     }
 
-    public TestcaseExpectedResult getExpected() {
+    public UpdateTestcaseExpectedResult getExpected() {
         return expected;
     }
 
-    public void setExpected( TestcaseExpectedResult expected ) {
+    public void setExpected( UpdateTestcaseExpectedResult expected ) {
         this.expected = expected;
-    }
-
-    public File getFile() {
-        return file;
-    }
-
-    public void setFile( File file ) {
-        this.file = file;
     }
 
     //-------------------------------------------------------------------------
@@ -134,16 +107,16 @@ public class Testcase {
         if( this == o ) {
             return true;
         }
-        if( !( o instanceof Testcase ) ) {
+        if( !( o instanceof UpdateTestcase) ) {
             return false;
         }
 
-        Testcase testcase = (Testcase) o;
+        UpdateTestcase updateTestcase = (UpdateTestcase) o;
 
-        if( description != null ? !description.equals( testcase.description ) : testcase.description != null ) {
+        if( description != null ? !description.equals( updateTestcase.description ) : updateTestcase.description != null ) {
             return false;
         }
-        if( name != null ? !name.equals( testcase.name ) : testcase.name != null ) {
+        if( name != null ? !name.equals( updateTestcase.name ) : updateTestcase.name != null ) {
             return false;
         }
 
@@ -161,36 +134,4 @@ public class Testcase {
     public String toString() {
         return "{ \"name\": \"" + name + "\", \"description\": \"" + description + "\" }";
     }
-
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private static final XLogger logger = XLoggerFactory.getXLogger( Testcase.class );
-
-    private String name;
-
-    /**
-     * Numbers of bugs in Bugzilla that is related to this testcase.
-     * <p/>
-     * This property is not used, but defined here so it is posible to use the property
-     * in json.
-     */
-    private List<String> bugs;
-
-    @JsonIgnore
-    private String distributionName;
-
-    private String description;
-    private TestcaseSetup setup;
-    private TestcaseRequest request;
-    private TestcaseExpectedResult expected;
-
-    /**
-     * The file that this Testcase was created from.
-     * <p/>
-     * It may be null.
-     */
-    @JsonIgnore
-    private File file;
 }

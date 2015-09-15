@@ -46,28 +46,33 @@
     </organization>
 
     <properties>
-        <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <ocbtools.version>1.0.0</ocbtools.version>
-
-        <!-- Versions for dependencies -->
-        <apache.commons.cli.version>1.2</apache.commons.cli.version>
+        <maven.apache.lang3.plugin.version>3.3.2</maven.apache.lang3.plugin.version>
+        <maven.jersey-core.plugin-version>2.14</maven.jersey-core.plugin-version>
+        <maven.jackson.plugin.version>2.2.3</maven.jackson.plugin.version>
+        <maven.jackson.jaxrs.plugin.version>1.9.13</maven.jackson.jaxrs.plugin.version>
+        <maven.perf4j.plugin.version>0.9.16</maven.perf4j.plugin.version>
+        <maven.dbc.commons.jdbc.util.version>1.3-SNAPSHOT</maven.dbc.commons.jdbc.util.version>
+        <maven.rawrepo.version>1.0-SNAPSHOT</maven.rawrepo.version>
+        <maven.holdings.item.access.version>1.0-SNAPSHOT</maven.holdings.item.access.version>
+        <maven.iscrum.records.version>1.0-SNAPSHOT</maven.iscrum.records.version>
+        <maven.updateservice.client.version>1.0-SNAPSHOT</maven.updateservice.client.version>
+        <maven.buildservice.client.version>1.0-SNAPSHOT</maven.buildservice.client.version>
     </properties>
 
     <pluginRepositories>
         <pluginRepository>
             <id>mavenrepo.dbc.dk</id>
-            <url>http://mavenrepo.dbc.dk/content/groups/public</url>
+            <url>http://mavenrepo.dbc.dk/nexus/content/groups/public/</url>
         </pluginRepository>
     </pluginRepositories>
 
     <repositories>
         <repository>
             <id>mavenrepo.dbc.dk</id>
-            <url>http://mavenrepo.dbc.dk/content/groups/public</url>
+            <url>http://mavenrepo.dbc.dk/nexus/content/groups/public/</url>
         </repository>
     </repositories>
-
 
     <dependencies>
         <!-- ************************************************************* -->
@@ -76,12 +81,10 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
-            <version>1.7.7</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.1.2</version>
         </dependency>
 
         <!-- ************************************************************* -->
@@ -102,8 +105,7 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.5</version>
+            <artifactId>mockito-core</artifactId>
         </dependency>
     </dependencies>
 
@@ -124,14 +126,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                    <compilerArguments>
-                        <endorseddirs>${endorsed.dir}</endorseddirs>
-                    </compilerArguments>
-                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -2,14 +2,21 @@
 package dk.dbc.ocbtools.testengine.testcases;
 
 //-----------------------------------------------------------------------------
+
 import java.util.Map;
 
 //-----------------------------------------------------------------------------
+
 /**
  * Created by stp on 16/02/15.
  */
-public class TestcaseRequest {
-    public TestcaseRequest() {
+public class UpdateTestcaseRequest {
+    private String templateName;
+    private TestcaseAuthentication authentication;
+    private Map<String, Object> headers;
+    private String record;
+
+    public UpdateTestcaseRequest() {
         this.templateName = null;
         this.record = null;
     }
@@ -22,7 +29,7 @@ public class TestcaseRequest {
         return templateName;
     }
 
-    public void setTemplateName( String templateName ) {
+    public void setTemplateName(String templateName) {
         this.templateName = templateName;
     }
 
@@ -30,7 +37,7 @@ public class TestcaseRequest {
         return authentication;
     }
 
-    public void setAuthentication( TestcaseAuthentication authentication ) {
+    public void setAuthentication(TestcaseAuthentication authentication) {
         this.authentication = authentication;
     }
 
@@ -38,7 +45,7 @@ public class TestcaseRequest {
         return headers;
     }
 
-    public void setHeaders( Map<String, Object> headers ) {
+    public void setHeaders(Map<String, Object> headers) {
         this.headers = headers;
     }
 
@@ -46,7 +53,7 @@ public class TestcaseRequest {
         return record;
     }
 
-    public void setRecord( String record ) {
+    public void setRecord(String record) {
         this.record = record;
     }
 
@@ -63,13 +70,4 @@ public class TestcaseRequest {
                 ", record='" + record + '\'' +
                 '}';
     }
-
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private String templateName;
-    private TestcaseAuthentication authentication;
-    private Map<String, Object> headers;
-    private String record;
 }

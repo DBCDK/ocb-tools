@@ -5,10 +5,15 @@ package dk.dbc.ocbtools.commons.filesystem;
 import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.records.MarcRecordFactory;
 import dk.dbc.iscrum.utils.IOUtils;
+import dk.dbc.ocbtools.commons.type.ApplicationType;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,16 +24,17 @@ import java.util.Properties;
  * Created by stp on 13/02/15.
  */
 public class OCBFileSystem {
-    public OCBFileSystem() throws IOException {
-        this( "." );
+    public OCBFileSystem(ApplicationType applicationType) throws IOException {
+        this( ".", applicationType );
     }
 
-    public OCBFileSystem( String path ) throws IOException {
-        this( new File( path ).getAbsoluteFile() );
+    public OCBFileSystem( String path, ApplicationType applicationType ) throws IOException {
+        this( new File( path ).getAbsoluteFile(), applicationType );
     }
 
-    public OCBFileSystem( File file ) throws IOException {
+    public OCBFileSystem( File file, ApplicationType applicationType ) throws IOException {
         this.baseDir = extractBaseDir( file );
+        this.applicationType = applicationType;
     }
 
     //-------------------------------------------------------------------------
@@ -67,11 +73,12 @@ public class OCBFileSystem {
 
         List<SystemTest> result = new ArrayList<>();
         try {
+            String applicationStr = applicationType.toString().toLowerCase();
             for( String distName : findDistributions() ) {
-                File systemTestsDir = new File( String.format( SYSTEMTESTS_DIR_PATTERN, baseDir.getCanonicalPath(), distName) );
+                File systemTestsDir = new File( String.format( SYSTEMTESTS_DIR_PATTERN, baseDir.getCanonicalPath(), distName, applicationStr) );
                 if( systemTestsDir.exists() ) {
                     for( File file : findFiles( systemTestsDir, new FileExtensionFilter( SYSTEMTESTS_FILE_EXT ) ) ) {
-                        result.add( new SystemTest( distName, file ) );
+                        result.add( new SystemTest( distName, file, applicationType ) );
                     }
                 }
             }
@@ -238,8 +245,9 @@ public class OCBFileSystem {
     private static final String COMMON_DISTRIBUTION_DIRNAME = "common";
     private static final String SYSTEMTESTS_DIRNAME = "system-tests";
 
-    private static final String SYSTEMTESTS_DIR_PATTERN = "%s/" + DISTRIBUTIONS_DIRNAME + "/%s/" + SYSTEMTESTS_DIRNAME;
+    private static final String SYSTEMTESTS_DIR_PATTERN = "%s/" + DISTRIBUTIONS_DIRNAME + "/%s/" + SYSTEMTESTS_DIRNAME + "/%s/";
     private static final String SYSTEMTESTS_FILE_EXT = ".json";
 
     private File baseDir;
+    private ApplicationType applicationType;
 }

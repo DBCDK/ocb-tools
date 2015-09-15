@@ -14,18 +14,20 @@ import java.io.IOException;
 /**
  * Created by stp on 14/02/15.
  */
-public class TestcaseRepositoryFactory {
+public class UpdateTestcaseRepositoryFactory {
+    private static final XLogger logger = XLoggerFactory.getXLogger( UpdateTestcaseRepositoryFactory.class );
+
     //-------------------------------------------------------------------------
     //              Loaders
     //-------------------------------------------------------------------------
 
-    public static TestcaseRepository newInstanceWithTestcases( OCBFileSystem fs ) throws IOException {
+    public static UpdateTestcaseRepository newInstanceWithTestcases( OCBFileSystem fs ) throws IOException {
         logger.entry();
 
-        TestcaseRepository result = new TestcaseRepository();
+        UpdateTestcaseRepository result = new UpdateTestcaseRepository();
         try {
             for( SystemTest systemTest : fs.findSystemtests() ) {
-                result.addAll( TestcaseFactory.newInstances( systemTest ) );
+                result.addAll( UpdateTestcaseFactory.newInstances( systemTest ) );
             }
 
             return result;
@@ -34,10 +36,4 @@ public class TestcaseRepositoryFactory {
             logger.exit();
         }
     }
-
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private static final XLogger logger = XLoggerFactory.getXLogger( TestcaseRepositoryFactory.class );
 }

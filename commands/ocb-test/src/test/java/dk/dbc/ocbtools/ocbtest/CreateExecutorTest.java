@@ -8,12 +8,12 @@ import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.records.MarcRecordFactory;
 import dk.dbc.iscrum.utils.IOUtils;
 import dk.dbc.iscrum.utils.ResourceBundles;
-import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
 import dk.dbc.ocbtools.commons.cli.CliException;
 import dk.dbc.ocbtools.commons.filesystem.SystemTest;
-import dk.dbc.ocbtools.testengine.testcases.Testcase;
-import dk.dbc.ocbtools.testengine.testcases.TestcaseFactory;
+import dk.dbc.ocbtools.commons.type.ApplicationType;
+import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
+import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseFactory;
 import org.apache.commons.cli.*;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
@@ -48,17 +48,17 @@ public class CreateExecutorTest {
 
     @BeforeClass
     public static void init() {
-        bundle = ResourceBundles.getBundle( "create_subcommand" );
+        bundle = ResourceBundles.getBundle("create_subcommand");
     }
 
     @Before
     public void setupTestDir() throws IOException {
-        testDir = IOUtils.mkdirs( "target/create-testdir" );
+        testDir = IOUtils.mkdirs("target/create-testdir");
     }
 
     @After
     public void deleteTestDir() throws FileNotFoundException {
-        IOUtils.deleteDirRecursively( testDir );
+        IOUtils.deleteDirRecursively(testDir);
     }
 
     //-------------------------------------------------------------------------
@@ -75,42 +75,41 @@ public class CreateExecutorTest {
                     "-d", "description",
                     "-a", "netpunkt/700400/20Koster",
                     "-t", "bog",
-                    "../../src/test/resources/record.xml", "tc_record.json" );
+                    "../../src/test/resources/record.xml", "tc_record.json");
             executor.actionPerformed();
 
-            assertTrue( IOUtils.exists( testDir, "request.marc" ) );
-            assertTrue( IOUtils.exists( testDir, "tc_record.json" ) );
+            assertTrue(IOUtils.exists(testDir, "request.marc"));
+            assertTrue(IOUtils.exists(testDir, "tc_record.json"));
 
-            FileInputStream requestMarcStream = new FileInputStream( new File( testDir.getCanonicalPath() + "/request.marc" ) );
-            MarcRecord record = MarcRecordFactory.readRecord( IOUtils.readAll( requestMarcStream, "UTF-8" ) );
-            assertThat( MarcReader.getRecordValue( record, "001", "a" ), is( "1 234 567 8" ) );
+            FileInputStream requestMarcStream = new FileInputStream(new File(testDir.getCanonicalPath() + "/request.marc"));
+            MarcRecord record = MarcRecordFactory.readRecord(IOUtils.readAll(requestMarcStream, "UTF-8"));
+            assertThat(MarcReader.getRecordValue(record, "001", "a"), is("1 234 567 8"));
 
-            File tcFile = new File( testDir.getCanonicalPath() + "/tc_record.json" );
-            List<Testcase> testcases = TestcaseFactory.newInstances( new SystemTest( "dist", tcFile ) );
-            assertThat( testcases.size(), is( 1 ) );
+            File tcFile = new File(testDir.getCanonicalPath() + "/tc_record.json");
+            List<UpdateTestcase> updateTestcases = UpdateTestcaseFactory.newInstances(new SystemTest("dist", tcFile, ApplicationType.UPDATE));
+            assertThat(updateTestcases.size(), is(1));
 
-            Testcase tc = testcases.get( 0 );
-            assertThat( tc.getName(), is( "record" ) );
-            assertThat( tc.getBugs(), nullValue() );
-            assertThat( tc.getDescription(), is( "description" ) );
+            UpdateTestcase tc = updateTestcases.get(0);
+            assertThat(tc.getName(), is("record"));
+            assertThat(tc.getBugs(), nullValue());
+            assertThat(tc.getDescription(), is("description"));
 
-            assertThat( tc.getSetup(), nullValue() );
+            assertThat(tc.getSetup(), nullValue());
 
-            assertThat( tc.getRequest(), notNullValue() );
-            assertThat( tc.getRequest().getTemplateName(), is( "bog" ) );
-            assertThat( tc.getRequest().getAuthentication(), notNullValue() );
-            assertThat( tc.getRequest().getAuthentication().getGroup(), is( "netpunkt" ) );
-            assertThat( tc.getRequest().getAuthentication().getUser(), is( "700400" ) );
-            assertThat( tc.getRequest().getAuthentication().getPassword(), is( "20Koster" ) );
-            assertThat( tc.getRequest().getHeaders(), nullValue() );
-            assertThat( tc.getRequest().getRecord(), is( "request.marc" ) );
+            assertThat(tc.getRequest(), notNullValue());
+            assertThat(tc.getRequest().getTemplateName(), is("bog"));
+            assertThat(tc.getRequest().getAuthentication(), notNullValue());
+            assertThat(tc.getRequest().getAuthentication().getGroup(), is("netpunkt"));
+            assertThat(tc.getRequest().getAuthentication().getUser(), is("700400"));
+            assertThat(tc.getRequest().getAuthentication().getPassword(), is("20Koster"));
+            assertThat(tc.getRequest().getHeaders(), nullValue());
+            assertThat(tc.getRequest().getRecord(), is("request.marc"));
 
-            assertThat( tc.getExpected(), notNullValue() );
-            assertThat( tc.getExpected().getValidation(), notNullValue() );
-            assertThat( tc.getExpected().getValidation().isEmpty(), is( true ) );
-            assertThat( tc.getExpected().getUpdate(), nullValue() );
-        }
-        finally {
+            assertThat(tc.getExpected(), notNullValue());
+            assertThat(tc.getExpected().getValidation(), notNullValue());
+            assertThat(tc.getExpected().getValidation().isEmpty(), is(true));
+            assertThat(tc.getExpected().getUpdate(), nullValue());
+        } finally {
             logger.exit();
         }
     }
@@ -125,50 +124,49 @@ public class CreateExecutorTest {
                     "-d", "description",
                     "-a", "netpunkt/700400/20Koster",
                     "-t", "bog",
-                    "../../src/test/resources/records.xml", "tc_record.json" );
+                    "../../src/test/resources/records.xml", "tc_record.json");
             executor.actionPerformed();
 
             int recordNo = 1;
-            File tcFile = new File( testDir.getCanonicalPath() + "/tc_record.json" );
-            List<Testcase> testcases = TestcaseFactory.newInstances( new SystemTest( "dist", tcFile ) );
+            File tcFile = new File(testDir.getCanonicalPath() + "/tc_record.json");
+            List<UpdateTestcase> updateTestcases = UpdateTestcaseFactory.newInstances(new SystemTest("dist", tcFile, ApplicationType.UPDATE));
 
-            for( MarcRecord record : executor.getRecordsProvider() ) {
-                String recordFilename = String.format( "%s-t%s.marc", "request", recordNo );
+            for (MarcRecord record : executor.getRecordsProvider()) {
+                String recordFilename = String.format("%s-t%s.marc", "request", recordNo);
 
-                assertTrue( IOUtils.exists( testDir, recordFilename ) );
-                assertTrue( IOUtils.exists( testDir, "tc_record.json" ) );
+                assertTrue(IOUtils.exists(testDir, recordFilename));
+                assertTrue(IOUtils.exists(testDir, "tc_record.json"));
 
-                FileInputStream requestMarcStream = new FileInputStream( new File( testDir.getCanonicalPath() + "/" + recordFilename ) );
-                MarcRecord loadedRecord = MarcRecordFactory.readRecord( IOUtils.readAll( requestMarcStream, "UTF-8" ) );
-                assertThat( MarcReader.getRecordValue( loadedRecord, "001", "a" ), not( "" ) );
+                FileInputStream requestMarcStream = new FileInputStream(new File(testDir.getCanonicalPath() + "/" + recordFilename));
+                MarcRecord loadedRecord = MarcRecordFactory.readRecord(IOUtils.readAll(requestMarcStream, "UTF-8"));
+                assertThat(MarcReader.getRecordValue(loadedRecord, "001", "a"), not(""));
 
-                Testcase tc = testcases.get( recordNo - 1 );
-                assertThat( tc, notNullValue() );
+                UpdateTestcase tc = updateTestcases.get(recordNo - 1);
+                assertThat(tc, notNullValue());
 
-                assertThat( tc.getName(), is( String.format( "%s-t%s", "record", recordNo ) ) );
-                assertThat( tc.getBugs(), nullValue() );
-                assertThat( tc.getDescription(), nullValue() );
+                assertThat(tc.getName(), is(String.format("%s-t%s", "record", recordNo)));
+                assertThat(tc.getBugs(), nullValue());
+                assertThat(tc.getDescription(), nullValue());
 
-                assertThat( tc.getSetup(), nullValue() );
+                assertThat(tc.getSetup(), nullValue());
 
-                assertThat( tc.getRequest(), notNullValue() );
-                assertThat( tc.getRequest().getTemplateName(), is( "bog" ) );
-                assertThat( tc.getRequest().getAuthentication(), notNullValue() );
-                assertThat( tc.getRequest().getAuthentication().getGroup(), is( "netpunkt" ) );
-                assertThat( tc.getRequest().getAuthentication().getUser(), is( "700400" ) );
-                assertThat( tc.getRequest().getAuthentication().getPassword(), is( "20Koster" ) );
-                assertThat( tc.getRequest().getHeaders(), nullValue() );
-                assertThat( tc.getRequest().getRecord(), is( recordFilename ) );
+                assertThat(tc.getRequest(), notNullValue());
+                assertThat(tc.getRequest().getTemplateName(), is("bog"));
+                assertThat(tc.getRequest().getAuthentication(), notNullValue());
+                assertThat(tc.getRequest().getAuthentication().getGroup(), is("netpunkt"));
+                assertThat(tc.getRequest().getAuthentication().getUser(), is("700400"));
+                assertThat(tc.getRequest().getAuthentication().getPassword(), is("20Koster"));
+                assertThat(tc.getRequest().getHeaders(), nullValue());
+                assertThat(tc.getRequest().getRecord(), is(recordFilename));
 
-                assertThat( tc.getExpected(), notNullValue() );
-                assertThat( tc.getExpected().getValidation(), notNullValue() );
-                assertThat( tc.getExpected().getValidation().isEmpty(), is( true ) );
-                assertThat( tc.getExpected().getUpdate(), nullValue() );
+                assertThat(tc.getExpected(), notNullValue());
+                assertThat(tc.getExpected().getValidation(), notNullValue());
+                assertThat(tc.getExpected().getValidation().isEmpty(), is(true));
+                assertThat(tc.getExpected().getUpdate(), nullValue());
 
                 recordNo++;
             }
-        }
-        finally {
+        } finally {
             logger.exit();
         }
     }
@@ -177,38 +175,36 @@ public class CreateExecutorTest {
     //              Helpers
     //-------------------------------------------------------------------------
 
-    private CreateExecutor createInstance( String... args ) throws CliException, ParseException {
-        logger.entry( args );
+    private CreateExecutor createInstance(String... args) throws CliException, ParseException {
+        logger.entry(args);
 
         try {
             CreateDefinition instance = new CreateDefinition();
             CommandLineParser parser = new GnuParser();
 
-            CommandLine line = parser.parse( createOptions( instance ), args );
-            assertNotNull( line );
+            CommandLine line = parser.parse(createOptions(instance), args);
+            assertNotNull(line);
 
-            CreateExecutor executor = (CreateExecutor) instance.createExecutor( testDir, line );
-            assertNotNull( executor );
+            CreateExecutor executor = (CreateExecutor) instance.createExecutor(testDir, line);
+            assertNotNull(executor);
 
             return executor;
-        }
-        finally {
+        } finally {
             logger.exit();
         }
     }
 
-    private Options createOptions( SubcommandDefinition def ) throws CliException {
+    private Options createOptions(SubcommandDefinition def) throws CliException {
         logger.entry();
 
         try {
             Options options = new Options();
-            for( Option option : def.createOptions() ) {
-                options.addOption( option );
+            for (Option option : def.createOptions()) {
+                options.addOption(option);
             }
 
             return options;
-        }
-        finally {
+        } finally {
             logger.exit();
         }
     }
@@ -217,7 +213,7 @@ public class CreateExecutorTest {
     //              Members
     //-------------------------------------------------------------------------
 
-    private static final XLogger logger = XLoggerFactory.getXLogger( CreateExecutor.class );
+    private static final XLogger logger = XLoggerFactory.getXLogger(CreateExecutor.class);
 
     private static ResourceBundle bundle;
     private File testDir;

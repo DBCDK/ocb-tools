@@ -20,11 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 //-----------------------------------------------------------------------------
+
 /**
  * Created by stp on 06/05/15.
  */
 public class CreateExecutor implements SubcommandExecutor {
-    public CreateExecutor( File baseDir ) {
+    public CreateExecutor(File baseDir) {
         this.baseDir = baseDir;
         this.testcaseFilename = null;
         this.recordsProvider = null;
@@ -38,7 +39,7 @@ public class CreateExecutor implements SubcommandExecutor {
         return testcaseFilename;
     }
 
-    public void setTestcaseFilename( String testcaseFilename ) {
+    public void setTestcaseFilename(String testcaseFilename) {
         this.testcaseFilename = testcaseFilename;
     }
 
@@ -46,7 +47,7 @@ public class CreateExecutor implements SubcommandExecutor {
         return recordsProvider;
     }
 
-    public void setRecordsProvider( MarcRecordProvider recordsProvider ) {
+    public void setRecordsProvider(MarcRecordProvider recordsProvider) {
         this.recordsProvider = recordsProvider;
     }
 
@@ -54,7 +55,7 @@ public class CreateExecutor implements SubcommandExecutor {
         return testcaseName;
     }
 
-    public void setTestcaseName( String testcaseName ) {
+    public void setTestcaseName(String testcaseName) {
         this.testcaseName = testcaseName;
     }
 
@@ -62,7 +63,7 @@ public class CreateExecutor implements SubcommandExecutor {
         return description;
     }
 
-    public void setDescription( String description ) {
+    public void setDescription(String description) {
         this.description = description;
     }
 
@@ -70,7 +71,7 @@ public class CreateExecutor implements SubcommandExecutor {
         return authentication;
     }
 
-    public void setAuthentication( TestcaseAuthentication authentication ) {
+    public void setAuthentication(TestcaseAuthentication authentication) {
         this.authentication = authentication;
     }
 
@@ -78,7 +79,7 @@ public class CreateExecutor implements SubcommandExecutor {
         return templateName;
     }
 
-    public void setTemplateName( String templateName ) {
+    public void setTemplateName(String templateName) {
         this.templateName = templateName;
     }
 
@@ -89,60 +90,58 @@ public class CreateExecutor implements SubcommandExecutor {
         try {
             boolean hasMultibleRecords = this.recordsProvider.hasMultibleRecords();
 
-            List<Testcase> testcases = new ArrayList<>();
+            List<UpdateTestcase> updateTestcases = new ArrayList<>();
             int recordNo = 1;
-            for( MarcRecord record : this.recordsProvider ) {
-                logger.debug( "Creating testcase for record [{}:{}]",
-                        MarcReader.getRecordValue( record, "001", "a" ),
-                        MarcReader.getRecordValue( record, "001", "b" ) );
+            for (MarcRecord record : this.recordsProvider) {
+                logger.debug("Creating testcase for record [{}:{}]",
+                        MarcReader.getRecordValue(record, "001", "a"),
+                        MarcReader.getRecordValue(record, "001", "b"));
 
                 String filename = "request.marc";
-                if( hasMultibleRecords ) {
-                    filename = String.format( "%s-t%s.marc", "request", recordNo );
+                if (hasMultibleRecords) {
+                    filename = String.format("%s-t%s.marc", "request", recordNo);
                 }
-                File file = new File( baseDir.getCanonicalPath() + "/" + filename );
-                FileUtils.writeStringToFile( file, record.toString(), "UTF-8" );
-                logger.debug( "Wrote record to {}", file.getCanonicalPath() );
+                File file = new File(baseDir.getCanonicalPath() + "/" + filename);
+                FileUtils.writeStringToFile(file, record.toString(), "UTF-8");
+                logger.debug("Wrote record to {}", file.getCanonicalPath());
 
-                Testcase tc = new Testcase();
-                tc.setName( this.testcaseName );
-                if( hasMultibleRecords ) {
-                    tc.setName( String.format( "%s-t%s", "record", recordNo ) );
+                UpdateTestcase tc = new UpdateTestcase();
+                tc.setName(this.testcaseName);
+                if (hasMultibleRecords) {
+                    tc.setName(String.format("%s-t%s", "record", recordNo));
                 }
-                tc.setBugs( null );
-                tc.setDescription( this.description );
-                if( hasMultibleRecords ) {
-                    tc.setDescription( null );
+                tc.setBugs(null);
+                tc.setDescription(this.description);
+                if (hasMultibleRecords) {
+                    tc.setDescription(null);
                 }
 
-                TestcaseRequest request = new TestcaseRequest();
-                request.setRecord( filename );
-                request.setAuthentication( this.authentication );
-                request.setTemplateName( this.templateName );
-                tc.setRequest( request );
+                UpdateTestcaseRequest request = new UpdateTestcaseRequest();
+                request.setRecord(filename);
+                request.setAuthentication(this.authentication);
+                request.setTemplateName(this.templateName);
+                tc.setRequest(request);
 
-                TestcaseExpectedResult expected = new TestcaseExpectedResult();
-                expected.setValidation( new ArrayList<ValidationResult>() );
-                expected.setUpdate( null );
-                tc.setExpected( expected );
+                UpdateTestcaseExpectedResult expected = new UpdateTestcaseExpectedResult();
+                expected.setValidation(new ArrayList<ValidationResult>());
+                expected.setUpdate(null);
+                tc.setExpected(expected);
 
-                testcases.add( tc );
+                updateTestcases.add(tc);
 
                 recordNo++;
             }
             this.recordsProvider.close();
 
-            File file = new File( this.testcaseFilename );
-            String testcasesEncoded = Json.encodePretty( testcases );
-            logger.debug( "Testcases encoded size: {} bytes", testcasesEncoded.getBytes( "UTF-8" ).length );
+            File file = new File(this.testcaseFilename);
+            String testcasesEncoded = Json.encodePretty(updateTestcases);
+            logger.debug("Testcases encoded size: {} bytes", testcasesEncoded.getBytes("UTF-8").length);
 
-            FileUtils.writeStringToFile( file, testcasesEncoded, "UTF-8" );
-            logger.debug( "Wrote testcases to {}", file.getCanonicalPath() );
-        }
-        catch( IOException ex ) {
-            throw new CliException( ex.getMessage(), ex );
-        }
-        finally {
+            FileUtils.writeStringToFile(file, testcasesEncoded, "UTF-8");
+            logger.debug("Wrote testcases to {}", file.getCanonicalPath());
+        } catch (IOException ex) {
+            throw new CliException(ex.getMessage(), ex);
+        } finally {
             logger.exit();
         }
     }
@@ -151,8 +150,8 @@ public class CreateExecutor implements SubcommandExecutor {
     //              Members
     //-------------------------------------------------------------------------
 
-    private static final XLogger logger = XLoggerFactory.getXLogger( CreateExecutor.class );
-    private static final XLogger output = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
+    private static final XLogger logger = XLoggerFactory.getXLogger(CreateExecutor.class);
+    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
 
     private File baseDir;
     private String testcaseFilename;

@@ -8,7 +8,14 @@ import dk.dbc.ocbtools.commons.api.Subcommand;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
-import org.apache.commons.cli.*;
+import dk.dbc.ocbtools.commons.type.ApplicationType;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.reflections.Reflections;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -28,7 +35,12 @@ import java.util.Set;
  * The subcommand is executed by a SubcommandExecutor.
  */
 public class CliExecutor {
-    public CliExecutor( String commandName ) {
+    private static final XLogger logger = XLoggerFactory.getXLogger(CliExecutor.class);
+    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
+
+    private String commandName;
+
+    public CliExecutor(String commandName) {
         this.commandName = commandName;
     }
 
@@ -36,68 +48,66 @@ public class CliExecutor {
     //              Execution
     //-------------------------------------------------------------------------
 
-    public void execute( String[] args ) throws IllegalAccessException, InstantiationException, IOException, CliException {
-        logger.entry( args );
+    public void execute(String[] args) throws IllegalAccessException, InstantiationException, IOException, CliException {
+        logger.entry(args);
 
         try {
-            if( args.length == 0 ) {
+            if (args.length == 0) {
                 printUsage();
                 return;
             }
 
-            String cmdName = args[ 0 ];
+            String cmdName = args[0];
             String[] cmdArgs = new String[]{};
-            if( args.length > 1 ) {
-                cmdArgs = Arrays.copyOfRange( args, 1, args.length );
+            if (args.length > 1) {
+                cmdArgs = Arrays.copyOfRange(args, 1, args.length);
             }
 
-            OCBFileSystem fs = new OCBFileSystem();
-            output.info( "Using Opencat-business directory: {}", fs.getBaseDir() != null ? fs.getBaseDir().getCanonicalPath() : "(null)" );
-            output.info( "" );
+            OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
+            output.info("Using Opencat-business directory: {}", fs.getBaseDir() != null ? fs.getBaseDir().getCanonicalPath() : "(null)");
+            output.info("");
 
             boolean commandFoundAndExecuted = false;
-            for( SubcommandDefinition def : getSubcommandDefinitions() ) {
+            for (SubcommandDefinition def : getSubcommandDefinitions()) {
                 Class<?> clazz = def.getClass();
-                Subcommand subCommand = clazz.getAnnotation( Subcommand.class );
+                Subcommand subCommand = clazz.getAnnotation(Subcommand.class);
 
-                if( subCommand != null && subCommand.name().equals( cmdName ) ) {
+                if (subCommand != null && subCommand.name().equals(cmdName)) {
                     commandFoundAndExecuted = true;
                     Options options = new Options();
-                    Option help = new Option( "h", "help", false, "Giver en beskrivelse af de enkelte options til kommandoen" );
-                    options.addOption( help );
+                    Option help = new Option("h", "help", false, "Giver en beskrivelse af de enkelte options til kommandoen");
+                    options.addOption(help);
 
-                    for( Option opt : def.createOptions() ) {
-                        options.addOption( opt );
+                    for (Option opt : def.createOptions()) {
+                        options.addOption(opt);
                     }
 
-                    logger.debug( "Arguments to sub command: {}", Arrays.toString( cmdArgs ) );
+                    logger.debug("Arguments to sub command: {}", Arrays.toString(cmdArgs));
 
-                    CommandLine line = parseArguments( subCommand, options, cmdArgs );
-                    if( line != null ) {
-                        if( line.hasOption( "help" ) ) {
-                            printUsage( subCommand, options );
+                    CommandLine line = parseArguments(subCommand, options, cmdArgs);
+                    if (line != null) {
+                        if (line.hasOption("help")) {
+                            printUsage(subCommand, options);
                             return;
                         }
-                        final SubcommandExecutor executor = def.createExecutor( fs.getBaseDir(), line );
-                        if( executor != null ) {
+                        final SubcommandExecutor executor = def.createExecutor(fs.getBaseDir(), line);
+                        if (executor != null) {
                             executor.actionPerformed();
                         }
                         break;
-                    }
-                    else {
-                        output.error( "Ukendt argument(er)." );
+                    } else {
+                        output.error("Ukendt argument(er).");
                     }
                 }
             }
 
-            if( !commandFoundAndExecuted ) {
-                output.error( "Kommandoen '{}' findes ikke.", cmdName );
-                output.error( "" );
+            if (!commandFoundAndExecuted) {
+                output.error("Kommandoen '{}' findes ikke.", cmdName);
+                output.error("");
                 printUsage();
             }
 
-        }
-        finally {
+        } finally {
             logger.exit();
         }
     }
@@ -106,24 +116,22 @@ public class CliExecutor {
     //              Commands
     //-------------------------------------------------------------------------
 
-    public static void main( String commandName, String[] args ) {
-        logger.entry( commandName, args );
+    public static void main(String commandName, String[] args) {
+        logger.entry(commandName, args);
 
         try {
-            logger.debug( "Arguments: {}", args );
+            logger.debug("Arguments: {}", args);
 
-            CliExecutor cli = new CliExecutor( commandName );
-            cli.execute( args );
+            CliExecutor cli = new CliExecutor(commandName);
+            cli.execute(args);
 
-            System.exit( 0 );
-        }
-        catch( Exception ex ) {
-            output.error( ex.getMessage() );
-            output.debug( "Error: ", ex );
+            System.exit(0);
+        } catch (Exception ex) {
+            output.error(ex.getMessage());
+            output.debug("Error: ", ex);
 
-            System.exit( 1 );
-        }
-        finally {
+            System.exit(1);
+        } finally {
             logger.exit();
         }
     }
@@ -138,37 +146,35 @@ public class CliExecutor {
         List<SubcommandDefinition> definitions = new ArrayList<>();
         try {
             Reflections reflections = Reflections.collect();
-            Set<Class<?>> subCommands = reflections.getTypesAnnotatedWith( Subcommand.class );
-            for( Class<?> clazz : subCommands ) {
+            Set<Class<?>> subCommands = reflections.getTypesAnnotatedWith(Subcommand.class);
+            for (Class<?> clazz : subCommands) {
                 Object instance = clazz.newInstance();
-                if( instance instanceof SubcommandDefinition ) {
-                    definitions.add( (SubcommandDefinition)instance );
+                if (instance instanceof SubcommandDefinition) {
+                    definitions.add((SubcommandDefinition) instance);
                 }
             }
 
             return definitions;
-        }
-        finally {
-            logger.exit( definitions );
+        } finally {
+            logger.exit(definitions);
         }
     }
 
-    public SubcommandDefinition findSubcommandDefinition( String subCommandName ) throws InstantiationException, IllegalAccessException {
+    public SubcommandDefinition findSubcommandDefinition(String subCommandName) throws InstantiationException, IllegalAccessException {
         logger.entry();
 
         try {
-            for( SubcommandDefinition def : getSubcommandDefinitions() ) {
+            for (SubcommandDefinition def : getSubcommandDefinitions()) {
                 Class<?> clazz = def.getClass();
-                Subcommand subCommand = clazz.getAnnotation( Subcommand.class );
+                Subcommand subCommand = clazz.getAnnotation(Subcommand.class);
 
-                if( subCommand != null && subCommand.name().equals( subCommandName ) ) {
+                if (subCommand != null && subCommand.name().equals(subCommandName)) {
                     return def;
                 }
             }
 
             return null;
-        }
-        finally {
+        } finally {
             logger.exit();
         }
     }
@@ -181,130 +187,117 @@ public class CliExecutor {
      * Extracts the base directory of the Opencat-business directory.
      *
      * @param file A File instance with the path of a directory.
-     *
      * @return The base directory.
      */
-    private File extractBaseDir( File file ) {
-        logger.entry( file );
+    private File extractBaseDir(File file) {
+        logger.entry(file);
 
         try {
-            final String ROOT_DIRECTORY_NAMES[] = { "bin", "distributions" };
+            final String ROOT_DIRECTORY_NAMES[] = {"bin", "distributions"};
 
-            if( file == null ) {
+            if (file == null) {
                 return null;
             }
 
-            if( !file.isDirectory() ) {
+            if (!file.isDirectory()) {
                 return null;
             }
 
             int directoriesFound = 0;
-            for( String name : file.list() ) {
-                if( Arrays.binarySearch( ROOT_DIRECTORY_NAMES, name ) > -1 ) {
+            for (String name : file.list()) {
+                if (Arrays.binarySearch(ROOT_DIRECTORY_NAMES, name) > -1) {
                     directoriesFound++;
                 }
             }
 
-            if( directoriesFound == ROOT_DIRECTORY_NAMES.length ) {
+            if (directoriesFound == ROOT_DIRECTORY_NAMES.length) {
                 return file;
             }
 
-            return extractBaseDir( file.getParentFile() );
-        }
-        finally {
+            return extractBaseDir(file.getParentFile());
+        } finally {
             logger.exit();
         }
     }
 
-    private CommandLine parseArguments( Subcommand subCommand, Options options, String[] args ) throws IllegalAccessException, InstantiationException {
-        logger.entry( options, args );
+    private CommandLine parseArguments(Subcommand subCommand, Options options, String[] args) throws IllegalAccessException, InstantiationException {
+        logger.entry(options, args);
         CommandLineParser parser = new GnuParser();
 
         try {
-            return parser.parse( options, args );
-        } catch ( ParseException exp ) {
-            if ( !isHelpInArgsList( args ) ) {
-                output.error( "Parsing failed. Reason: " + exp.getMessage() );
+            return parser.parse(options, args);
+        } catch (ParseException exp) {
+            if (!isHelpInArgsList(args)) {
+                output.error("Parsing failed. Reason: " + exp.getMessage());
             }
-            logger.debug( "Exception: {}", exp );
-            printUsage( subCommand, options );
+            logger.debug("Exception: {}", exp);
+            printUsage(subCommand, options);
             return null;
         } finally {
             logger.exit();
         }
     }
 
-    private Boolean isHelpInArgsList( String[] args ) {
-        logger.entry( args );
+    private Boolean isHelpInArgsList(String[] args) {
+        logger.entry(args);
         Boolean res = false;
         try {
-            for ( String arg : args ) {
-                if ( "-h".equalsIgnoreCase( arg ) || "--help".equalsIgnoreCase( arg ) || "help".equalsIgnoreCase( arg ) ) {
+            for (String arg : args) {
+                if ("-h".equalsIgnoreCase(arg) || "--help".equalsIgnoreCase(arg) || "help".equalsIgnoreCase(arg)) {
                     res = true;
                     break;
                 }
             }
             return res;
         } finally {
-            logger.exit( res );
+            logger.exit(res);
         }
     }
 
     private void printUsage() throws InstantiationException, IllegalAccessException {
         logger.entry();
         try {
-            output.info( "Usage: {}", commandUsage() );
-            output.info( "" );
+            output.info("Usage: {}", commandUsage());
+            output.info("");
 
-            for( SubcommandDefinition def : getSubcommandDefinitions() ) {
+            for (SubcommandDefinition def : getSubcommandDefinitions()) {
                 Class<?> clazz = def.getClass();
-                Subcommand subCommand = clazz.getAnnotation( Subcommand.class );
+                Subcommand subCommand = clazz.getAnnotation(Subcommand.class);
 
-                output.info( "{}: {}", subCommand.name(), subCommand.description() );
+                output.info("{}: {}", subCommand.name(), subCommand.description());
             }
-        }
-        finally {
-            logger.exit();
-        }
-    }
-
-    private void printUsage( Subcommand subCommand, Options options ) throws InstantiationException, IllegalAccessException {
-        logger.entry( options );
-        try {
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp( subCommandUsage( subCommand.name() ), options );
-        }
-        finally {
-            output.exit();
-        }
-    }
-
-    private String commandUsage() {
-        return String.format( "%s [kommando] [argumenter]", commandName );
-    }
-
-    private String subCommandUsage( String subCommandName ) throws IllegalAccessException, InstantiationException {
-        SubcommandDefinition def = findSubcommandDefinition( subCommandName );
-        Subcommand subCommand = def.getClass().getAnnotation( Subcommand.class );
-        return String.format( "%s %s %s", commandName, subCommandName, subCommand.usage() );
-    }
-
-    private void printStuff( String cmdName, Options options ) throws InstantiationException, IllegalAccessException {
-        logger.entry( cmdName, options );
-        try {
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp( subCommandUsage( cmdName ), options );
         } finally {
             logger.exit();
         }
     }
 
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
+    private void printUsage(Subcommand subCommand, Options options) throws InstantiationException, IllegalAccessException {
+        logger.entry(options);
+        try {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp(subCommandUsage(subCommand.name()), options);
+        } finally {
+            output.exit();
+        }
+    }
 
-    private static final XLogger logger = XLoggerFactory.getXLogger( CliExecutor.class );
-    private static final XLogger output = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
+    private String commandUsage() {
+        return String.format("%s [kommando] [argumenter]", commandName);
+    }
 
-    private String commandName;
+    private String subCommandUsage(String subCommandName) throws IllegalAccessException, InstantiationException {
+        SubcommandDefinition def = findSubcommandDefinition(subCommandName);
+        Subcommand subCommand = def.getClass().getAnnotation(Subcommand.class);
+        return String.format("%s %s %s", commandName, subCommandName, subCommand.usage());
+    }
+
+    private void printStuff(String cmdName, Options options) throws InstantiationException, IllegalAccessException {
+        logger.entry(cmdName, options);
+        try {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp(subCommandUsage(cmdName), options);
+        } finally {
+            logger.exit();
+        }
+    }
 }

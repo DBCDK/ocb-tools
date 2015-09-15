@@ -3,8 +3,7 @@ package dk.dbc.ocbtools.commons.filesystem;
 
 //-----------------------------------------------------------------------------
 
-import org.hamcrest.Matchers;
-import org.hamcrest.collection.IsIterableContainingInAnyOrder;
+import dk.dbc.ocbtools.commons.type.ApplicationType;
 import org.junit.Test;
 
 import java.io.File;
@@ -14,7 +13,9 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 
 /**
@@ -46,12 +47,12 @@ public class OCBFileSystemTest {
         OCBFileSystem instance = newInstance();
 
         List<SystemTest> expected = new ArrayList<>();
-        expected.add( new SystemTest( "dataio", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/books/single-cases.json" ) ) );
-        expected.add( new SystemTest( "dataio", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/books/volumes/main-cases.json" ) ) );
-        expected.add( new SystemTest( "dataio", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/books/volumes/volume-cases.json" ) ) );
-        expected.add( new SystemTest( "dataio", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/movies/film-cases.json" ) ) );
-        expected.add( new SystemTest( "fbs", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/fbs/system-tests/bog-cases.json" ) ) );
-        expected.add( new SystemTest( "fbs", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/fbs/system-tests/film-cases.json" ) ) );
+        expected.add( new SystemTest( "dataio", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/update/books/single-cases.json" ), ApplicationType.UPDATE ) );
+        expected.add( new SystemTest( "dataio", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/update/books/volumes/main-cases.json" ), ApplicationType.UPDATE ) );
+        expected.add( new SystemTest( "dataio", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/update/books/volumes/volume-cases.json" ), ApplicationType.UPDATE ) );
+        expected.add( new SystemTest( "dataio", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/update/movies/film-cases.json" ), ApplicationType.UPDATE ) );
+        expected.add( new SystemTest( "fbs", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/fbs/system-tests/update/bog-cases.json" ), ApplicationType.UPDATE ) );
+        expected.add( new SystemTest( "fbs", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/fbs/system-tests/update/film-cases.json" ), ApplicationType.UPDATE ) );
         Collections.sort( expected );
 
         List<SystemTest> actual = instance.findSystemtests();
@@ -80,6 +81,6 @@ public class OCBFileSystemTest {
     }
 
     public OCBFileSystem newInstance( String path ) throws Exception {
-        return new OCBFileSystem( path );
+        return new OCBFileSystem( path, ApplicationType.UPDATE );
     }
 }

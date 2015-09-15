@@ -2,14 +2,19 @@
 package dk.dbc.ocbtools.testengine.testcases;
 
 //-----------------------------------------------------------------------------
+
 import java.util.List;
 
 //-----------------------------------------------------------------------------
+
 /**
  * Defines the expected update result of a testcase in json.
  */
-public class TestcaseExpectedUpdateResult {
-    public TestcaseExpectedUpdateResult() {
+public class UpdateTestcaseExpectedUpdateResult {
+    private List<ValidationResult> errors;
+    private List<UpdateTestcaseRecord> rawrepo;
+
+    public UpdateTestcaseExpectedUpdateResult() {
         this.errors = null;
         this.rawrepo = null;
     }
@@ -22,15 +27,15 @@ public class TestcaseExpectedUpdateResult {
         return errors;
     }
 
-    public void setErrors( List<ValidationResult> errors ) {
+    public void setErrors(List<ValidationResult> errors) {
         this.errors = errors;
     }
 
-    public List<TestcaseRecord> getRawrepo() {
+    public List<UpdateTestcaseRecord> getRawrepo() {
         return rawrepo;
     }
 
-    public void setRawrepo( List<TestcaseRecord> rawrepo ) {
+    public void setRawrepo(List<UpdateTestcaseRecord> rawrepo) {
         this.rawrepo = rawrepo;
     }
 
@@ -39,12 +44,12 @@ public class TestcaseExpectedUpdateResult {
     //-------------------------------------------------------------------------
 
     public boolean hasUpdateErrors() {
-        if( errors == null ) {
+        if (errors == null) {
             return false;
         }
 
-        for( ValidationResult errResult : errors ) {
-            if( errResult.getType() == ValidationResultType.ERROR ) {
+        for (ValidationResult errResult : errors) {
+            if (errResult.getType() == ValidationResultType.ERROR) {
                 return true;
             }
         }
@@ -63,11 +68,4 @@ public class TestcaseExpectedUpdateResult {
                 ", rawrepo=" + rawrepo +
                 '}';
     }
-
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private List<ValidationResult> errors;
-    private List<TestcaseRecord> rawrepo;
 }

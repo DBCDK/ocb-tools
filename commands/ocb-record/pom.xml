@@ -14,9 +14,6 @@
 
     <properties>
         <command.main.classname>dk.dbc.ocbtools.ocbrecord.OCBRecord</command.main.classname>
-        <maven.apache.lang3.plugin.version>3.3.2</maven.apache.lang3.plugin.version>
-        <maven.jersey-core.plugin-version>2.14</maven.jersey-core.plugin-version>
-        <maven.jackson.plugin.version>2.2.3</maven.jackson.plugin.version>
     </properties>
 
     <dependencies>

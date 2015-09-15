@@ -4,25 +4,25 @@ package dk.dbc.ocbtools.testengine.runners;
 //-----------------------------------------------------------------------------
 
 import dk.dbc.ocbtools.testengine.executors.TestExecutor;
-import dk.dbc.ocbtools.testengine.testcases.Testcase;
+import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
 
 import java.util.List;
 
 /**
  * Created by stp on 02/03/15.
  */
-public class TestRunnerItem {
-    public TestRunnerItem( Testcase testcase, List<TestExecutor> executors ) {
-        this.testcase = testcase;
+public class UpdateTestRunnerItem {
+    public UpdateTestRunnerItem(UpdateTestcase updateTestcase, List<TestExecutor> executors) {
+        this.updateTestcase = updateTestcase;
         this.executors = executors;
     }
 
-    public Testcase getTestcase() {
-        return testcase;
+    public UpdateTestcase getUpdateTestcase() {
+        return updateTestcase;
     }
 
-    public void setTestcase( Testcase testcase ) {
-        this.testcase = testcase;
+    public void setUpdateTestcase(UpdateTestcase updateTestcase) {
+        this.updateTestcase = updateTestcase;
     }
 
     public List<TestExecutor> getExecutors() {
@@ -37,6 +37,6 @@ public class TestRunnerItem {
     //              Members
     //-------------------------------------------------------------------------
 
-    private Testcase testcase;
+    private UpdateTestcase updateTestcase;
     private List<TestExecutor> executors;
 }

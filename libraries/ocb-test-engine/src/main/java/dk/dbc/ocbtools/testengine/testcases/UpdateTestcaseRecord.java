@@ -10,11 +10,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 //-----------------------------------------------------------------------------
+
 /**
  * Represents a record structure in a testcase json file.
  */
-public class TestcaseRecord {
-    public TestcaseRecord() {
+public class UpdateTestcaseRecord {
+    private String record;
+
+    @JsonIgnore
+    private File recordFile;
+    private TestcaseRecordType type;
+    private boolean deleted;
+    private List<String> children;
+    private List<String> enrichments;
+    private Boolean enqueued;
+
+    public UpdateTestcaseRecord() {
         this.record = "";
         this.recordFile = null;
         this.type = null;
@@ -32,7 +43,7 @@ public class TestcaseRecord {
         return record;
     }
 
-    public void setRecord( String record ) {
+    public void setRecord(String record) {
         this.record = record;
     }
 
@@ -40,7 +51,7 @@ public class TestcaseRecord {
         return recordFile;
     }
 
-    public void setRecordFile( File recordFile ) {
+    public void setRecordFile(File recordFile) {
         this.recordFile = recordFile;
     }
 
@@ -48,7 +59,7 @@ public class TestcaseRecord {
         return type;
     }
 
-    public void setType( TestcaseRecordType type ) {
+    public void setType(TestcaseRecordType type) {
         this.type = type;
     }
 
@@ -56,7 +67,7 @@ public class TestcaseRecord {
         return deleted;
     }
 
-    public void setDeleted( boolean deleted ) {
+    public void setDeleted(boolean deleted) {
         this.deleted = deleted;
     }
 
@@ -64,7 +75,7 @@ public class TestcaseRecord {
         return children;
     }
 
-    public void setChildren( List<String> children ) {
+    public void setChildren(List<String> children) {
         this.children = children;
     }
 
@@ -72,7 +83,7 @@ public class TestcaseRecord {
         return enrichments;
     }
 
-    public void setEnrichments( List<String> enrichments ) {
+    public void setEnrichments(List<String> enrichments) {
         this.enrichments = enrichments;
     }
 
@@ -80,7 +91,7 @@ public class TestcaseRecord {
         return enqueued;
     }
 
-    public void setEnqueued( Boolean enqueued ) {
+    public void setEnqueued(Boolean enqueued) {
         this.enqueued = enqueued;
     }
 
@@ -100,18 +111,4 @@ public class TestcaseRecord {
                 ", enqueued=" + enqueued +
                 '}';
     }
-
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private String record;
-
-    @JsonIgnore
-    private File recordFile;
-    private TestcaseRecordType type;
-    private boolean deleted;
-    private List<String> children;
-    private List<String> enrichments;
-    private Boolean enqueued;
 }

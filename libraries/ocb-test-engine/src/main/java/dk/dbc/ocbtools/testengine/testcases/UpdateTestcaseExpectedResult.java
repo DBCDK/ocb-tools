@@ -2,14 +2,19 @@
 package dk.dbc.ocbtools.testengine.testcases;
 
 //-----------------------------------------------------------------------------
+
 import java.util.List;
 
 //-----------------------------------------------------------------------------
+
 /**
- * Defines the expected result of a testcase in json.
+ * Defines the expected result of a update testcase in json.
  */
-public class TestcaseExpectedResult {
-    public TestcaseExpectedResult() {
+public class UpdateTestcaseExpectedResult {
+    private List<ValidationResult> validation;
+    private UpdateTestcaseExpectedUpdateResult update;
+
+    public UpdateTestcaseExpectedResult() {
         this.validation = null;
         this.update = null;
     }
@@ -22,15 +27,15 @@ public class TestcaseExpectedResult {
         return validation;
     }
 
-    public void setValidation( List<ValidationResult> validation ) {
+    public void setValidation(List<ValidationResult> validation) {
         this.validation = validation;
     }
 
-    public TestcaseExpectedUpdateResult getUpdate() {
+    public UpdateTestcaseExpectedUpdateResult getUpdate() {
         return update;
     }
 
-    public void setUpdate( TestcaseExpectedUpdateResult update ) {
+    public void setUpdate(UpdateTestcaseExpectedUpdateResult update) {
         this.update = update;
     }
 
@@ -39,12 +44,12 @@ public class TestcaseExpectedResult {
     //-------------------------------------------------------------------------
 
     public boolean hasValidationErrors() {
-        if( validation == null ) {
+        if (validation == null) {
             return false;
         }
 
-        for( ValidationResult valResult : validation ) {
-            if( valResult.getType() == ValidationResultType.ERROR ) {
+        for (ValidationResult valResult : validation) {
+            if (valResult.getType() == ValidationResultType.ERROR) {
                 return true;
             }
         }
@@ -63,11 +68,4 @@ public class TestcaseExpectedResult {
                 ", update=" + update +
                 '}';
     }
-
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private List<ValidationResult> validation;
-    private TestcaseExpectedUpdateResult update;
 }

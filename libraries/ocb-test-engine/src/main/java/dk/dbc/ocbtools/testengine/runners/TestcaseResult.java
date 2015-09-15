@@ -2,9 +2,7 @@
 package dk.dbc.ocbtools.testengine.runners;
 
 //-----------------------------------------------------------------------------
-import dk.dbc.ocbtools.testengine.testcases.Testcase;
-import org.slf4j.ext.XLogger;
-import org.slf4j.ext.XLoggerFactory;
+import dk.dbc.ocbtools.testengine.testcases.BaseTestcase;
 
 import java.util.List;
 
@@ -13,13 +11,16 @@ import java.util.List;
  * Created by stp on 02/03/15.
  */
 public class TestcaseResult {
-    public TestcaseResult( Testcase testcase, List<TestExecutorResult> results ) {
-        this.testcase = testcase;
+    private BaseTestcase baseTestcase;
+    private List<TestExecutorResult> results;
+
+    public TestcaseResult(BaseTestcase baseTestcase, List<TestExecutorResult> results) {
+        this.baseTestcase = baseTestcase;
         this.results = results;
     }
 
-    public Testcase getTestcase() {
-        return testcase;
+    public BaseTestcase getBaseTestcase() {
+        return baseTestcase;
     }
 
     public List<TestExecutorResult> getResults() {
@@ -27,49 +28,32 @@ public class TestcaseResult {
     }
 
     public boolean hasError() {
-        for( TestExecutorResult testExecutorResult : results ) {
-            if( testExecutorResult.hasError() ) {
+        for (TestExecutorResult testExecutorResult : results) {
+            if (testExecutorResult.hasError()) {
                 return true;
             }
         }
-
         return false;
     }
 
     public long getTime() {
         long time = 0;
-        for( TestExecutorResult testExecutorResult : results ) {
+        for (TestExecutorResult testExecutorResult : results) {
             time += testExecutorResult.getTime();
         }
-
         return time;
     }
 
     public int countErrors() {
         int errors = 0;
-        for( TestExecutorResult testExecutorResult : results ) {
-            if( testExecutorResult.getAssertionError() != null )
+        for (TestExecutorResult testExecutorResult : results) {
+            if (testExecutorResult.getAssertionError() != null)
                 errors++;
         }
-
         return errors;
     }
 
     public int countTests() {
-        int tests = 0;
-        for( TestExecutorResult testExecutorResult : results ) {
-            tests++;
-        }
-
-        return tests;
+        return results.size();
     }
-
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private static final XLogger logger = XLoggerFactory.getXLogger( TestcaseResult.class );
-
-    private Testcase testcase;
-    private List<TestExecutorResult> results;
 }
