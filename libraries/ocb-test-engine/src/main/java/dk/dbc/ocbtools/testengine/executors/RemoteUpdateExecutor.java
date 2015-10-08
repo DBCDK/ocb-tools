@@ -101,7 +101,13 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
                     assertEquals(UpdateStatusEnum.OK, response.getUpdateStatus());
                 } else if (tc.getExpected().getUpdate().hasUpdateErrors()) {
                     UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getErrors(), response.getValidateInstance());
-                    assertEquals(UpdateStatusEnum.FAILED_UPDATE_INTERNAL_ERROR, response.getUpdateStatus());
+
+                    if( tc.getExpected().hasValidationErrors() ) {
+                        assertEquals( UpdateStatusEnum.VALIDATION_ERROR, response.getUpdateStatus() );
+                    }
+                    else {
+                        assertEquals( UpdateStatusEnum.FAILED_UPDATE_INTERNAL_ERROR, response.getUpdateStatus() );
+                    }
                 } else {
                     UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getErrors(), response.getValidateInstance());
                     assertEquals(UpdateStatusEnum.OK, response.getUpdateStatus());
