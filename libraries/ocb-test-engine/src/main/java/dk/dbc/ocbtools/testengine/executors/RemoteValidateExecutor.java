@@ -112,6 +112,9 @@ public class RemoteValidateExecutor implements TestExecutor {
                 Solr.waitForIndex(settings);
             }
 
+            setupHoldings( fs );
+
+            /*
             if (tc.getSetup() != null && !tc.getSetup().getHoldings().isEmpty()) {
                 try (Connection conn = Holdings.getConnection(settings)) {
                     MarcRecord marcRecord = fs.loadRecord(tc.getFile().getParentFile(), tc.getRequest().getRecord());
@@ -119,6 +122,7 @@ public class RemoteValidateExecutor implements TestExecutor {
                     Holdings.saveHoldings(conn, marcRecord, tc.getSetup().getHoldings());
                 }
             }
+            */
 
             if (this.demoInfoPrinter != null) {
                 demoInfoPrinter.printRemoteDatabases(this.tc, settings);
@@ -127,6 +131,77 @@ public class RemoteValidateExecutor implements TestExecutor {
             throw new AssertionError(ex.getMessage(), ex);
         } finally {
             logger.exit();
+        }
+    }
+
+    /**
+     * Setup any holdings for this testcase.
+     *
+     * @param fs The OCB filesystem to load records from.
+     */
+    private void setupHoldings( OCBFileSystem fs ) throws SQLException, IOException, ClassNotFoundException, HoldingsItemsException {
+        logger.entry( fs );
+
+        try {
+            if( !hasHoldings() ) {
+                return;
+            }
+
+            try( Connection conn = Holdings.getConnection( settings ) ) {
+                MarcRecord marcRecord;
+
+                // Setup holdings for the request record.
+                if( tc.getSetup().getHoldings() != null ) {
+                    marcRecord = fs.loadRecord( tc.getFile().getParentFile(), tc.getRequest().getRecord() );
+
+                    Holdings.saveHoldings( conn, marcRecord, tc.getSetup().getHoldings() );
+                }
+
+                // Setup holdings for records already in RawRepo.
+                if( tc.getSetup().getRawrepo() != null ) {
+                    for( UpdateTestcaseRecord record : tc.getSetup().getRawrepo() ) {
+                        if( !record.getHoldings().isEmpty() ) {
+                            marcRecord = fs.loadRecord( tc.getFile().getParentFile(), record.getRecord() );
+
+                            Holdings.saveHoldings( conn, marcRecord, record.getHoldings() );
+                        }
+                    }
+                }
+            }
+        }
+        finally {
+            logger.exit();
+        }
+    }
+
+    /**
+     * Checks if this testcase contains any setup about holdings.
+     */
+    private boolean hasHoldings() {
+        logger.entry();
+
+        Boolean result = null;
+        try {
+            if( tc.getSetup() == null ) {
+                return result = false;
+            }
+
+            if( tc.getSetup().getHoldings() != null && !tc.getSetup().getHoldings().isEmpty() ) {
+                return result = true;
+            }
+
+            if( tc.getSetup().getRawrepo() != null ) {
+                for( UpdateTestcaseRecord record : tc.getSetup().getRawrepo() ) {
+                    if( !record.getHoldings().isEmpty() ) {
+                        return result = true;
+                    }
+                }
+            }
+
+            return result = false;
+        }
+        finally {
+            logger.exit( result );
         }
     }
 

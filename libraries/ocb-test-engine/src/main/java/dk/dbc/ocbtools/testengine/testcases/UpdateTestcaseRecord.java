@@ -16,9 +16,11 @@ import java.util.List;
  */
 public class UpdateTestcaseRecord {
     private String record;
+    private List<Integer> holdings;
 
     @JsonIgnore
     private File recordFile;
+
     private TestcaseRecordType type;
     private boolean deleted;
     private List<String> children;
@@ -27,6 +29,7 @@ public class UpdateTestcaseRecord {
 
     public UpdateTestcaseRecord() {
         this.record = "";
+        this.holdings = new ArrayList<>();
         this.recordFile = null;
         this.type = null;
         this.deleted = false;
@@ -45,6 +48,14 @@ public class UpdateTestcaseRecord {
 
     public void setRecord(String record) {
         this.record = record;
+    }
+
+    public List<Integer> getHoldings() {
+        return holdings;
+    }
+
+    public void setHoldings( List<Integer> holdings ) {
+        this.holdings = holdings;
     }
 
     public File getRecordFile() {
