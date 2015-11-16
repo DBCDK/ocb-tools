@@ -65,7 +65,7 @@ public class RawRepo {
     private RawRepoDAO dao;
 
     public RawRepo(Connection connection) throws RawRepoException {
-        this.dao = RawRepoDAO.newInstance(connection);
+        this.dao = RawRepoDAO.builder(connection).build();
     }
 
     /**
@@ -326,7 +326,7 @@ public class RawRepo {
 
         List<RecordId> result = new ArrayList<>();
         try (Connection conn = getConnection(settings)) {
-            RawRepoDAO dao = RawRepoDAO.newInstance(conn);
+            RawRepoDAO dao = RawRepoDAO.builder(conn).build();
 
             final int COUNT_SIZE = 10;
             List<QueueJob> jobs;
@@ -361,7 +361,7 @@ public class RawRepo {
 
         Set<RecordId> result = null;
         try (Connection conn = getConnection(settings)) {
-            RawRepoDAO dao = RawRepoDAO.newInstance(conn);
+            RawRepoDAO dao = RawRepoDAO.builder(conn).build();
 
             switch (type) {
                 case CHILD:
