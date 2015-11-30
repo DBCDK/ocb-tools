@@ -65,13 +65,11 @@ public class BuildTestRunner {
                         testExecutorResult.setTime(watch.getElapsedTime());
                         testExecutorResults.add(testExecutorResult);
                     } catch (AssertionError e) {
-                        e.printStackTrace();
                         watch.stop();
                         TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, e);
                         testExecutorResult.setTime(watch.getElapsedTime());
                         testExecutorResults.add(testExecutorResult);
                     } catch (Error | Exception e) {
-                        e.printStackTrace();
                         watch.stop();
                         TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(e.getMessage(), e));
                         testExecutorResult.setTime(watch.getElapsedTime());
