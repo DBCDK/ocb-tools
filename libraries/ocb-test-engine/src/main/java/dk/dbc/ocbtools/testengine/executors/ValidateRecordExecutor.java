@@ -37,15 +37,25 @@ public class ValidateRecordExecutor implements TestExecutor {
     private File baseDir;
     private DemoInfoPrinter demoInfoPrinter;
     private UpdateTestcase tc;
+    private ServiceScripter scripter;
 
     public ValidateRecordExecutor(File baseDir, UpdateTestcase tc, boolean printDemoInfo) {
         this.baseDir = baseDir;
         this.tc = tc;
         this.demoInfoPrinter = null;
+        this.scripter = null;
 
         if (printDemoInfo) {
             this.demoInfoPrinter = new DemoInfoPrinter();
         }
+    }
+
+    public ServiceScripter getScripter() {
+        return scripter;
+    }
+
+    public void setScripter( ServiceScripter scripter ) {
+        this.scripter = scripter;
     }
 
     //-------------------------------------------------------------------------
@@ -82,7 +92,6 @@ public class ValidateRecordExecutor implements TestExecutor {
             }
 
             MarcRecord record = tc.loadRecord();
-            ServiceScripter scripter = createScripter();
             Map<String, String> settings = createSettings();
 
             Object jsResult = scripter.callMethod(SCRIPT_FILENAME, SCRIPT_FUNCTION,

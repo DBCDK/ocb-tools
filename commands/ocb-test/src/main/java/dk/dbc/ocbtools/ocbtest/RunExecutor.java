@@ -8,6 +8,8 @@ import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.cli.CliException;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
+import dk.dbc.ocbtools.scripter.Distribution;
+import dk.dbc.ocbtools.scripter.ServiceScripter;
 import dk.dbc.ocbtools.testengine.executors.BuildRecordExecutor;
 import dk.dbc.ocbtools.testengine.executors.CheckTemplateExecutor;
 import dk.dbc.ocbtools.testengine.executors.RemoteBuildExecutor;
@@ -33,9 +35,7 @@ import org.slf4j.ext.XLoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 //-----------------------------------------------------------------------------
 
@@ -44,6 +44,8 @@ import java.util.Properties;
  */
 public class RunExecutor implements SubcommandExecutor {
     private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
+    private static final XLogger logger = XLoggerFactory.getXLogger(RunExecutor.class);
+    private static final String SERVICE_NAME = "ocb-test";
 
     private File baseDir;
 
@@ -125,6 +127,7 @@ public class RunExecutor implements SubcommandExecutor {
                 output.info("");
             }
 
+            Map<String, ServiceScripter> scripterCache = new HashMap<>();
             List<UpdateTestRunnerItem> items = new ArrayList<>();
             for (UpdateTestcase tc : repo.findAllTestcases()) {
                 if (!matchAnyNames(tc, tcNames)) {
@@ -135,8 +138,14 @@ public class RunExecutor implements SubcommandExecutor {
 
                 if (!this.useRemote) {
                     if (tc.getExpected().getValidation() != null) {
-                        executors.add(new ValidateRecordExecutor(baseDir, tc, this.printDemoInfo));
+                        ValidateRecordExecutor validateRecordExecutor = new ValidateRecordExecutor( baseDir, tc, this.printDemoInfo );
+
+                        ServiceScripter scripter = getOrCreateScripter( scripterCache, tc.getDistributionName() );
+                        validateRecordExecutor.setScripter( scripter );
+
+                        executors.add( validateRecordExecutor );
                     } else {
+                        output.warn( "Using CheckTemplateExecutor: {}", tc.getName() );
                         executors.add(new CheckTemplateExecutor(baseDir, tc));
                     }
                 } else {
@@ -192,19 +201,23 @@ public class RunExecutor implements SubcommandExecutor {
                 output.info("");
             }
 
+            Map<String, ServiceScripter> scripterCache = new HashMap<>();
             List<BuildTestRunnerItem> items = new ArrayList<>();
             for (BuildTestcase buildTestcase : repo.findAllTestcases()) {
                 if (!matchAnyNames(buildTestcase, tcNames)) {
                     continue;
                 }
                 List<TestExecutor> executors = new ArrayList<>();
-                TestExecutor testExecutor;
                 if (this.useRemote) {
-                    testExecutor = new RemoteBuildExecutor(buildTestcase, settings, this.printDemoInfo);
-                    executors.add(testExecutor);
+                    RemoteBuildExecutor remoteBuildExecutor = new RemoteBuildExecutor(buildTestcase, settings, this.printDemoInfo);
+                    executors.add(remoteBuildExecutor);
                 } else {
-                    testExecutor = new BuildRecordExecutor(baseDir, buildTestcase, this.printDemoInfo);
-                    executors.add(testExecutor);
+                    BuildRecordExecutor buildRecordExecutor = new BuildRecordExecutor(baseDir, buildTestcase, this.printDemoInfo);
+
+                    ServiceScripter scripter = getOrCreateScripter( scripterCache, buildTestcase.getDistributionName() );
+                    buildRecordExecutor.setScripter( scripter );
+
+                    executors.add( buildRecordExecutor );
                 }
 
                 items.add(new BuildTestRunnerItem(buildTestcase, executors));
@@ -233,11 +246,8 @@ public class RunExecutor implements SubcommandExecutor {
         output.entry(tc, names);
 
         try {
-            if (names.isEmpty()) {
-                return true;
-            }
+            return names.isEmpty() || names.contains( tc.getName() );
 
-            return names.contains(tc.getName());
         } finally {
             output.exit();
         }
@@ -247,13 +257,70 @@ public class RunExecutor implements SubcommandExecutor {
         output.entry(tc, names);
 
         try {
-            if (names.isEmpty()) {
-                return true;
-            }
+            return names.isEmpty() || names.contains( tc.getName() );
 
-            return names.contains(tc.getName());
         } finally {
             output.exit();
+        }
+    }
+
+    /**
+     * Gets a ServiceScripter from a cache (Map) of ServiceScripter's.
+     * <p>
+     *     The cache is indexed by distribution names.
+     * </p>
+     * <p>
+     *     If a ServiceScripter does not exist in the cache, a new one is created and added to the cache.
+     * </p>
+     *
+     * @param cache            The cache of ServiceScripter's. It may be changed by this method.
+     * @param distributionName The distribution name to lookup a ServiceScripter in the cache.
+     *
+     * @return A ServiceScripter from the cache if it exists, otherwise a new ServiceScripter.
+     *
+     * @throws IOException Any exception of creation a new ServiceScripter.
+     */
+    private ServiceScripter getOrCreateScripter( Map<String, ServiceScripter> cache, String distributionName ) throws IOException {
+        logger.entry();
+
+        ServiceScripter scripter = null;
+        try {
+            if( !cache.containsKey( distributionName ) ) {
+                scripter = createScripter( distributionName );
+                cache.put( distributionName, scripter );
+            }
+            else {
+                scripter = cache.get( distributionName );
+            }
+
+            return scripter;
+        }
+        finally {
+            logger.exit( scripter );
+        }
+    }
+
+    private ServiceScripter createScripter( String distributionName ) throws IOException {
+        logger.entry();
+
+        ServiceScripter scripter = null;
+        try {
+            scripter = new ServiceScripter();
+            scripter.setBaseDir( baseDir.getCanonicalPath() );
+            scripter.setModulesKey( "unittest.modules.search.path" );
+
+            ArrayList<Distribution> distributions = new ArrayList<>();
+            distributions.add( new Distribution( "ocbtools", "ocb-tools" ) );
+            distributions.add( new Distribution( distributionName, "distributions/" + distributionName ) );
+            logger.debug( "Using distributions: {}", distributions );
+
+            scripter.setDistributions( distributions );
+            scripter.setServiceName( SERVICE_NAME );
+
+            return scripter;
+        }
+        finally {
+            logger.exit( scripter );
         }
     }
 }

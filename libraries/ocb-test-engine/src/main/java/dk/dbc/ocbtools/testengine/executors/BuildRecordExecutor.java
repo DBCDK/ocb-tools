@@ -31,15 +31,25 @@ public class BuildRecordExecutor implements TestExecutor {
     private File baseDir;
     private DemoInfoPrinter demoInfoPrinter;
     private BuildTestcase tc;
+    private ServiceScripter scripter;
 
     public BuildRecordExecutor(File baseDir, BuildTestcase tc, boolean printDemoInfo) {
         this.baseDir = baseDir;
         this.tc = tc;
         this.demoInfoPrinter = null;
+        this.scripter = null;
 
         if (printDemoInfo) {
             this.demoInfoPrinter = new DemoInfoPrinter();
         }
+    }
+
+    public ServiceScripter getScripter() {
+        return scripter;
+    }
+
+    public void setScripter( ServiceScripter scripter ) {
+        this.scripter = scripter;
     }
 
     @Override
@@ -75,7 +85,6 @@ public class BuildRecordExecutor implements TestExecutor {
             }
 
             MarcRecord record = tc.loadRequestRecord();
-            ServiceScripter scripter = createScripter();
             Map<String, String> settings = createSettings();
             String encodedRecord = null;
             if (record != null) {
@@ -87,7 +96,6 @@ public class BuildRecordExecutor implements TestExecutor {
             if (jsResultAsStringTrimmed.startsWith("{")) {
                 MarcRecord jsResultAsMarcRecord = Json.decode(jsResultAsStringTrimmed, MarcRecord.class);
                 jsResultAsStringTrimmed = jsResultAsMarcRecord.toString().trim();
-
             }
             BuildAsserter.assertValidation(tc, jsResultAsStringTrimmed);
         } catch (IOException | ScripterException e) {
@@ -138,6 +146,7 @@ public class BuildRecordExecutor implements TestExecutor {
                 "baseDir=" + baseDir +
                 ", demoInfoPrinter=" + demoInfoPrinter +
                 ", tc=" + tc +
+                ", scripter=" + scripter +
                 '}';
     }
 }

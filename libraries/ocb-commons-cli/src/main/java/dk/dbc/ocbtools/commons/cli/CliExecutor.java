@@ -16,16 +16,16 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.perf4j.StopWatch;
 import org.reflections.Reflections;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 //-----------------------------------------------------------------------------
 /**
@@ -120,10 +120,19 @@ public class CliExecutor {
         logger.entry(commandName, args);
 
         try {
+            StopWatch watch = new StopWatch();
             logger.debug("Arguments: {}", args);
 
             CliExecutor cli = new CliExecutor(commandName);
             cli.execute(args);
+
+            long elapsedTime = watch.getElapsedTime();
+            logger.debug( "Elapsed time for command '{}': {}", commandName, elapsedTime );
+
+            Date date = new Date( elapsedTime );
+            DateFormat formatter = new SimpleDateFormat("s,SSS");
+            output.info( "" );
+            output.info( "Command '{}' executed in {} seconds", commandName, formatter.format( date ) );
 
             System.exit(0);
         } catch (Exception ex) {
