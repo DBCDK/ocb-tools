@@ -7,6 +7,6 @@ import dk.dbc.ocbtools.commons.cli.CliExecutor;
  */
 public class OCBRecord {
     public static void main( String[] args ) {
-        CliExecutor.main( "ocb-record", args );
+        System.exit( CliExecutor.main( "ocb-record", args ) );
     }
 }

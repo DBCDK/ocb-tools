@@ -11,6 +11,6 @@ import dk.dbc.ocbtools.commons.cli.CliExecutor;
  */
 public class OCBTest {
     public static void main( String[] args ) {
-        CliExecutor.main( "ocb-test", args );
+        System.exit( CliExecutor.main( "ocb-test", args ) );
     }
 }

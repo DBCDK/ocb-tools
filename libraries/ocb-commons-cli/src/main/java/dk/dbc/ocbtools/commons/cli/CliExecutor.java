@@ -116,16 +116,23 @@ public class CliExecutor {
     //              Commands
     //-------------------------------------------------------------------------
 
-    public static void main(String commandName, String[] args) {
+    public static int main(String commandName, String[] args) {
         logger.entry(commandName, args);
 
+        StopWatch watch = new StopWatch();
         try {
-            StopWatch watch = new StopWatch();
             logger.debug("Arguments: {}", args);
 
             CliExecutor cli = new CliExecutor(commandName);
             cli.execute(args);
 
+            return 0;
+        } catch (Exception ex) {
+            output.error(ex.getMessage());
+            output.debug("Error: ", ex);
+
+            return 1;
+        } finally {
             long elapsedTime = watch.getElapsedTime();
             logger.debug( "Elapsed time for command '{}': {}", commandName, elapsedTime );
 
@@ -133,14 +140,6 @@ public class CliExecutor {
             DateFormat formatter = new SimpleDateFormat("s,SSS");
             output.info( "" );
             output.info( "Command '{}' executed in {} seconds", commandName, formatter.format( date ) );
-
-            System.exit(0);
-        } catch (Exception ex) {
-            output.error(ex.getMessage());
-            output.debug("Error: ", ex);
-
-            System.exit(1);
-        } finally {
             logger.exit();
         }
     }
