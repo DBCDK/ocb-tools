@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Executor to test a testcase against the JavaScript logic.
@@ -26,18 +27,19 @@ public class BuildRecordExecutor implements TestExecutor {
     private static final String SCRIPT_FILENAME = "BuildRecordExecutor.use.js";
     private static final String SCRIPT_FUNCTION = "buildRecord";
     private static final String SERVICE_NAME = "ocb-test";
-    private static final String FAUST_NBR = "100007134";
 
     private File baseDir;
     private DemoInfoPrinter demoInfoPrinter;
     private BuildTestcase tc;
     private ServiceScripter scripter;
+    private Properties properties;
 
-    public BuildRecordExecutor(File baseDir, BuildTestcase tc, boolean printDemoInfo) {
+    public BuildRecordExecutor(File baseDir, BuildTestcase tc, Properties properties, boolean printDemoInfo) {
         this.baseDir = baseDir;
         this.tc = tc;
         this.demoInfoPrinter = null;
         this.scripter = null;
+        this.properties = properties;
 
         if (printDemoInfo) {
             this.demoInfoPrinter = new DemoInfoPrinter();
@@ -90,7 +92,8 @@ public class BuildRecordExecutor implements TestExecutor {
             if (record != null) {
                 encodedRecord = Json.encode(record);
             }
-            Object jsResult = scripter.callMethod(SCRIPT_FILENAME, SCRIPT_FUNCTION, tc, encodedRecord, FAUST_NBR, settings);
+            logger.debug("settings="+settings);
+            Object jsResult = scripter.callMethod(SCRIPT_FILENAME, SCRIPT_FUNCTION, tc, encodedRecord, settings);
             String jsResultAsString = (String) jsResult;
             String jsResultAsStringTrimmed = jsResultAsString.trim();
             if (jsResultAsStringTrimmed.startsWith("{")) {
@@ -112,6 +115,7 @@ public class BuildRecordExecutor implements TestExecutor {
             settings = new HashMap<>();
             settings.put("javascript.basedir", baseDir.getAbsolutePath());
             settings.put("javascript.install.name", tc.getDistributionName());
+            settings.put("opennumberroll", properties.getProperty("buildservice.opennumberroll"));
             return settings;
         } finally {
             logger.exit(settings);

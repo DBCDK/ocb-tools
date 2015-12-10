@@ -212,7 +212,7 @@ public class RunExecutor implements SubcommandExecutor {
                     RemoteBuildExecutor remoteBuildExecutor = new RemoteBuildExecutor(buildTestcase, settings, this.printDemoInfo);
                     executors.add(remoteBuildExecutor);
                 } else {
-                    BuildRecordExecutor buildRecordExecutor = new BuildRecordExecutor(baseDir, buildTestcase, this.printDemoInfo);
+                    BuildRecordExecutor buildRecordExecutor = new BuildRecordExecutor(baseDir, buildTestcase, settings, this.printDemoInfo);
 
                     ServiceScripter scripter = getOrCreateScripter( scripterCache, buildTestcase.getDistributionName() );
                     buildRecordExecutor.setScripter( scripter );
