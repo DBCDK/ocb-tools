@@ -27,7 +27,9 @@ public class UpdateTestcaseRepositoryFactory {
         UpdateTestcaseRepository result = new UpdateTestcaseRepository();
         try {
             for( SystemTest systemTest : fs.findSystemtests() ) {
-                result.addAll( UpdateTestcaseFactory.newInstances( systemTest ) );
+                if( !systemTest.getFile().getAbsolutePath().contains( UpdateTestcase.WIREMOCK_ROOT_DIR ) ) {
+                    result.addAll( UpdateTestcaseFactory.newInstances( systemTest ) );
+                }
             }
 
             return result;

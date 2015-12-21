@@ -6,6 +6,7 @@ package dk.dbc.ocbtools.testengine.testcases;
 import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.records.MarcRecordFactory;
 import dk.dbc.iscrum.utils.IOUtils;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -21,6 +22,9 @@ import java.util.List;
  */
 public class UpdateTestcase extends BaseTestcase {
     private static final XLogger logger = XLoggerFactory.getXLogger( UpdateTestcase.class );
+
+    public static final String WIREMOCK_ROOT_DIR = "__wiremock";
+    public static final String SOLR_ROOT_DIR = WIREMOCK_ROOT_DIR + "/solr";
 
     /**
      * Numbers of bugs in Bugzilla that is related to this testcase.
@@ -71,6 +75,41 @@ public class UpdateTestcase extends BaseTestcase {
 
     public void setExpected( UpdateTestcaseExpectedResult expected ) {
         this.expected = expected;
+    }
+
+    //-------------------------------------------------------------------------
+    //              Solr
+    //-------------------------------------------------------------------------
+
+    public boolean hasSolrMocking() {
+        logger.entry();
+
+        Boolean result = null;
+        try {
+            return result = getSolrRootDirectory() != null;
+        }
+        finally {
+            logger.exit( result );
+        }
+    }
+
+    @JsonIgnore
+    public File getSolrRootDirectory() {
+        logger.entry();
+
+        File result = null;
+        try {
+            File solrRootDir = new File( file.getParent() + "/" + SOLR_ROOT_DIR );
+
+            if( solrRootDir.exists() && solrRootDir.isDirectory() ) {
+                result = solrRootDir;
+            }
+
+            return result;
+        }
+        finally {
+            logger.exit( result );
+        }
     }
 
     //-------------------------------------------------------------------------

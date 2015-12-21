@@ -81,6 +81,11 @@
             <artifactId>jackson-jaxrs</artifactId>
             <version>${maven.jackson.jaxrs.plugin.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock</artifactId>
+            <version>1.46</version>
+        </dependency>
     </dependencies>
 
 </project>

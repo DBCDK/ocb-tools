@@ -2,6 +2,7 @@
 package dk.dbc.ocbtools.commons.filesystem;
 
 //-----------------------------------------------------------------------------
+
 import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.records.MarcRecordFactory;
 import dk.dbc.iscrum.utils.IOUtils;
@@ -10,7 +11,6 @@ import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -214,11 +214,8 @@ public class OCBFileSystem {
             }
 
             result.addAll( Arrays.asList( dir.listFiles( filter ) ) );
-            File[] subDirs = dir.listFiles( new FileFilter() {
-                @Override
-                public boolean accept( File pathname ) {
-                    return pathname.isDirectory();
-                }
+            File[] subDirs = dir.listFiles( pathname -> {
+                return pathname.isDirectory();
             } );
 
             for( File subDir : subDirs ) {

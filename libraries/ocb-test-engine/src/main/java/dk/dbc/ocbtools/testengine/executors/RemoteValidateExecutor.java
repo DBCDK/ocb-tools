@@ -5,22 +5,15 @@ package dk.dbc.ocbtools.testengine.executors;
 
 import dk.dbc.holdingsitems.HoldingsItemsException;
 import dk.dbc.iscrum.records.MarcRecord;
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.asserters.UpdateAsserter;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
-import dk.dbc.ocbtools.testengine.testcases.TestcaseSolrQuery;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.updateservice.client.BibliographicRecordFactory;
 import dk.dbc.updateservice.client.UpdateService;
-import dk.dbc.updateservice.service.api.Authentication;
-import dk.dbc.updateservice.service.api.Options;
-import dk.dbc.updateservice.service.api.UpdateOptionEnum;
-import dk.dbc.updateservice.service.api.UpdateRecordRequest;
-import dk.dbc.updateservice.service.api.UpdateRecordResult;
-import dk.dbc.updateservice.service.api.UpdateStatusEnum;
+import dk.dbc.updateservice.service.api.*;
 import org.perf4j.StopWatch;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -51,12 +44,14 @@ public class RemoteValidateExecutor implements TestExecutor {
     protected UpdateTestcase tc;
     protected Properties settings;
     protected DemoInfoPrinter demoInfoPrinter;
+    private SolrServer solrServer;
 
     public RemoteValidateExecutor(UpdateTestcase tc, Properties settings, boolean printDemoInfo) {
         logger = XLoggerFactory.getXLogger(RemoteValidateExecutor.class);
         this.tc = tc;
         this.settings = settings;
         this.demoInfoPrinter = null;
+        this.solrServer = null;
 
         if (printDemoInfo) {
             this.demoInfoPrinter = new DemoInfoPrinter();
@@ -80,11 +75,11 @@ public class RemoteValidateExecutor implements TestExecutor {
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
 
             RawRepo.teardownDatabase(settings);
-            Solr.clearIndex(settings);
             Holdings.teardownDatabase(settings);
 
             RawRepo.setupDatabase(settings);
             Holdings.setupDatabase(settings);
+            solrServer = new SolrServer( tc, settings );
 
             if (!hasRawRepoSetup(tc)) {
                 return;
@@ -108,21 +103,7 @@ public class RemoteValidateExecutor implements TestExecutor {
                 }
             }
 
-            if (hasSolrSetup(tc)) {
-                Solr.waitForIndex(settings);
-            }
-
             setupHoldings( fs );
-
-            /*
-            if (tc.getSetup() != null && !tc.getSetup().getHoldings().isEmpty()) {
-                try (Connection conn = Holdings.getConnection(settings)) {
-                    MarcRecord marcRecord = fs.loadRecord(tc.getFile().getParentFile(), tc.getRequest().getRecord());
-
-                    Holdings.saveHoldings(conn, marcRecord, tc.getSetup().getHoldings());
-                }
-            }
-            */
 
             if (this.demoInfoPrinter != null) {
                 demoInfoPrinter.printRemoteDatabases(this.tc, settings);
@@ -241,6 +222,10 @@ public class RemoteValidateExecutor implements TestExecutor {
         logger.entry();
 
         try {
+            if( solrServer != null ) {
+                solrServer.stop();
+            }
+
             if (this.demoInfoPrinter != null) {
                 demoInfoPrinter.printRemoteDatabases(this.tc, settings);
             }
@@ -366,32 +351,6 @@ public class RemoteValidateExecutor implements TestExecutor {
                 result = false;
             } else if (tc.getSetup().getRawrepo() == null) {
                 result = false;
-            }
-
-            return result;
-        } finally {
-            logger.exit(result);
-        }
-    }
-
-    private boolean hasSolrSetup(UpdateTestcase tc) {
-        logger.entry(tc);
-
-        boolean result = true;
-        try {
-            if (tc.getSetup() == null) {
-                return result = false;
-            }
-
-            if (tc.getSetup().getSolr() == null) {
-                return result = false;
-            }
-
-            for (TestcaseSolrQuery solrQuery : tc.getSetup().getSolr()) {
-                result = solrQuery.getNumFound() > 0;
-                if (result) {
-                    return result;
-                }
             }
 
             return result;
