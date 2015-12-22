@@ -11,9 +11,8 @@ import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 //-----------------------------------------------------------------------------
 
@@ -77,24 +76,29 @@ public class TextReport implements TestReport {
         output.entry();
 
         try {
-            final int width = 72;
+            final int width = 80;
+
+            NumberFormat numberFormat = NumberFormat.getNumberInstance();
+            if( numberFormat instanceof DecimalFormat ) {
+                DecimalFormat df = (DecimalFormat) numberFormat;
+
+                df.setDecimalSeparatorAlwaysShown( true );
+            }
 
             output.info(makeDots("-", width));
             for (TestcaseResult testcaseResult : testResult) {
                 String resultStr = testcaseResult.hasError() ? "FAILED" : "SUCCESS";
 
-                Date date = new Date(testcaseResult.getTime());
-                DateFormat formatter = new SimpleDateFormat("s.SSS");
-                String dateFormatted = formatter.format(date);
+                String timeFormatted = numberFormat.format( testcaseResult.getTime() / 1000.0 );
 
-                String dots = "";
+                String dots;
                 int otherTextLengths = 8; // Number of extra spaces/special chars in the format string.
                 otherTextLengths += testcaseResult.getBaseTestcase().getName().length();
                 otherTextLengths += resultStr.length();
-                otherTextLengths += dateFormatted.length();
+                otherTextLengths += timeFormatted.length();
                 dots = makeDots(".", width - otherTextLengths);
 
-                output.info("{} {} {} [ {} s]", testcaseResult.getBaseTestcase().getName(), dots, resultStr, dateFormatted);
+                output.info("{} {} {} [ {} s]", testcaseResult.getBaseTestcase().getName(), dots, resultStr, timeFormatted);
             }
 
             output.info(makeDots("-", width));

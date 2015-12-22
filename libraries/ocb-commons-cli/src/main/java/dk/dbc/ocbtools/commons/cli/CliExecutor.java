@@ -9,13 +9,7 @@ import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.perf4j.StopWatch;
 import org.reflections.Reflections;
 import org.slf4j.ext.XLogger;
@@ -23,9 +17,12 @@ import org.slf4j.ext.XLoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 //-----------------------------------------------------------------------------
 /**
@@ -136,10 +133,14 @@ public class CliExecutor {
             long elapsedTime = watch.getElapsedTime();
             logger.debug( "Elapsed time for command '{}': {}", commandName, elapsedTime );
 
-            Date date = new Date( elapsedTime );
-            DateFormat formatter = new SimpleDateFormat("s,SSS");
+            NumberFormat numberFormat = NumberFormat.getNumberInstance();
+            if( numberFormat instanceof DecimalFormat ) {
+                DecimalFormat df = (DecimalFormat) numberFormat;
+
+                df.setDecimalSeparatorAlwaysShown( true );
+            }
             output.info( "" );
-            output.info( "Command '{}' executed in {} seconds", commandName, formatter.format( date ) );
+            output.info( "Command '{}' executed in {} seconds", commandName, numberFormat.format( elapsedTime / 1000.0 ) );
             logger.exit();
         }
     }
