@@ -5,6 +5,7 @@ package dk.dbc.ocbtools.testengine.executors;
 
 import dk.dbc.holdingsitems.HoldingsItemsException;
 import dk.dbc.iscrum.records.MarcRecord;
+import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.asserters.UpdateAsserter;
@@ -27,6 +28,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
@@ -252,7 +256,7 @@ public class RemoteValidateExecutor implements TestExecutor {
             assertNotNull("Property'en 'request.authentication.password' er obligatorisk.", tc.getRequest().getAuthentication().getPassword());
 
             URL url = createServiceUrl();
-            UpdateService caller = new UpdateService(url);
+            UpdateService caller = new UpdateService( url, createHeaders() );
 
             UpdateRecordRequest request = createRequest();
 
@@ -265,13 +269,14 @@ public class RemoteValidateExecutor implements TestExecutor {
             watch.start();
             UpdateRecordResult response = caller.createPort().updateRecord(request);
             watch.stop();
-            logger.debug("Receive response in {} ms: {}", watch.getElapsedTime(), response);
+            logger.debug("Receive response in {} ms: {}", watch.getElapsedTime(), Json.encodePretty( response) );
             if (demoInfoPrinter != null) {
                 demoInfoPrinter.printResponse(response);
             }
 
             watch.start();
             try {
+                assertNull( "Unable to authenticate user:\n" + Json.encodePretty( tc.getRequest().getAuthentication() ), response.getError() );
                 UpdateAsserter.assertValidation(UpdateAsserter.VALIDATION_PREFIX_KEY, tc.getExpected().getValidation(), response.getValidateInstance());
                 if (!tc.getExpected().hasValidationErrors()) {
                     assertEquals(UpdateStatusEnum.VALIDATE_ONLY, response.getUpdateStatus());
@@ -311,6 +316,21 @@ public class RemoteValidateExecutor implements TestExecutor {
             throw new AssertionError(String.format("Unable to create url to webservice: %s", ex.getMessage()), ex);
         } finally {
             logger.exit(result);
+        }
+    }
+
+    protected Map<String, Object> createHeaders() {
+        logger.entry();
+
+        Map<String, Object> headers = new HashMap<>();
+        try {
+            if( settings.containsKey( "request.headers.x.forwarded.for" ) ) {
+                headers.put( "x-forwarded-for", Arrays.asList( settings.getProperty( "request.headers.x.forwarded.for" ) ) );
+            }
+            return headers;
+        }
+        finally {
+            logger.exit( headers );
         }
     }
 

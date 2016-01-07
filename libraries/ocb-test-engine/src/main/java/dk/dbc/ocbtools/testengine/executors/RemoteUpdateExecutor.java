@@ -4,6 +4,7 @@ package dk.dbc.ocbtools.testengine.executors;
 //-----------------------------------------------------------------------------
 
 import dk.dbc.iscrum.records.MarcRecord;
+import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.asserters.UpdateAsserter;
@@ -64,7 +65,7 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
 
             String key = String.format("updateservice.%s.url", tc.getDistributionName());
             URL url = new URL(settings.getProperty(key));
-            UpdateService caller = new UpdateService(url);
+            UpdateService caller = new UpdateService( url, createHeaders() );
 
             UpdateRecordRequest request = createRequest();
             logger.debug("Tracking id: {}", request.getTrackingId());
@@ -86,6 +87,8 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
             watch.start();
             try {
                 assertNotNull("No expected results found.", tc.getExpected());
+
+                assertNull( "Unable to authenticate user:\n" + Json.encodePretty( tc.getRequest().getAuthentication() ), response.getError() );
 
                 if (tc.getExpected().hasValidationErrors()) {
                     UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getValidation(), response.getValidateInstance());
