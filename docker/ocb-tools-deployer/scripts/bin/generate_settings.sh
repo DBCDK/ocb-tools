@@ -21,5 +21,5 @@ holdings.jdbc.conn.passwd = ${HOLDINGS_ITEMS_PASSWORD}
 
 solr.port = 8080
 
-# request.headers.x.forwarded.for = 172.16.4.21
+request.headers.x.forwarded.for = ${REQUEST_IP_ADDR}
 EOF
