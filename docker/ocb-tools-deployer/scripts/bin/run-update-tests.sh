@@ -14,4 +14,4 @@ pwd
 mkdir -p results
 
 cp opencat-business/*.log results/.
-cp -r opencat-business/target/* results/.
+cp opencat-business/target/surefire-reports/TEST-*.xml results/.
