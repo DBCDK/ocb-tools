@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd ${OCB_USER_HOME}
+
 generate_settings.sh
 
 whoami
