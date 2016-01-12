@@ -7,7 +7,7 @@ env
 
 cd ${HOME}/opencat-business
 
-ocb-test.sh run --application Update --summary --remote --config settings basis-delete-common-record-holdings-with-002-links
+ocb-test.sh run --application Update --summary --remote --config settings
 cd -
 
 pwd
