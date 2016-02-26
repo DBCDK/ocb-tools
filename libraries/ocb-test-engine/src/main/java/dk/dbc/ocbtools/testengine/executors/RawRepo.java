@@ -56,15 +56,16 @@ public class RawRepo {
     private static final String AGENCY_ID_COL = "agencyid";
     private static final String SELECT_RECORDS_SQL = "SELECT bibliographicrecordid, agencyid FROM records";
 
-    private static final String PROVIDER_NAME = "opencataloging-update";
     private static final String OCBTEST_WORKER_NAME = "ocb-test";
     private static final String BASIS_WORKER_NAME = "basis-decentral";
     private static final String BASIS_WORKER_MIMETYPE = "text/decentral+marcxchange";
     private static final String[] WORKER_NAMES = {OCBTEST_WORKER_NAME, "fbs-sync", "solr-sync", "broend-sync", BASIS_WORKER_NAME};
 
+    private Properties settings;
     private RawRepoDAO dao;
 
-    public RawRepo(Connection connection) throws RawRepoException {
+    public RawRepo(Properties settings, Connection connection) throws RawRepoException {
+        this.settings = settings;
         this.dao = RawRepoDAO.builder(connection).build();
     }
 
@@ -114,7 +115,7 @@ public class RawRepo {
                 dao.saveRecord(newRecord);
 
                 if (record.isEnqueued()) {
-                    dao.changedRecord(PROVIDER_NAME, newRecord.getId(), newRecord.getMimeType());
+                    dao.changedRecord( settings.getProperty( "rawrepo.provider.name" ), newRecord.getId(), newRecord.getMimeType());
                 }
             }
         } finally {
@@ -233,9 +234,9 @@ public class RawRepo {
 
                     logger.debug("Setup queue rule for worker: {}", name);
                     if (name.equals(BASIS_WORKER_NAME)) {
-                        JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, mimetype, changed, leaf) VALUES(?, ?, ?, ?, ?)", PROVIDER_NAME, name, BASIS_WORKER_MIMETYPE, "Y", "A");
+                        JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, mimetype, changed, leaf) VALUES(?, ?, ?, ?, ?)", settings.getProperty( "rawrepo.provider.name" ), name, BASIS_WORKER_MIMETYPE, "Y", "A");
                     } else {
-                        JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, changed, leaf) VALUES(?, ?, ?, ?)", PROVIDER_NAME, name, "Y", "A");
+                        JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, changed, leaf) VALUES(?, ?, ?, ?)", settings.getProperty( "rawrepo.provider.name" ), name, "Y", "A");
                     }
                 }
 
@@ -293,7 +294,7 @@ public class RawRepo {
 
         List<Record> records = new ArrayList<>();
         try (Connection conn = getConnection(settings)) {
-            RawRepo rawRepo = new RawRepo(conn);
+            RawRepo rawRepo = new RawRepo( settings, conn);
             for (Map<String, Object> entry : JDBCUtil.queryForRowMaps(conn, SELECT_RECORDS_SQL)) {
                 String recordId = (String) (entry.get(RECORD_ID_COL));
                 BigDecimal agencyId = (BigDecimal) (entry.get(AGENCY_ID_COL));

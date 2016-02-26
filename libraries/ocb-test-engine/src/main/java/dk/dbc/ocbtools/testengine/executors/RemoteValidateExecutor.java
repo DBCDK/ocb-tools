@@ -12,6 +12,7 @@ import dk.dbc.ocbtools.testengine.asserters.UpdateAsserter;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
 import dk.dbc.rawrepo.RawRepoException;
+import dk.dbc.updateservice.client.BibliographicRecordExtraData;
 import dk.dbc.updateservice.client.BibliographicRecordFactory;
 import dk.dbc.updateservice.client.UpdateService;
 import dk.dbc.updateservice.service.api.*;
@@ -93,7 +94,7 @@ public class RemoteValidateExecutor implements TestExecutor {
                 RawRepo rawRepo = null;
 
                 try {
-                    rawRepo = new RawRepo(conn);
+                    rawRepo = new RawRepo( settings, conn);
                     rawRepo.saveRecords(tc.getFile().getParentFile(), tc.getSetup().getRawrepo());
                     setupRelations(fs, rawRepo);
 
@@ -353,8 +354,17 @@ public class RemoteValidateExecutor implements TestExecutor {
             options.getOption().add(UpdateOptionEnum.VALIDATE_ONLY);
             request.setOptions(options);
 
+            String requestProviderNameKey = tc.getDistributionName() + ".request.provider.name";
+
+            logger.debug( "requestProviderNameKey: {}", requestProviderNameKey );
+            BibliographicRecordExtraData extraData = null;
+            if( settings.containsKey( requestProviderNameKey ) ) {
+                extraData = new BibliographicRecordExtraData();
+                extraData.setProviderName( settings.getProperty( requestProviderNameKey ) );
+            }
+
             File recordFile = new File(tc.getFile().getParentFile().getCanonicalPath() + "/" + tc.getRequest().getRecord());
-            request.setBibliographicRecord(BibliographicRecordFactory.loadMarcRecordInLineFormat(recordFile));
+            request.setBibliographicRecord(BibliographicRecordFactory.loadMarcRecordInLineFormat( recordFile, extraData ) );
 
             return request;
         } finally {
