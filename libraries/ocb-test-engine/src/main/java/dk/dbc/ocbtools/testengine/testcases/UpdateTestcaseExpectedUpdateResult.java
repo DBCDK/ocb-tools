@@ -14,9 +14,15 @@ public class UpdateTestcaseExpectedUpdateResult {
     private List<ValidationResult> errors;
     private List<UpdateTestcaseRecord> rawrepo;
 
+    /**
+     * List of file names that contains mails that should be send by Update.
+     */
+    private List<String> mails;
+
     public UpdateTestcaseExpectedUpdateResult() {
         this.errors = null;
         this.rawrepo = null;
+        this.mails = null;
     }
 
     //-------------------------------------------------------------------------
@@ -37,6 +43,14 @@ public class UpdateTestcaseExpectedUpdateResult {
 
     public void setRawrepo(List<UpdateTestcaseRecord> rawrepo) {
         this.rawrepo = rawrepo;
+    }
+
+    public List<String> getMails() {
+        return mails;
+    }
+
+    public void setMails( List<String> mails ) {
+        this.mails = mails;
     }
 
     //-------------------------------------------------------------------------
@@ -66,6 +80,7 @@ public class UpdateTestcaseExpectedUpdateResult {
         return "TestcaseExpectedUpdateResult{" +
                 "errors=" + errors +
                 ", rawrepo=" + rawrepo +
+                ", mails=" + mails +
                 '}';
     }
 }
