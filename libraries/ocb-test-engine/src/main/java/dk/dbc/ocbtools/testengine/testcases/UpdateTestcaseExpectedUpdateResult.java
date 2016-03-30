@@ -17,12 +17,12 @@ public class UpdateTestcaseExpectedUpdateResult {
     /**
      * List of file names that contains mails that should be send by Update.
      */
-    private List<String> mails;
+    private UpdateTestcaseExpectedMail mail;
 
     public UpdateTestcaseExpectedUpdateResult() {
         this.errors = null;
         this.rawrepo = null;
-        this.mails = null;
+        this.mail = null;
     }
 
     //-------------------------------------------------------------------------
@@ -45,12 +45,12 @@ public class UpdateTestcaseExpectedUpdateResult {
         this.rawrepo = rawrepo;
     }
 
-    public List<String> getMails() {
-        return mails;
+    public UpdateTestcaseExpectedMail getMail() {
+        return mail;
     }
 
-    public void setMails( List<String> mails ) {
-        this.mails = mails;
+    public void setMail( UpdateTestcaseExpectedMail mail ) {
+        this.mail = mail;
     }
 
     //-------------------------------------------------------------------------
@@ -80,7 +80,7 @@ public class UpdateTestcaseExpectedUpdateResult {
         return "TestcaseExpectedUpdateResult{" +
                 "errors=" + errors +
                 ", rawrepo=" + rawrepo +
-                ", mails=" + mails +
+                ", mail=" + mail +
                 '}';
     }
 }
