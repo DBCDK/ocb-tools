@@ -1,0 +1,3 @@
+build.fbs.url=http://ifish-i01:10080
+build.dataio.url=http://ifish-i01:20080
+opennumberroll.url=http://opennumberroll.addi.dk/1.0/?action=numberRoll&numberRollName=faust_8_test&outputType=xml

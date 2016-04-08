@@ -16,6 +16,7 @@
     <modules>
         <module>ocb-record</module>
         <module>ocb-test</module>
+        <module>ocb-requests</module>
     </modules>
 
     <dependencies>
