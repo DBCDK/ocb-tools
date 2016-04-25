@@ -37,6 +37,14 @@ public class TestExecutorResult {
         return assertionError != null;
     }
 
+    @Override
+    public String toString() {
+        return "TestExecutorResult{" +
+                "time=" + time +
+                ", executor=" + executor +
+                '}';
+    }
+
     //-------------------------------------------------------------------------
     //              Members
     //-------------------------------------------------------------------------

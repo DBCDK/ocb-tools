@@ -57,4 +57,14 @@ public class BaseTestcase {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    @Override
+    public String toString() {
+        return "BaseTestcase{" +
+                "name='" + name + '\'' +
+                ", distributionName='" + distributionName + '\'' +
+                ", file=" + file +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

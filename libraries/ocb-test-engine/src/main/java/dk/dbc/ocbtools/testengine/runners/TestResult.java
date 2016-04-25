@@ -54,7 +54,12 @@ public class TestResult extends ArrayList<TestcaseResult> {
         return tests;
     }
 
-    //-------------------------------------------------------------------------
+    @Override
+    public String toString() {
+        return "TestResult{} " + super.toString();
+    }
+
+//-------------------------------------------------------------------------
     //              Members
     //-------------------------------------------------------------------------
 

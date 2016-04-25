@@ -56,4 +56,12 @@ public class TestcaseResult {
     public int countTests() {
         return results.size();
     }
+
+    @Override
+    public String toString() {
+        return "TestcaseResult{" +
+                "baseTestcase=" + baseTestcase +
+                ", results=" + results +
+                '}';
+    }
 }
