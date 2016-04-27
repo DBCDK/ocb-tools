@@ -56,12 +56,7 @@ public class JsTestsExecutor implements SubcommandExecutor {
             if( modulesToTest.isEmpty() ) {
                 for( String modulePath : scripter.getModulePaths() ) {
                     File dir = new File( modulePath );
-                    String[] fileList = dir.list( new FilenameFilter() {
-                        @Override
-                        public boolean accept( File dir, String name ) {
-                            return name.endsWith( ".use.js" );
-                        }
-                    } );
+                    String[] fileList = dir.list( ( dir1, name ) -> name.endsWith( ".use.js" ) );
 
                     for( String fileName : fileList ) {
                         modulesToTest.add( fileName.replace( ".use.js", "" ) );
