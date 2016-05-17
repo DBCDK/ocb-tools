@@ -17,7 +17,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
  */
 public class SolrServer {
     private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
-    private static final XLogger logger = XLoggerFactory.getXLogger(RemoteValidateExecutor.class);
+    private static final XLogger logger = XLoggerFactory.getXLogger(SolrServer.class);
 
     private static final String SOLR_PORT_KEY = "solr.port";
 
