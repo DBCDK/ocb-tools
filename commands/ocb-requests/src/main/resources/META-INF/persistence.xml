@@ -5,10 +5,10 @@
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <class>dk.dbc.ocbtools.ocbrequests.rawrepo.RecordEntity</class>
         <properties>
-            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://pgtest.dbc.dk:5432/fbstst_a_rr_db"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://pgtest.dbc.dk:5432/ocbtst_a_rr_db"/>
             <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
-            <property name="javax.persistence.jdbc.user" value="fbstst_a_rr" />
-            <property name="javax.persistence.jdbc.password" value="pinseFiska" />
+            <property name="javax.persistence.jdbc.user" value="ocbtst_a_rr" />
+            <property name="javax.persistence.jdbc.password" value="ocbtst_a_rr" />
         </properties>
     </persistence-unit>
 </persistence>
