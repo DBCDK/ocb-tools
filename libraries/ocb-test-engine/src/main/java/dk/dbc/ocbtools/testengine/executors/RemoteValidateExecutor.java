@@ -2,6 +2,7 @@
 package dk.dbc.ocbtools.testengine.executors;
 
 //-----------------------------------------------------------------------------
+import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 
 import dk.dbc.holdingsitems.HoldingsItemsException;
 import dk.dbc.iscrum.records.MarcRecord;
@@ -43,6 +44,7 @@ import static org.junit.Assert.*;
  * installation of Update.
  */
 public class RemoteValidateExecutor implements TestExecutor {
+    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
     protected static final String TRACKING_ID_FORMAT = "ocbtools-%s-%s-%s";
 
     protected XLogger logger;
@@ -72,37 +74,57 @@ public class RemoteValidateExecutor implements TestExecutor {
     public void setup() {
         logger.entry();
 
+        output.info("BØRGE");
         try {
+            output.info("BØRGE 2");
             if (this.demoInfoPrinter != null) {
                 demoInfoPrinter.printHeader(this.tc, this);
             }
 
+            output.info("BØRGE 3");
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
 
+            output.info("BØRGE 4");
             RawRepo.teardownDatabase(settings);
+            output.info("BØRGE 5");
             Holdings.teardownDatabase(settings);
+            output.info("BØRGE 6");
 
+            output.info("BØRGE 7");
             RawRepo.setupDatabase(settings);
+            output.info("BØRGE 8");
             Holdings.setupDatabase(settings);
+            output.info("BØRGE 9");
             solrServer = new SolrServer( tc, settings );
+            output.info("BØRGE q");
 
             if (!hasRawRepoSetup(tc)) {
+                output.info("BØRGE w");
                 return;
             }
 
+            output.info("BØRGE e");
             try (Connection conn = RawRepo.getConnection(settings)) {
+                output.info("BØRGE r");
                 RawRepo rawRepo = null;
 
                 try {
+                    output.info("BØRGE t");
                     rawRepo = new RawRepo( settings, conn);
+                    output.info("BØRGE y");
                     rawRepo.saveRecords(tc.getFile().getParentFile(), tc.getSetup().getRawrepo());
+                    output.info("BØRGE u");
                     setupRelations(fs, rawRepo);
+                    output.info("BØRGE i");
 
                     conn.commit();
+                    output.info("BØRGE o");
                 } catch (JAXBException | RawRepoException ex) {
+                    output.info("BØRGE p");
                     if (rawRepo != null) {
                         conn.rollback();
                     }
+                    output.info("BØRGE a");
 
                     throw new AssertionError(ex.getMessage(), ex);
                 }
@@ -111,9 +133,11 @@ public class RemoteValidateExecutor implements TestExecutor {
             setupHoldings( fs );
 
             if (this.demoInfoPrinter != null) {
+                output.info("BØRGE s");
                 demoInfoPrinter.printRemoteDatabases(this.tc, settings);
             }
         } catch (ClassNotFoundException | SQLException | IOException | HoldingsItemsException | RawRepoException ex) {
+            output.info("BØRGE d");
             throw new AssertionError(ex.getMessage(), ex);
         } finally {
             logger.exit();
