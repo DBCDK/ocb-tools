@@ -3,6 +3,7 @@ package dk.dbc.ocbtools.testengine.executors;
 
 //-----------------------------------------------------------------------------
 
+import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.commons.jdbc.util.JDBCUtil;
 import dk.dbc.iscrum.records.MarcConverter;
 import dk.dbc.iscrum.records.MarcReader;
@@ -46,6 +47,7 @@ import java.util.*;
  */
 public class RawRepo {
     private static final XLogger logger = XLoggerFactory.getXLogger(RawRepo.class);
+    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
 
     private static final String JDBC_DRIVER_KEY = "rawrepo.jdbc.driver";
     private static final String JDBC_URL_KEY = "rawrepo.jdbc.conn.url";
@@ -216,11 +218,11 @@ public class RawRepo {
         String user = settings.getProperty(JDBC_USER_KEY);
         String password = settings.getProperty(JDBC_PASSWORD_KEY);
 
-        logger.info("ØRLE : {}, {}, {}", url, user, password);
+        output.info("ØRLE : {}, {}, {}", url, user, password);
         Connection conn = DriverManager.getConnection(url, user, password);
-        logger.info("ØRLE got con");
+        output.info("ØRLE got con");
         conn.setAutoCommit(false);
-        logger.info("ØRLE no auto");
+        output.info("ØRLE no auto");
 
         return conn;
     }
@@ -230,12 +232,12 @@ public class RawRepo {
 
         try (Connection conn = getConnection(settings)) {
             try {
-                logger.debug("Setup queue workers and rules");
+                output.debug("Setup queue workers and rules");
                 for (String name : WORKER_NAMES) {
-                    logger.debug("Setup queue worker: {}", name);
+                    output.debug("Setup queue worker: {}", name);
                     JDBCUtil.update(conn, "INSERT INTO queueworkers(worker) VALUES(?)", name);
 
-                    logger.debug("Setup queue rule for worker: {}", name);
+                    output.debug("Setup queue rule for worker: {}", name);
                     if (name.equals(BASIS_WORKER_NAME)) {
                         JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, mimetype, changed, leaf) VALUES(?, ?, ?, ?, ?)", settings.getProperty( "rawrepo.provider.name" ), name, BASIS_WORKER_MIMETYPE, "Y", "A");
                     } else {
@@ -257,23 +259,24 @@ public class RawRepo {
 
     public static void teardownDatabase(Properties settings) throws SQLException, IOException, ClassNotFoundException {
         logger.entry(settings);
-        logger.info("HAVKAT PRE CON");
+        output.info("HAVKAT PRE CON");
         try (Connection conn = getConnection(settings)) {
-            logger.info("HAVKAT GOT CON");
+            output.info("HAVKAT GOT CON");
             try {
                 JDBCUtil.update(conn, "DELETE FROM relations");
                 JDBCUtil.update(conn, "DELETE FROM records");
                 JDBCUtil.update(conn, "DELETE FROM records_archive");
                 JDBCUtil.update(conn, "DELETE FROM queue");
                 JDBCUtil.update(conn, "DELETE FROM jobdiag");
-                logger.info("HAVKAT DEL SOM");
+                output.info("HAVKAT DEL SOM");
 
                 JDBCUtil.update(conn, "DELETE FROM queuerules");
                 JDBCUtil.update(conn, "DELETE FROM queueworkers");
 
-                logger.info("HAVKAT PRE COM");
+                output.info("HAVKAT PRE COM");
                 conn.commit();
             } catch (SQLException ex) {
+                output.info("HAVKAT PRE COM {} ", ex.getMessage());
                 conn.rollback();
                 logger.error(ex.getMessage(), ex);
 
