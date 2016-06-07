@@ -216,8 +216,11 @@ public class RawRepo {
         String user = settings.getProperty(JDBC_USER_KEY);
         String password = settings.getProperty(JDBC_PASSWORD_KEY);
 
+        logger.info("ØRLE : {}, {}, {}", url, user, password);
         Connection conn = DriverManager.getConnection(url, user, password);
+        logger.info("ØRLE got con");
         conn.setAutoCommit(false);
+        logger.info("ØRLE no auto");
 
         return conn;
     }
@@ -254,17 +257,21 @@ public class RawRepo {
 
     public static void teardownDatabase(Properties settings) throws SQLException, IOException, ClassNotFoundException {
         logger.entry(settings);
+        logger.info("HAVKAT PRE CON");
         try (Connection conn = getConnection(settings)) {
+            logger.info("HAVKAT GOT CON");
             try {
                 JDBCUtil.update(conn, "DELETE FROM relations");
                 JDBCUtil.update(conn, "DELETE FROM records");
                 JDBCUtil.update(conn, "DELETE FROM records_archive");
                 JDBCUtil.update(conn, "DELETE FROM queue");
                 JDBCUtil.update(conn, "DELETE FROM jobdiag");
+                logger.info("HAVKAT DEL SOM");
 
                 JDBCUtil.update(conn, "DELETE FROM queuerules");
                 JDBCUtil.update(conn, "DELETE FROM queueworkers");
 
+                logger.info("HAVKAT PRE COM");
                 conn.commit();
             } catch (SQLException ex) {
                 conn.rollback();
