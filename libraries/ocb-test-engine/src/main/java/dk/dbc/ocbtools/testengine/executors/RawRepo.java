@@ -218,7 +218,6 @@ public class RawRepo {
         String user = settings.getProperty(JDBC_USER_KEY);
         String password = settings.getProperty(JDBC_PASSWORD_KEY);
 
-        url = "jdbc:postgresql://docker_host:13133/rawrepo";
         output.info("ØRLE : {}, {}, {}", url, user, password);
         Connection conn = DriverManager.getConnection(url, user, password);
         output.info("ØRLE got con");
