@@ -67,7 +67,7 @@ public class UpdateTestRunner {
                     exec.setup();
 
                     try {
-                        output.info("WOMBAT pre exec test");
+                        output.info("WOMBAT pre exec test -- {}", exec.name());
                         exec.executeTests();
 
                         watch.stop();
