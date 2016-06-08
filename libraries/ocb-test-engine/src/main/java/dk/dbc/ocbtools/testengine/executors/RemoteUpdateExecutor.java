@@ -3,6 +3,7 @@ package dk.dbc.ocbtools.testengine.executors;
 
 //-----------------------------------------------------------------------------
 
+import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
@@ -42,7 +43,8 @@ import static org.junit.Assert.*;
 public class RemoteUpdateExecutor extends RemoteValidateExecutor {
     public RemoteUpdateExecutor(UpdateTestcase tc, Properties settings, boolean printDemoInfo) {
         super(tc, settings, printDemoInfo);
-        this.logger = XLoggerFactory.getXLogger(RemoteUpdateExecutor.class);
+        // this.logger = XLoggerFactory.getXLogger(RemoteUpdateExecutor.class);
+        this.logger = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
     }
 
     @Override
