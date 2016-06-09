@@ -43,10 +43,10 @@ import static org.junit.Assert.*;
  * installation of Update.
  */
 public class RemoteUpdateExecutor extends RemoteValidateExecutor {
-    private static final XLogger logger = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
+    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
     public RemoteUpdateExecutor(UpdateTestcase tc, Properties settings, boolean printDemoInfo) {
         super(tc, settings, printDemoInfo);
-        // this.logger = XLoggerFactory.getXLogger(RemoteUpdateExecutor.class);
+        this.logger = XLoggerFactory.getXLogger(RemoteUpdateExecutor.class);
     }
 
     @Override

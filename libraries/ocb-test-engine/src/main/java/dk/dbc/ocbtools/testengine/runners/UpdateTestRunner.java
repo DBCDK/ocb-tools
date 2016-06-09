@@ -55,19 +55,15 @@ public class UpdateTestRunner {
     public TestcaseResult runTestcase(UpdateTestRunnerItem updateTestRunnerItem) {
         output.entry(updateTestRunnerItem);
 
-        output.info("WOMBAT1");
         try {
             ArrayList<TestExecutorResult> testExecutorResults = new ArrayList<>();
             for (TestExecutor exec : updateTestRunnerItem.getExecutors()) {
-                output.info("WOMBAT LOOP");
                 StopWatch watch = new StopWatch();
 
                 try {
-                    output.info("WOMBAT pre setup");
                     exec.setup();
 
                     try {
-                        output.info("WOMBAT pre exec test -- {}", exec.name());
                         exec.executeTests();
 
                         watch.stop();
@@ -75,35 +71,29 @@ public class UpdateTestRunner {
                         testExecutorResult.setTime(watch.getElapsedTime());
                         testExecutorResults.add(testExecutorResult);
                     } catch (AssertionError ex) {
-                        output.info("WOMBAT catch ass");
                         watch.stop();
                         TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, ex);
                         testExecutorResult.setTime(watch.getElapsedTime());
                         testExecutorResults.add(testExecutorResult);
                     } catch (Error | Exception ex) {
-                        output.info("WOMBAT catch err");
                         watch.stop();
                         TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(ex.getMessage(), ex));
                         testExecutorResult.setTime(watch.getElapsedTime());
                         testExecutorResults.add(testExecutorResult);
                     }
 
-                    output.info("WOMBAT pre tear");
                     exec.teardown();
                 } catch (AssertionError ex) {
-                    output.info("WOMBAT catch ass 2");
                     watch.stop();
                     TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, ex);
                     testExecutorResult.setTime(watch.getElapsedTime());
                     testExecutorResults.add(testExecutorResult);
                 } catch (Error | Exception ex) {
-                    output.info("WOMBAT catch err 2");
                     watch.stop();
                     TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(ex.getMessage(), ex));
                     testExecutorResult.setTime(watch.getElapsedTime());
                     testExecutorResults.add(testExecutorResult);
                 }
-                output.info("WOMBAT LOOP END");
             }
 
             return new TestcaseResult(updateTestRunnerItem.getUpdateTestcase(), testExecutorResults);
