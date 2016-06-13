@@ -12,9 +12,7 @@ import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -52,7 +50,12 @@ public class Holdings {
             if( recordId != null ) {
                 for( Integer agencyId : agencies ) {
                     logger.debug("WOMBAT pusher id {}:{} on collection", recordId.getBibliographicRecordId(), agencyId);
-                    RecordCollection collection = new RecordCollection( recordId.getBibliographicRecordId(), agencyId, "issue", "trackingId", dao );
+                    // RecordCollection collection = new RecordCollection( recordId.getBibliographicRecordId(), agencyId, "issue", "trackingId", dao );
+                    RecordCollection collection = new RecordCollection( recordId.getBibliographicRecordId(), agencyId, "issue", "issuetext", Date.valueOf("19000101"), 1, "note",
+                            Timestamp.valueOf("19000101"),
+                            Timestamp.valueOf("19000101"),
+                            Timestamp.valueOf("19000101"),
+                            "trackingId", dao );
                     collection.save();
                 }
 
