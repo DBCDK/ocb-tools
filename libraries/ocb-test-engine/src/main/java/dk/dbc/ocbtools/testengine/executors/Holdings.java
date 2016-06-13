@@ -51,6 +51,7 @@ public class Holdings {
 
             if( recordId != null ) {
                 for( Integer agencyId : agencies ) {
+                    logger.debug("WOMBAT pusher id {}:{} on collection", recordId.getBibliographicRecordId(), agencyId);
                     RecordCollection collection = new RecordCollection( recordId.getBibliographicRecordId(), agencyId, "issue", "trackingId", dao );
                     collection.save();
                 }
@@ -75,6 +76,7 @@ public class Holdings {
             HoldingsItemsDAO dao = HoldingsItemsDAO.newInstance( conn );
             RecordId recordId = RawRepo.getRecordId( record );
 
+            logger.debug("WOMBAT searcher id {}:{} on collection", recordId.getBibliographicRecordId() );
             if( recordId != null ) {
                 return result = dao.getAgenciesThatHasHoldingsFor( recordId.getBibliographicRecordId() );
             }
@@ -82,6 +84,7 @@ public class Holdings {
             return new HashSet<>();
         }
         finally {
+            logger.debug("WOMBAT found id {} on collection", result);
             logger.exit( result );
         }
     }
