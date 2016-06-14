@@ -62,6 +62,9 @@ public class Holdings {
                 conn.commit();
             }
         }
+        catch( IllegalStateException ex ) {
+            logger.debug("got IllegalStateException : ", ex.toString());
+        }
         catch( HoldingsItemsException ex ) {
             conn.rollback();
             throw ex;
