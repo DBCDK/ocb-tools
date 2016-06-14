@@ -66,6 +66,7 @@ public class Holdings {
             }
         }
         catch( Throwable ex ) {
+            logger.debug("got throwable ");
             logger.debug("got throwable : ", ex.getMessage().toString());
             logger.debug("got throwable : ", ex.getCause().toString());
             logger.debug("got throwable : ", ex.getStackTrace().toString());
@@ -83,6 +84,7 @@ public class Holdings {
         }
         */
         finally {
+            logger.debug("WANKA is leaving the room ");
             logger.exit();
         }
     }
