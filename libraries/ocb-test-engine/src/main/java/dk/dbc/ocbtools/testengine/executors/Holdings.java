@@ -5,6 +5,7 @@ package dk.dbc.ocbtools.testengine.executors;
 import dk.dbc.commons.jdbc.util.JDBCUtil;
 import dk.dbc.holdingsitems.HoldingsItemsDAO;
 import dk.dbc.holdingsitems.HoldingsItemsException;
+import dk.dbc.holdingsitems.Record;
 import dk.dbc.holdingsitems.RecordCollection;
 import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.rawrepo.RecordId;
@@ -52,9 +53,10 @@ public class Holdings {
                     logger.debug("pusher id {}:{} on collection", recordId.getBibliographicRecordId(), agencyId);
                     RecordCollection collection = new RecordCollection( recordId.getBibliographicRecordId(), agencyId, "issue", "trackingId", dao );
                     collection.setComplete( false );
-                    collection.findRecord( "fakeId" );
+                    Record rec = collection.findRecord( "fakeId" );
+                    rec.setStatus( "OnOrder" );
                     logger.debug("RecordCollection : ", collection.toString() );
-                    // collection.save();
+                    collection.save();
                 }
 
                 conn.commit();
