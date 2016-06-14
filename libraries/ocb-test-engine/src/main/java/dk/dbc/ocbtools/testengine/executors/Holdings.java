@@ -52,6 +52,7 @@ public class Holdings {
                 for( Integer agencyId : agencies ) {
                     logger.debug("pusher id {}:{} on collection", recordId.getBibliographicRecordId(), agencyId);
                     RecordCollection collection = new RecordCollection( recordId.getBibliographicRecordId(), agencyId, "issue", "trackingId", dao );
+                    logger.debug("WANKA RecordCollection : ", collection.toString() );
                     collection.setComplete( false );
                     Record rec = collection.findRecord( "fakeId" );
                     rec.setStatus( "OnOrder" );
@@ -62,6 +63,10 @@ public class Holdings {
                 conn.commit();
             }
         }
+        catch( Throwable ex ) {
+            logger.debug("got throwable : ", ex.toString());
+        }
+        /*
         catch( SQLException ex ) {
             logger.debug("got SQLException : ", ex.toString());
         }
@@ -72,6 +77,7 @@ public class Holdings {
             conn.rollback();
             throw ex;
         }
+        */
         finally {
             logger.exit();
         }
