@@ -53,8 +53,8 @@ public class Holdings {
                     RecordCollection collection = new RecordCollection( recordId.getBibliographicRecordId(), agencyId, "issue", "trackingId", dao );
                     collection.setComplete( false );
                     collection.findRecord( "fakeId" );
-                    // logger.debug("RecordCollection : ", collection.toString() );
-                    collection.save();
+                    logger.debug("RecordCollection : ", collection.toString() );
+                    // collection.save();
                 }
 
                 conn.commit();
