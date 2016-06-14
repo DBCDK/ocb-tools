@@ -62,6 +62,9 @@ public class Holdings {
                 conn.commit();
             }
         }
+        catch( SQLException ex ) {
+            logger.debug("got SQLException : ", ex.toString());
+        }
         catch( IllegalStateException ex ) {
             logger.debug("got IllegalStateException : ", ex.toString());
         }
