@@ -64,7 +64,9 @@ public class Holdings {
             }
         }
         catch( Throwable ex ) {
-            logger.debug("got throwable : ", ex.toString());
+            logger.debug("got throwable : ", ex.getMessage());
+            logger.debug("got throwable : ", ex.getCause());
+            logger.debug("got throwable : ", ex.getStackTrace());
         }
         /*
         catch( SQLException ex ) {
