@@ -49,13 +49,9 @@ public class Holdings {
 
             if( recordId != null ) {
                 for( Integer agencyId : agencies ) {
-                    logger.debug("WOMBAT pusher id {}:{} on collection", recordId.getBibliographicRecordId(), agencyId);
+                    logger.debug("pusher id {}:{} on collection", recordId.getBibliographicRecordId(), agencyId);
                     RecordCollection collection = new RecordCollection( recordId.getBibliographicRecordId(), agencyId, "issue", "trackingId", dao );
-                    // RecordCollection collection = new RecordCollection( recordId.getBibliographicRecordId(), agencyId, "issue", "issuetext", Date.valueOf("19000101"), 1, "note",
-                            // Timestamp.valueOf("19000101"),
-                            // Timestamp.valueOf("19000101"),
-                            // Timestamp.valueOf("19000101"),
-                            // "trackingId", dao );
+                    collection.setComplete( false );
                     collection.save();
                 }
 
