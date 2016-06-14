@@ -58,15 +58,17 @@ public class Holdings {
                     rec.setStatus( "OnOrder" );
                     logger.debug("RecordCollection : ", collection.toString() );
                     collection.save();
+                    logger.debug("WANKA save");
                 }
 
                 conn.commit();
+                logger.debug("WANKA commit");
             }
         }
         catch( Throwable ex ) {
-            logger.debug("got throwable : ", ex.getMessage());
-            logger.debug("got throwable : ", ex.getCause());
-            logger.debug("got throwable : ", ex.getStackTrace());
+            logger.debug("got throwable : ", ex.getMessage().toString());
+            logger.debug("got throwable : ", ex.getCause().toString());
+            logger.debug("got throwable : ", ex.getStackTrace().toString());
         }
         /*
         catch( SQLException ex ) {
