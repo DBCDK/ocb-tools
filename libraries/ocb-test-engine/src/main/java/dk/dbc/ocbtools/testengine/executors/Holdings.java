@@ -16,10 +16,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.*;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
+import java.util.Date;
 
 //-----------------------------------------------------------------------------
 /**
@@ -58,6 +56,8 @@ public class Holdings {
                     collection.setComplete( false );
                     Record rec = collection.findRecord( "fakeId" );
                     rec.setStatus( "OnOrder" );
+                    Date accdate = new Date();
+                    rec.setAccessionDate( accdate );
                     logger.debug("RecordCollection : {}", collection.toString() );
                     collection.save();
                     logger.debug("WANKA save");
