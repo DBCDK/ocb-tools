@@ -50,25 +50,21 @@ public class Holdings {
 
             if( recordId != null ) {
                 for( Integer agencyId : agencies ) {
-                    logger.debug("pusher id {}:{} on collection", recordId.getBibliographicRecordId(), agencyId);
                     RecordCollection collection = new RecordCollection( recordId.getBibliographicRecordId(), agencyId, "issue", "trackingId", dao );
-                    logger.debug("WANKA RecordCollection : {}", collection.toString() );
                     collection.setComplete( false );
                     Record rec = collection.findRecord( "fakeId" );
                     rec.setStatus( "OnOrder" );
                     Date accdate = new Date();
-                    rec.setAccessionDate( accdate );
-                    logger.debug("RecordCollection : {}", collection.toString() );
+                    // rec.setAccessionDate( accdate );
                     collection.save();
-                    logger.debug("WANKA save");
                 }
 
                 conn.commit();
-                logger.debug("WANKA commit");
             }
         }
         catch( Throwable ex ) {
             logger.debug("got throwable ");
+            logger.debug("got throwable ", ex);
             logger.debug("got throwable : {}", ex.getClass().toString() );
             logger.debug("got throwable : {}", ex.getStackTrace().toString());
             StringWriter sw = new StringWriter();
@@ -77,21 +73,10 @@ public class Holdings {
             logger.debug("got throwable stacky : {}", exceptionAsString );
             logger.debug("got throwable : {}", ex.getMessage().toString());
             logger.debug("got throwable : {}", ex.getCause().toString());
-        }
-        /*
-        catch( SQLException ex ) {
-            logger.debug("got SQLException : ", ex.toString());
-        }
-        catch( IllegalStateException ex ) {
-            logger.debug("got IllegalStateException : ", ex.toString());
-        }
-        catch( HoldingsItemsException ex ) {
             conn.rollback();
             throw ex;
         }
-        */
         finally {
-            logger.debug("WANKA is leaving the room ");
             logger.exit();
         }
     }
