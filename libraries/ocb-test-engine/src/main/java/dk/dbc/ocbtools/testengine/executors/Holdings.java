@@ -13,6 +13,8 @@ import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.*;
 import java.util.HashSet;
 import java.util.List;
@@ -69,6 +71,10 @@ public class Holdings {
             logger.debug("got throwable ");
             logger.debug("got throwable : {}", ex.getClass().toString() );
             logger.debug("got throwable : {}", ex.getStackTrace().toString());
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            logger.debug("got throwable stacky : {}", exceptionAsString );
             logger.debug("got throwable : {}", ex.getMessage().toString());
             logger.debug("got throwable : {}", ex.getCause().toString());
         }
