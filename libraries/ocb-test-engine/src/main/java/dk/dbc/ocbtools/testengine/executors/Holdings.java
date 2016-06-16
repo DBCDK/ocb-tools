@@ -41,7 +41,7 @@ public class Holdings {
      * @throws ClassNotFoundException Thrown from HoldingsItemsDAO
      * @throws HoldingsItemsException Thrown from HoldingsItemsDAO
      */
-    public static void saveHoldings( Connection conn, MarcRecord record, List<Integer> agencies ) throws SQLException, IOException, ClassNotFoundException, HoldingsItemsException {
+    public static void saveHoldings( Connection conn, MarcRecord record, List<Integer> agencies ) {
         logger.entry( conn, record, agencies );
 
         try {
@@ -55,7 +55,7 @@ public class Holdings {
                     Record rec = collection.findRecord( "fakeId" );
                     rec.setStatus( "OnOrder" );
                     Date accdate = new Date();
-                    // rec.setAccessionDate( accdate );
+                    rec.setAccessionDate( accdate );
                     collection.save();
                 }
 
@@ -63,18 +63,13 @@ public class Holdings {
             }
         }
         catch( Throwable ex ) {
-            logger.debug("got throwable ");
-            logger.debug("got throwable ", ex);
-            logger.debug("got throwable : {}", ex.getClass().toString() );
-            logger.debug("got throwable : {}", ex.getStackTrace().toString());
-            StringWriter sw = new StringWriter();
-            ex.printStackTrace(new PrintWriter(sw));
-            String exceptionAsString = sw.toString();
-            logger.debug("got throwable stacky : {}", exceptionAsString );
-            logger.debug("got throwable : {}", ex.getMessage().toString());
-            logger.debug("got throwable : {}", ex.getCause().toString());
-            conn.rollback();
-            throw ex;
+            logger.error("saveHoldings ERROR : ", ex);
+            try {
+                conn.rollback();
+            } catch ( SQLException sqlex ) {
+                logger.error("WHAT !", sqlex);
+            }
+            throw new IllegalStateException("saveholdings error", ex);
         }
         finally {
             logger.exit();
