@@ -229,7 +229,7 @@ public class RawRepo {
 
         try (Connection conn = getConnection(settings)) {
             try {
-                output.debug("Setup rawrepo ueue workers and rules");
+                output.debug("Setup rawrepo queue workers and rules");
                 for (String name : WORKER_NAMES) {
                     output.debug("Setup queue worker: {}", name);
                     JDBCUtil.update(conn, "INSERT INTO queueworkers(worker) VALUES(?)", name);
@@ -243,6 +243,11 @@ public class RawRepo {
                 }
 
                 conn.commit();
+                try {
+                    throw new IllegalStateException("Unexpected error");
+                } catch ( Throwable ii) {
+                    output.debug("DIRTY TRICK {}", ii);
+                }
             } catch (SQLException ex) {
                 conn.rollback();
                 logger.error(ex.getMessage(), ex);
