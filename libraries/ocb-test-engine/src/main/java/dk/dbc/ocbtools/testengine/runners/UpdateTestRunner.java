@@ -61,38 +61,37 @@ public class UpdateTestRunner {
                 StopWatch watch = new StopWatch();
 
                 try {
-                    exec.setup();
+                    if ( exec.setup() ) {
 
-                    try {
-                        exec.executeTests();
+                        try {
+                            exec.executeTests();
 
-                        watch.stop();
-                        TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, null);
-                        testExecutorResult.setTime(watch.getElapsedTime());
-                        testExecutorResults.add(testExecutorResult);
-                    } catch (AssertionError ex) {
-                        watch.stop();
-                        TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, ex);
-                        testExecutorResult.setTime(watch.getElapsedTime());
-                        testExecutorResults.add(testExecutorResult);
-                    } catch (Error | Exception ex) {
-                        watch.stop();
-                        TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(ex.getMessage(), ex));
-                        testExecutorResult.setTime(watch.getElapsedTime());
-                        testExecutorResults.add(testExecutorResult);
+                            watch.stop();
+                            TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, null);
+                            testExecutorResult.setTime(watch.getElapsedTime());
+                            testExecutorResults.add(testExecutorResult);
+                        } catch (AssertionError ex) {
+                            watch.stop();
+                            TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, ex);
+                            testExecutorResult.setTime(watch.getElapsedTime());
+                            testExecutorResults.add(testExecutorResult);
+                        } catch ( Throwable ex ) {
+                            watch.stop();
+                            TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(ex.getMessage(), ex));
+                            testExecutorResult.setTime(watch.getElapsedTime());
+                            testExecutorResults.add(testExecutorResult);
+                            throw new IllegalStateException("Unexpected error", ex);
+                        }
+
                     }
 
                     exec.teardown();
-                } catch (AssertionError ex) {
-                    watch.stop();
-                    TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, ex);
-                    testExecutorResult.setTime(watch.getElapsedTime());
-                    testExecutorResults.add(testExecutorResult);
-                } catch (Error | Exception ex) {
+                } catch (Throwable ex ) {
                     watch.stop();
                     TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(ex.getMessage(), ex));
                     testExecutorResult.setTime(watch.getElapsedTime());
                     testExecutorResults.add(testExecutorResult);
+                    throw new IllegalStateException("Unexpected error", ex);
                 }
             }
 

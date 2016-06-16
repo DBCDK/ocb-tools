@@ -68,11 +68,12 @@ public class ValidateRecordExecutor implements TestExecutor {
     }
 
     @Override
-    public void setup() {
+    public boolean setup() {
         if (this.demoInfoPrinter != null) {
             demoInfoPrinter.printHeader(this.tc, this);
             demoInfoPrinter.printSetup(this.tc);
         }
+        return true;
     }
 
     @Override

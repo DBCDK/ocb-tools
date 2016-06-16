@@ -43,7 +43,12 @@ public class SolrServer {
 
                 logger.info("Starting WireMock Solr server in {} ms", watch.getElapsedTime());
             }
-        } finally {
+        }
+        catch( Throwable ex ) {
+            logger.error("solrServer mocking ERROR : ", ex);
+            throw new IllegalStateException("solrServer mocking error", ex);
+        }
+        finally {
             logger.exit();
         }
     }

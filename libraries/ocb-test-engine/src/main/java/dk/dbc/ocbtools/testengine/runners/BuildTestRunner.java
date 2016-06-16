@@ -1,5 +1,6 @@
 package dk.dbc.ocbtools.testengine.runners;
 
+import com.sun.javafx.collections.TrackableObservableList;
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.testengine.executors.TestExecutor;
 import org.perf4j.StopWatch;
@@ -56,36 +57,37 @@ public class BuildTestRunner {
                 StopWatch watch = new StopWatch();
 
                 try {
-                    exec.setup();
+                    if ( exec.setup() ) {
 
-                    try {
-                        exec.executeTests();
-                        watch.stop();
-                        TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, null);
-                        testExecutorResult.setTime(watch.getElapsedTime());
-                        testExecutorResults.add(testExecutorResult);
-                    } catch (AssertionError e) {
-                        watch.stop();
-                        TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, e);
-                        testExecutorResult.setTime(watch.getElapsedTime());
-                        testExecutorResults.add(testExecutorResult);
-                    } catch (Error | Exception e) {
-                        watch.stop();
-                        TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(e.getMessage(), e));
-                        testExecutorResult.setTime(watch.getElapsedTime());
-                        testExecutorResults.add(testExecutorResult);
+                        try {
+                            exec.executeTests();
+
+                            watch.stop();
+                            TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, null);
+                            testExecutorResult.setTime(watch.getElapsedTime());
+                            testExecutorResults.add(testExecutorResult);
+                        } catch (AssertionError e) {
+                            watch.stop();
+                            TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, e);
+                            testExecutorResult.setTime(watch.getElapsedTime());
+                            testExecutorResults.add(testExecutorResult);
+                        } catch (Error | Exception e) {
+                            watch.stop();
+                            TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(e.getMessage(), e));
+                            testExecutorResult.setTime(watch.getElapsedTime());
+                            testExecutorResults.add(testExecutorResult);
+                            throw new IllegalStateException("Unexpected error", e);
+                        }
+                    } else {
+                        return res;
                     }
                     exec.teardown();
-                } catch (AssertionError ex) {
-                    watch.stop();
-                    TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, ex);
-                    testExecutorResult.setTime(watch.getElapsedTime());
-                    testExecutorResults.add(testExecutorResult);
-                } catch (Error | Exception ex) {
+                } catch (Throwable ex) {
                     watch.stop();
                     TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(ex.getMessage(), ex));
                     testExecutorResult.setTime(watch.getElapsedTime());
                     testExecutorResults.add(testExecutorResult);
+                    throw new IllegalStateException("Unexpected error", ex);
                 }
             }
             res = new TestcaseResult(buildTestRunnerItem.getBuildTestcase(), testExecutorResults);

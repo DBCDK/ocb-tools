@@ -60,12 +60,13 @@ public class BuildRecordExecutor implements TestExecutor {
     }
 
     @Override
-    public void setup() {
+    public boolean setup() {
         logger.entry();
         if (this.demoInfoPrinter != null) {
             demoInfoPrinter.printHeader(this.tc, this);
         }
         logger.exit();
+        return true;
     }
 
     @Override

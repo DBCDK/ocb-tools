@@ -45,7 +45,8 @@ public class CheckTemplateExecutor implements TestExecutor {
     }
 
     @Override
-    public void setup() {
+    public boolean setup() {
+        return true;
     }
 
     @Override

@@ -71,7 +71,7 @@ public class RemoteValidateExecutor implements TestExecutor {
     }
 
     @Override
-    public void setup() {
+    public boolean setup() {
         logger.entry();
 
         try {
@@ -81,42 +81,45 @@ public class RemoteValidateExecutor implements TestExecutor {
 
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
 
-            RawRepo.teardownDatabase(settings);
-            Holdings.teardownDatabase(settings);
-
             RawRepo.setupDatabase(settings);
             Holdings.setupDatabase(settings);
-            solrServer = new SolrServer( tc, settings );
+            solrServer = new SolrServer(tc, settings);
 
             if (!hasRawRepoSetup(tc)) {
-                return;
+                return true;
             }
 
             try (Connection conn = RawRepo.getConnection(settings)) {
                 RawRepo rawRepo = null;
 
                 try {
-                    rawRepo = new RawRepo( settings, conn);
+                    rawRepo = new RawRepo(settings, conn);
                     rawRepo.saveRecords(tc.getFile().getParentFile(), tc.getSetup().getRawrepo());
                     setupRelations(fs, rawRepo);
 
                     conn.commit();
-                } catch (JAXBException | RawRepoException ex) {
+                } catch (Throwable rrex) {
+                    logger.error("rawrepo setup ERROR : ", rrex);
                     if (rawRepo != null) {
-                        conn.rollback();
+                        try {
+                            conn.rollback();
+                        } catch (SQLException sqlex) {
+                            logger.error("Rollback failed", sqlex);
+                        }
                     }
-
-                    throw new AssertionError(ex.getMessage(), ex);
+                    return false;
                 }
             }
 
-            setupHoldings( fs );
+            setupHoldings(fs);
 
             if (this.demoInfoPrinter != null) {
                 demoInfoPrinter.printRemoteDatabases(this.tc, settings);
             }
-        } catch (ClassNotFoundException | SQLException | IOException | HoldingsItemsException | RawRepoException ex) {
-            throw new AssertionError(ex.getMessage(), ex);
+            return true;
+        } catch( Throwable ex ) {
+            logger.error("setup ERROR : ", ex);
+            return false;
         } finally {
             logger.exit();
         }
@@ -232,6 +235,9 @@ public class RemoteValidateExecutor implements TestExecutor {
             if( solrServer != null ) {
                 solrServer.stop();
             }
+            RawRepo.teardownDatabase(settings);
+            Holdings.teardownDatabase(settings);
+
 
             if (this.demoInfoPrinter != null) {
                 demoInfoPrinter.printRemoteDatabases(this.tc, settings);
@@ -240,8 +246,8 @@ public class RemoteValidateExecutor implements TestExecutor {
             if (this.demoInfoPrinter != null) {
                 demoInfoPrinter.printFooter();
             }
-        } catch (ClassNotFoundException | SQLException | HoldingsItemsException | RawRepoException ex) {
-            throw new AssertionError(ex.getMessage(), ex);
+        } catch (Throwable ex) {
+            throw new IllegalStateException("Teardown error", ex);
         } finally {
             logger.exit();
         }

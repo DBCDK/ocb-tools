@@ -16,7 +16,7 @@ public interface TestExecutor {
      * <p/>
      * This method is called before the tests are run.
      */
-    void setup();
+    boolean setup();
 
     /**
      * Tear down the testcase.

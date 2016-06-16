@@ -60,7 +60,7 @@ public class RemoteBuildExecutor implements TestExecutor {
     }
 
     @Override
-    public void setup() {
+    public boolean setup() {
         logger.entry();
         try {
             if (this.demoInfoPrinter != null) {
@@ -68,6 +68,7 @@ public class RemoteBuildExecutor implements TestExecutor {
             }
         } finally {
             logger.exit();
+            return true;
         }
     }
 
