@@ -55,6 +55,7 @@ public class UpdateTestRunner {
     public TestcaseResult runTestcase(UpdateTestRunnerItem updateTestRunnerItem) {
         output.entry(updateTestRunnerItem);
 
+        TestcaseResult res = null;
         try {
             ArrayList<TestExecutorResult> testExecutorResults = new ArrayList<>();
             for (TestExecutor exec : updateTestRunnerItem.getExecutors()) {
@@ -82,7 +83,8 @@ public class UpdateTestRunner {
                             testExecutorResults.add(testExecutorResult);
                             throw new IllegalStateException("Unexpected error", ex);
                         }
-
+                    } else {
+                        return res;
                     }
 
                     exec.teardown();
@@ -95,7 +97,8 @@ public class UpdateTestRunner {
                 }
             }
 
-            return new TestcaseResult(updateTestRunnerItem.getUpdateTestcase(), testExecutorResults);
+            res = new TestcaseResult(updateTestRunnerItem.getUpdateTestcase(), testExecutorResults);
+            return res;
         } finally {
             output.exit();
         }

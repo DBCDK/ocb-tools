@@ -71,7 +71,7 @@ public class BuildTestRunner {
                             TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, e);
                             testExecutorResult.setTime(watch.getElapsedTime());
                             testExecutorResults.add(testExecutorResult);
-                        } catch (Error | Exception e) {
+                        } catch (Throwable e) {
                             watch.stop();
                             TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(e.getMessage(), e));
                             testExecutorResult.setTime(watch.getElapsedTime());
