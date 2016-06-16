@@ -84,6 +84,7 @@ public class UpdateTestRunner {
                             throw new IllegalStateException("Unexpected error", ex);
                         }
                     } else {
+                        exec.teardown();
                         return res;
                     }
 
