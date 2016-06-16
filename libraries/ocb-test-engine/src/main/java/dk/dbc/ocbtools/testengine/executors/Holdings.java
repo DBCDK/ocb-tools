@@ -102,7 +102,7 @@ public class Holdings {
 
         try( Connection conn = getConnection( settings ) ) {
             try {
-                logger.debug( "Setup queue workers and rules" );
+                logger.debug( "Setup holdings queue workers and rules" );
                 for( String name : WORKER_NAMES ) {
                     logger.debug( "Setup queue worker: {}", name );
                     JDBCUtil.update( conn, "INSERT INTO queueworkers(worker) VALUES(?)", name );

@@ -229,7 +229,7 @@ public class RawRepo {
 
         try (Connection conn = getConnection(settings)) {
             try {
-                output.debug("Setup queue workers and rules");
+                output.debug("Setup rawrepo ueue workers and rules");
                 for (String name : WORKER_NAMES) {
                     output.debug("Setup queue worker: {}", name);
                     JDBCUtil.update(conn, "INSERT INTO queueworkers(worker) VALUES(?)", name);
