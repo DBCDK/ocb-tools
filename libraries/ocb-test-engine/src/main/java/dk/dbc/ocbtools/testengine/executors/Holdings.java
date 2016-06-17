@@ -55,7 +55,7 @@ public class Holdings {
                     Record rec = collection.findRecord( "fakeId" );
                     rec.setStatus( "OnOrder" );
                     Date accdate = new Date();
-                    // rec.setAccessionDate( accdate );
+                    rec.setAccessionDate( accdate );
                     collection.save();
                 }
 
