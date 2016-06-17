@@ -248,11 +248,6 @@ public class RawRepo {
                 }
 
                 conn.commit();
-                try {
-                    throw new IllegalStateException("Unexpected error");
-                } catch ( Throwable ii) {
-                    output.debug("DIRTY TRICK {}", ii);
-                }
             } catch (SQLException ex) {
                 conn.rollback();
                 logger.error(ex.getMessage(), ex);

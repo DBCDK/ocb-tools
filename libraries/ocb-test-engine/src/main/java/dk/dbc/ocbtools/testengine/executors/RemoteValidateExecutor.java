@@ -81,6 +81,9 @@ public class RemoteValidateExecutor implements TestExecutor {
 
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
 
+            RawRepo.teardownDatabase(settings);
+            Holdings.teardownDatabase(settings);
+
             RawRepo.setupDatabase(settings);
             Holdings.setupDatabase(settings);
             solrServer = new SolrServer(tc, settings);
@@ -235,8 +238,8 @@ public class RemoteValidateExecutor implements TestExecutor {
             if( solrServer != null ) {
                 solrServer.stop();
             }
-            RawRepo.teardownDatabase(settings);
-            Holdings.teardownDatabase(settings);
+            // RawRepo.teardownDatabase(settings);
+            // Holdings.teardownDatabase(settings);
 
 
             if (this.demoInfoPrinter != null) {
