@@ -112,7 +112,7 @@ public class RunExecutor implements SubcommandExecutor {
         try {
             for (String testName : tcNames) {
                 if (!repo.findAllTestcaseNames().contains(testName)) {
-                    throw new CliException("Testcase : <<<<" + testName + ">>>> does not exists");
+                    throw new CliException("Testcase : <<<< " + testName + " >>>> does not exists");
                 }
             }
         } finally {
@@ -125,7 +125,7 @@ public class RunExecutor implements SubcommandExecutor {
         try {
             for (String testName : tcNames) {
                 if (!repo.findAllTestcaseNames().contains(testName)) {
-                    throw new CliException("Testcase : <<<<" + testName + ">>>> does not exists");
+                    throw new CliException("Testcase : <<<< " + testName + " >>>> does not exists");
                 }
             }
         } finally {
@@ -156,8 +156,10 @@ public class RunExecutor implements SubcommandExecutor {
             List<UpdateTestRunnerItem> items = new ArrayList<>();
             checkForNonExistantTestcases(repo);
             for (UpdateTestcase tc : repo.findAllTestcases()) {
+                if (!matchAnyNames(tc, tcNames)) {
+                    continue;
+                }
                 List<TestExecutor> executors = new ArrayList<>();
-
                 if (!this.useRemote) {
                     if (tc.getExpected().getValidation() != null) {
                         ValidateRecordExecutor validateRecordExecutor = new ValidateRecordExecutor(baseDir, tc, this.printDemoInfo);
@@ -226,8 +228,11 @@ public class RunExecutor implements SubcommandExecutor {
 
             Map<String, ServiceScripter> scripterCache = new HashMap<>();
             List<BuildTestRunnerItem> items = new ArrayList<>();
+            checkForNonExistantTestcases(repo);
             for (BuildTestcase buildTestcase : repo.findAllTestcases()) {
-                checkForNonExistantTestcases(repo);
+                if (!matchAnyNames(buildTestcase , tcNames)) {
+                    continue;
+                }
                 List<TestExecutor> executors = new ArrayList<>();
                 if (this.useRemote) {
                     RemoteBuildExecutor remoteBuildExecutor = new RemoteBuildExecutor(buildTestcase, settings, this.printDemoInfo);
