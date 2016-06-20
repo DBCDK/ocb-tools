@@ -30,4 +30,13 @@ public class UpdateTestcaseRepository {
     public List<UpdateTestcase> findAllTestcases() {
         return updateTestcases;
     }
+
+    public List<String> findAllTestcaseNames() {
+        List<String> names = new ArrayList<>();
+        for (UpdateTestcase uc : updateTestcases) {
+            names.add(uc.getName());
+        }
+        return names;
+    }
+
 }

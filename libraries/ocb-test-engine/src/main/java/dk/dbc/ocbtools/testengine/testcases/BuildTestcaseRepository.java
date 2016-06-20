@@ -21,4 +21,12 @@ public class BuildTestcaseRepository {
     public List<BuildTestcase> findAllTestcases() {
         return buildTestcases;
     }
+
+    public List<String> findAllTestcaseNames() {
+        List<String> names = new ArrayList<>();
+        for (BuildTestcase uc : buildTestcases) {
+            names.add(uc.getName());
+        }
+        return names;
+    }
 }

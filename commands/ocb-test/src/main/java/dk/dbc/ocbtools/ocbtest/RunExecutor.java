@@ -106,9 +106,35 @@ public class RunExecutor implements SubcommandExecutor {
         }
     }
 
+
+    private void checkForNonExistantTestcases(UpdateTestcaseRepository repo) throws CliException {
+        output.entry(repo);
+        try {
+            for (String testName : tcNames) {
+                if (!repo.findAllTestcaseNames().contains(testName)) {
+                    throw new CliException("Testcase : <<<<" + testName + ">>>> does not exists");
+                }
+            }
+        } finally {
+            output.exit();
+        }
+    }
+
+    private void checkForNonExistantTestcases(BuildTestcaseRepository repo) throws CliException {
+        output.entry();
+        try {
+            for (String testName : tcNames) {
+                if (!repo.findAllTestcaseNames().contains(testName)) {
+                    throw new CliException("Testcase : <<<<" + testName + ">>>> does not exists");
+                }
+            }
+        } finally {
+            output.exit();
+        }
+    }
+
     private void actionPerformedUpdate() throws CliException {
         output.entry();
-
         try {
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
             UpdateTestcaseRepository repo = UpdateTestcaseRepositoryFactory.newInstanceWithTestcases(fs);
@@ -126,26 +152,22 @@ public class RunExecutor implements SubcommandExecutor {
                 output.info("Using holding items database: {}", settings.getProperty("holdings.jdbc.conn.url"));
                 output.info("");
             }
-
             Map<String, ServiceScripter> scripterCache = new HashMap<>();
             List<UpdateTestRunnerItem> items = new ArrayList<>();
+            checkForNonExistantTestcases(repo);
             for (UpdateTestcase tc : repo.findAllTestcases()) {
-                if (!matchAnyNames(tc, tcNames)) {
-                    continue;
-                }
-
                 List<TestExecutor> executors = new ArrayList<>();
 
                 if (!this.useRemote) {
                     if (tc.getExpected().getValidation() != null) {
-                        ValidateRecordExecutor validateRecordExecutor = new ValidateRecordExecutor( baseDir, tc, this.printDemoInfo );
+                        ValidateRecordExecutor validateRecordExecutor = new ValidateRecordExecutor(baseDir, tc, this.printDemoInfo);
 
-                        ServiceScripter scripter = getOrCreateScripter( scripterCache, tc.getDistributionName() );
-                        validateRecordExecutor.setScripter( scripter );
+                        ServiceScripter scripter = getOrCreateScripter(scripterCache, tc.getDistributionName());
+                        validateRecordExecutor.setScripter(scripter);
 
-                        executors.add( validateRecordExecutor );
+                        executors.add(validateRecordExecutor);
                     } else {
-                        output.warn( "Using CheckTemplateExecutor: {}", tc.getName() );
+                        output.warn("Using CheckTemplateExecutor: {}", tc.getName());
                         executors.add(new CheckTemplateExecutor(baseDir, tc));
                     }
                 } else {
@@ -183,6 +205,7 @@ public class RunExecutor implements SubcommandExecutor {
         }
     }
 
+
     private void actionPerformedBuild() throws CliException {
         output.entry();
         try {
@@ -204,9 +227,7 @@ public class RunExecutor implements SubcommandExecutor {
             Map<String, ServiceScripter> scripterCache = new HashMap<>();
             List<BuildTestRunnerItem> items = new ArrayList<>();
             for (BuildTestcase buildTestcase : repo.findAllTestcases()) {
-                if (!matchAnyNames(buildTestcase, tcNames)) {
-                    continue;
-                }
+                checkForNonExistantTestcases(repo);
                 List<TestExecutor> executors = new ArrayList<>();
                 if (this.useRemote) {
                     RemoteBuildExecutor remoteBuildExecutor = new RemoteBuildExecutor(buildTestcase, settings, this.printDemoInfo);
@@ -214,10 +235,10 @@ public class RunExecutor implements SubcommandExecutor {
                 } else {
                     BuildRecordExecutor buildRecordExecutor = new BuildRecordExecutor(baseDir, buildTestcase, settings, this.printDemoInfo);
 
-                    ServiceScripter scripter = getOrCreateScripter( scripterCache, buildTestcase.getDistributionName() );
-                    buildRecordExecutor.setScripter( scripter );
+                    ServiceScripter scripter = getOrCreateScripter(scripterCache, buildTestcase.getDistributionName());
+                    buildRecordExecutor.setScripter(scripter);
 
-                    executors.add( buildRecordExecutor );
+                    executors.add(buildRecordExecutor);
                 }
 
                 items.add(new BuildTestRunnerItem(buildTestcase, executors));
@@ -246,7 +267,7 @@ public class RunExecutor implements SubcommandExecutor {
         output.entry(tc, names);
 
         try {
-            return names.isEmpty() || names.contains( tc.getName() );
+            return names.isEmpty() || names.contains(tc.getName());
 
         } finally {
             output.exit();
@@ -257,7 +278,7 @@ public class RunExecutor implements SubcommandExecutor {
         output.entry(tc, names);
 
         try {
-            return names.isEmpty() || names.contains( tc.getName() );
+            return names.isEmpty() || names.contains(tc.getName());
 
         } finally {
             output.exit();
@@ -267,60 +288,55 @@ public class RunExecutor implements SubcommandExecutor {
     /**
      * Gets a ServiceScripter from a cache (Map) of ServiceScripter's.
      * <p>
-     *     The cache is indexed by distribution names.
+     * The cache is indexed by distribution names.
      * </p>
      * <p>
-     *     If a ServiceScripter does not exist in the cache, a new one is created and added to the cache.
+     * If a ServiceScripter does not exist in the cache, a new one is created and added to the cache.
      * </p>
      *
      * @param cache            The cache of ServiceScripter's. It may be changed by this method.
      * @param distributionName The distribution name to lookup a ServiceScripter in the cache.
-     *
      * @return A ServiceScripter from the cache if it exists, otherwise a new ServiceScripter.
-     *
      * @throws IOException Any exception of creation a new ServiceScripter.
      */
-    private ServiceScripter getOrCreateScripter( Map<String, ServiceScripter> cache, String distributionName ) throws IOException {
+    private ServiceScripter getOrCreateScripter(Map<String, ServiceScripter> cache, String distributionName) throws IOException {
         logger.entry();
 
         ServiceScripter scripter = null;
         try {
-            if( !cache.containsKey( distributionName ) ) {
-                scripter = createScripter( distributionName );
-                cache.put( distributionName, scripter );
-            }
-            else {
-                scripter = cache.get( distributionName );
+            if (!cache.containsKey(distributionName)) {
+                scripter = createScripter(distributionName);
+                cache.put(distributionName, scripter);
+            } else {
+                scripter = cache.get(distributionName);
             }
 
             return scripter;
-        }
-        finally {
-            logger.exit( scripter );
+        } finally {
+            logger.exit(scripter);
         }
     }
 
-    private ServiceScripter createScripter( String distributionName ) throws IOException {
+    private ServiceScripter createScripter(String distributionName) throws IOException {
         logger.entry();
 
         ServiceScripter scripter = null;
         try {
             scripter = new ServiceScripter();
-            scripter.setBaseDir( baseDir.getCanonicalPath() );
-            scripter.setModulesKey( "unittest.modules.search.path" );
+            scripter.setBaseDir(baseDir.getCanonicalPath());
+            scripter.setModulesKey("unittest.modules.search.path");
 
             ArrayList<Distribution> distributions = new ArrayList<>();
-            distributions.add( new Distribution( "ocbtools", "ocb-tools" ) );
-            distributions.add( new Distribution( distributionName, "distributions/" + distributionName ) );
-            logger.debug( "Using distributions: {}", distributions );
+            distributions.add(new Distribution("ocbtools", "ocb-tools"));
+            distributions.add(new Distribution(distributionName, "distributions/" + distributionName));
+            logger.debug("Using distributions: {}", distributions);
 
-            scripter.setDistributions( distributions );
-            scripter.setServiceName( SERVICE_NAME );
+            scripter.setDistributions(distributions);
+            scripter.setServiceName(SERVICE_NAME);
 
             return scripter;
-        }
-        finally {
-            logger.exit( scripter );
+        } finally {
+            logger.exit(scripter);
         }
     }
 }
