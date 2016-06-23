@@ -75,9 +75,11 @@ public class OCBFileSystem {
         try {
             String applicationStr = applicationType.toString().toLowerCase();
             for( String distName : findDistributions() ) {
+                logger.debug("TESTCASES in {} path : {}", distName, String.format( SYSTEMTESTS_DIR_PATTERN, baseDir.getCanonicalPath(), distName, applicationStr) );
                 File systemTestsDir = new File( String.format( SYSTEMTESTS_DIR_PATTERN, baseDir.getCanonicalPath(), distName, applicationStr) );
                 if( systemTestsDir.exists() ) {
                     for( File file : findFiles( systemTestsDir, new FileExtensionFilter( SYSTEMTESTS_FILE_EXT ) ) ) {
+                        logger.debug("Add testcase dist,file,type {},{},{}", distName, file, applicationType );
                         result.add( new SystemTest( distName, file, applicationType ) );
                     }
                 }
