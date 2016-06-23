@@ -118,6 +118,7 @@ public class CliExecutor {
 
         StopWatch watch = new StopWatch();
         try {
+            logger.debug("Command: {}", commandName);
             logger.debug("Arguments: {}", args);
 
             CliExecutor cli = new CliExecutor(commandName);

@@ -77,6 +77,7 @@ public class UpdateTestRunner {
                             testExecutorResult.setTime(watch.getElapsedTime());
                             testExecutorResults.add(testExecutorResult);
                         } catch ( Throwable ex ) {
+                            output.error("runTestcase execute ERROR : ", ex);
                             watch.stop();
                             TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(ex.getMessage(), ex));
                             testExecutorResult.setTime(watch.getElapsedTime());
@@ -90,6 +91,7 @@ public class UpdateTestRunner {
 
                     exec.teardown();
                 } catch (Throwable ex ) {
+                    output.error("runTestcase ERROR : ", ex);
                     watch.stop();
                     TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(ex.getMessage(), ex));
                     testExecutorResult.setTime(watch.getElapsedTime());

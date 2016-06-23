@@ -27,11 +27,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -222,6 +220,7 @@ public class RawRepo {
         String url = settings.getProperty(JDBC_URL_KEY);
         String user = settings.getProperty(JDBC_USER_KEY);
         String password = settings.getProperty(JDBC_PASSWORD_KEY);
+        logger.info("rr getConnection {}/{}/{}", url, user, password);
 
         Connection conn = DriverManager.getConnection(url, user, password);
         conn.setAutoCommit(false);
@@ -231,6 +230,7 @@ public class RawRepo {
 
     public static void setupDatabase(Properties settings) throws SQLException, IOException, ClassNotFoundException {
         logger.entry(settings);
+        logger.info("setup RR");
 
         try (Connection conn = getConnection(settings)) {
             try {
@@ -261,6 +261,13 @@ public class RawRepo {
 
     public static void teardownDatabase(Properties settings) throws SQLException, IOException, ClassNotFoundException {
         logger.entry(settings);
+
+        logger.info("teardown RR");
+        Set<String> settingsStr = settings.stringPropertyNames();
+        String[] ar = settingsStr.toArray(new String[0]);
+        for (int ix = 0; ix < ar.length;ix++) {
+            logger.error("Prop {} = value {}", ar[ix], settings.getProperty(ar[ix]));
+        }
         try (Connection conn = getConnection(settings)) {
             try {
                 JDBCUtil.update(conn, "DELETE FROM relations");
@@ -299,6 +306,11 @@ public class RawRepo {
     public static List<Record> loadRecords(Properties settings) throws SQLException, IOException, ClassNotFoundException, RawRepoException {
         logger.entry(settings);
 
+        Set<String> settingsStr = settings.stringPropertyNames();
+        String[] ar = settingsStr.toArray(new String[0]);
+        for (int ix = 0; ix < ar.length;ix++) {
+            logger.error("Prop {} = value {}", ar[ix], settings.getProperty(ar[ix]));
+        }
         List<Record> records = new ArrayList<>();
         try (Connection conn = getConnection(settings)) {
             RawRepo rawRepo = new RawRepo( settings, conn);

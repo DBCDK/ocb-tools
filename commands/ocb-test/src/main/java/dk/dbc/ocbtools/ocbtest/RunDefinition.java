@@ -60,8 +60,8 @@ public class RunDefinition implements SubcommandDefinition {
         try {
             List<TestReport> reports = new ArrayList<>();
 
-            logger.trace("hasOption -s: {}", line.hasOption("s"));
-            logger.trace("Args: {}", line.getArgList());
+            logger.debug("hasOption -s: {}", line.hasOption("s"));
+            logger.debug("Args: {}", line.getArgList());
 
             TextReport textReport = new TextReport();
             textReport.setPrintSummary(line.hasOption("s"));
