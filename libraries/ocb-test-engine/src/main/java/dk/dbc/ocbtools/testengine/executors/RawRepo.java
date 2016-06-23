@@ -67,11 +67,6 @@ public class RawRepo {
     public RawRepo(Properties settings, Connection connection) throws RawRepoException {
         this.settings = settings;
         this.dao = RawRepoDAO.builder(connection).build();
-        try {
-            teardownDatabase(settings);
-        } catch (Throwable upe) {
-            logger.debug("Init fail", upe);
-        }
     }
 
     /**
