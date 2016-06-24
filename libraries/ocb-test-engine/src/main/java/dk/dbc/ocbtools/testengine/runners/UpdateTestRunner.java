@@ -73,11 +73,12 @@ public class UpdateTestRunner {
                             testExecutorResults.add(testExecutorResult);
                         } catch (AssertionError ex) {
                             watch.stop();
+                            output.debug("Got assertion error runTestcase update {}", ex);
                             TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, ex);
                             testExecutorResult.setTime(watch.getElapsedTime());
                             testExecutorResults.add(testExecutorResult);
                         } catch ( Throwable ex ) {
-                            output.error("runTestcase execute ERROR : ", ex);
+                            output.error("runTestcase update execute ERROR : {}", ex);
                             watch.stop();
                             TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(ex.getMessage(), ex));
                             testExecutorResult.setTime(watch.getElapsedTime());
@@ -85,13 +86,14 @@ public class UpdateTestRunner {
                             throw new IllegalStateException("Unexpected error", ex);
                         }
                     } else {
+                        output.debug("setup runTestcase update fails");
                         exec.teardown();
                         return res;
                     }
 
                     exec.teardown();
                 } catch (Throwable ex ) {
-                    output.error("runTestcase ERROR : ", ex);
+                    output.error("runTestcase update ERROR : ", ex);
                     watch.stop();
                     TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(ex.getMessage(), ex));
                     testExecutorResult.setTime(watch.getElapsedTime());
