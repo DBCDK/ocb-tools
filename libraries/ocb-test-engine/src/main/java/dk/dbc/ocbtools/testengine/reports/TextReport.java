@@ -1,7 +1,4 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.reports;
-
-//-----------------------------------------------------------------------------
 
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.testengine.runners.TestExecutorResult;
@@ -13,8 +10,6 @@ import org.slf4j.ext.XLoggerFactory;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-
-//-----------------------------------------------------------------------------
 
 /**
  * Class to produce a test report based on TestResult.
@@ -30,10 +25,6 @@ public class TextReport implements TestReport {
     public void setPrintSummary(boolean printSummary) {
         this.printSummary = printSummary;
     }
-
-    //-------------------------------------------------------------------------
-    //              Text report
-    //-------------------------------------------------------------------------
 
     @Override
     public void produce(TestResult testResult) {
@@ -74,22 +65,20 @@ public class TextReport implements TestReport {
 
     private void produceSummary(TestResult testResult) {
         output.entry();
-
         try {
             final int width = 80;
-
             NumberFormat numberFormat = NumberFormat.getNumberInstance();
-            if( numberFormat instanceof DecimalFormat ) {
+            if (numberFormat instanceof DecimalFormat) {
                 DecimalFormat df = (DecimalFormat) numberFormat;
 
-                df.setDecimalSeparatorAlwaysShown( true );
+                df.setDecimalSeparatorAlwaysShown(true);
             }
 
             output.info(makeDots("-", width));
             for (TestcaseResult testcaseResult : testResult) {
                 String resultStr = testcaseResult.hasError() ? "FAILED" : "SUCCESS";
 
-                String timeFormatted = numberFormat.format( testcaseResult.getTime() / 1000.0 );
+                String timeFormatted = numberFormat.format(testcaseResult.getTime() / 1000.0);
 
                 String dots;
                 int otherTextLengths = 8; // Number of extra spaces/special chars in the format string.
@@ -118,7 +107,6 @@ public class TextReport implements TestReport {
         for (int i = 0; i < length; i++) {
             str += dotChar;
         }
-
         return str;
     }
 }
