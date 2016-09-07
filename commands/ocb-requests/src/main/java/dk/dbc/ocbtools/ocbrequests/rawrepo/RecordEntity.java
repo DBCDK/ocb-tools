@@ -28,6 +28,35 @@ import static javax.persistence.FetchType.LAZY;
 }
 )
 public class RecordEntity {
+
+
+    @Id
+    @Column( name = "bibliographicrecordid", length = 64)
+    private String bibliographicRecordId;
+
+    @Id
+    @Column( name = "agencyid" )
+    private Integer agencyId;
+
+    @Column( name = "deleted" )
+    private Boolean deleted;
+
+    @Column( name = "mimetype", length = 128 )
+    private String mimeType;
+
+    @Lob
+    @Column( name = "content" )
+    private String content;
+
+    @Column( name = "created" )
+    private Date created;
+
+    @Column( name = "modified" )
+    private Date modified;
+
+    @Column( name = "trackingid", length = 255 )
+    private String trackingId;
+
     public String getBibliographicRecordId() {
         return bibliographicRecordId;
     }
@@ -92,42 +121,8 @@ public class RecordEntity {
         this.trackingId = trackingId;
     }
 
-    //-------------------------------------------------------------------------
-    //              Converters
-    //-------------------------------------------------------------------------
-
     public String contentAsXml() throws UnsupportedEncodingException {
         return new String( DatatypeConverter.parseBase64Binary( content ), "UTF-8" );
     }
 
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    @Id
-    @Column( name = "bibliographicrecordid", length = 64)
-    private String bibliographicRecordId;
-
-    @Id
-    @Column( name = "agencyid" )
-    private Integer agencyId;
-
-    @Column( name = "deleted" )
-    private Boolean deleted;
-
-    @Column( name = "mimetype", length = 128 )
-    private String mimeType;
-
-    @Lob
-    @Column( name = "content" )
-    private String content;
-
-    @Column( name = "created" )
-    private Date created;
-
-    @Column( name = "modified" )
-    private Date modified;
-
-    @Column( name = "trackingid", length = 255 )
-    private String trackingId;
 }

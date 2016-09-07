@@ -32,6 +32,17 @@ import java.io.*;
  * Created by stp on 05/04/16.
  */
 public class CreateRequestTask implements Runnable {
+
+
+    private static final XLogger logger = XLoggerFactory.getXLogger( CreateRequestTask.class );
+    private static final XLogger output = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
+
+    private File baseDir;
+    private Integer userNumber;
+    private Integer requestNumber;
+    private AgencyNumber agencyId;
+    private RecordEntity record;
+
     public CreateRequestTask( File baseDir ) {
         this.baseDir = baseDir;
         this.userNumber = null;
@@ -184,17 +195,4 @@ public class CreateRequestTask implements Runnable {
             logger.exit();
         }
     }
-
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private static final XLogger logger = XLoggerFactory.getXLogger( CreateRequestTask.class );
-    private static final XLogger output = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
-
-    private File baseDir;
-    private Integer userNumber;
-    private Integer requestNumber;
-    private AgencyNumber agencyId;
-    private RecordEntity record;
 }

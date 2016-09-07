@@ -29,6 +29,15 @@ import java.util.concurrent.TimeUnit;
  * Executor for the subcommand 'rawrepo-create'
  */
 public class CreateRawRepoExecutor implements SubcommandExecutor {
+
+    private static final XLogger logger = XLoggerFactory.getXLogger( CreateRawRepoExecutor.class );
+    private static final XLogger output = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
+
+    private File baseDir;
+    private Integer agencyId;
+    private Integer userCount;
+    private Integer requestsPeerUser;
+
     public CreateRawRepoExecutor() {
     }
 
@@ -70,7 +79,6 @@ public class CreateRawRepoExecutor implements SubcommandExecutor {
     @Override
     public void actionPerformed() throws CliException {
         logger.entry();
-
         try {
             if( baseDir == null ) {
                 baseDir = new File( "." ).getCanonicalFile();
@@ -165,16 +173,4 @@ public class CreateRawRepoExecutor implements SubcommandExecutor {
             logger.exit();
         }
     }
-
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private static final XLogger logger = XLoggerFactory.getXLogger( CreateRawRepoExecutor.class );
-    private static final XLogger output = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
-
-    private File baseDir;
-    private Integer agencyId;
-    private Integer userCount;
-    private Integer requestsPeerUser;
 }

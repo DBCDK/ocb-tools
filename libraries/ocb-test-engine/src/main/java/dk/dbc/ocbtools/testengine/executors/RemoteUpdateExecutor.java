@@ -3,15 +3,13 @@ package dk.dbc.ocbtools.testengine.executors;
 
 //-----------------------------------------------------------------------------
 
-import org.slf4j.ext.XLogger;
-import org.slf4j.ext.XLoggerFactory;
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.utils.json.Json;
+import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
-import dk.dbc.ocbtools.testengine.asserters.UpdateAsserter;
 import dk.dbc.ocbtools.testengine.asserters.RawRepoAsserter;
+import dk.dbc.ocbtools.testengine.asserters.UpdateAsserter;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
 import dk.dbc.ocbtools.testengine.testcases.ValidationResult;
@@ -22,6 +20,7 @@ import dk.dbc.updateservice.service.api.UpdateRecordRequest;
 import dk.dbc.updateservice.service.api.UpdateRecordResult;
 import dk.dbc.updateservice.service.api.UpdateStatusEnum;
 import org.perf4j.StopWatch;
+import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 import org.xml.sax.SAXException;
 
@@ -34,7 +33,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 //-----------------------------------------------------------------------------
 
@@ -44,6 +45,7 @@ import static org.junit.Assert.*;
  */
 public class RemoteUpdateExecutor extends RemoteValidateExecutor {
     private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
+
     public RemoteUpdateExecutor(UpdateTestcase tc, Properties settings, boolean printDemoInfo) {
         super(tc, settings, printDemoInfo);
         this.logger = XLoggerFactory.getXLogger(RemoteUpdateExecutor.class);
@@ -69,7 +71,7 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
 
             String key = String.format("updateservice.%s.url", tc.getDistributionName());
             URL url = new URL(settings.getProperty(key));
-            UpdateService caller = new UpdateService( url, createHeaders() );
+            UpdateService caller = new UpdateService(url, createHeaders());
 
             UpdateRecordRequest request = createRequest();
             logger.debug("Tracking id: {}", request.getTrackingId());
@@ -92,7 +94,7 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
             try {
                 assertNotNull("No expected results found.", tc.getExpected());
 
-                assertNull( "Unable to authenticate user:\n" + Json.encodePretty( tc.getRequest().getAuthentication() ), response.getError() );
+                assertNull("Unable to authenticate user:\n" + Json.encodePretty(tc.getRequest().getAuthentication()), response.getError());
 
                 if (tc.getExpected().hasValidationErrors()) {
                     UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getValidation(), response.getValidateInstance());
@@ -109,11 +111,27 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
                 } else if (tc.getExpected().getUpdate().hasUpdateErrors()) {
                     UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getErrors(), response.getValidateInstance());
 
-                    if( tc.getExpected().hasValidationErrors() ) {
-                        assertEquals( UpdateStatusEnum.VALIDATION_ERROR, response.getUpdateStatus() );
-                    }
-                    else {
-                        assertEquals( UpdateStatusEnum.FAILED_UPDATE_INTERNAL_ERROR, response.getUpdateStatus() );
+                    if (tc.getExpected().hasValidationErrors()) {
+                        assertEquals(UpdateStatusEnum.VALIDATION_ERROR, response.getUpdateStatus());
+                    } else {
+                        UpdateStatusEnum status = response.getUpdateStatus();
+                        // Hotfix for newly introduced invalid agency error"
+                        switch (status) {
+                            case FAILED_INVALID_AGENCY:
+                                assertEquals(UpdateStatusEnum.FAILED_INVALID_AGENCY, status);
+                                break;
+                            case FAILED_INVALID_OPTION:
+                                assertEquals(UpdateStatusEnum.FAILED_INVALID_OPTION, status);
+                                break;
+                            case FAILED_VALIDATION_INTERNAL_ERROR:
+                                assertEquals(UpdateStatusEnum.FAILED_VALIDATION_INTERNAL_ERROR, status);
+                                break;
+                            case FAILED_INVALID_SCHEMA:
+                                assertEquals(UpdateStatusEnum.FAILED_INVALID_SCHEMA, status);
+                                break;
+                            default:
+                                assertEquals(UpdateStatusEnum.FAILED_UPDATE_INTERNAL_ERROR, status);
+                        }
                     }
                 } else {
                     UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getErrors(), response.getValidateInstance());

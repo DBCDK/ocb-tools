@@ -3,10 +3,6 @@ package dk.dbc.ocbtools.testengine.testcases;
 
 //-----------------------------------------------------------------------------
 
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
-import org.slf4j.ext.XLogger;
-import org.slf4j.ext.XLoggerFactory;
-
 import java.util.HashMap;
 
 //-----------------------------------------------------------------------------
@@ -14,6 +10,11 @@ import java.util.HashMap;
  * Created by stp on 18/02/15.
  */
 public class ValidationResult {
+
+    private ValidationResultType type;
+    private HashMap<String, Object> params;
+
+
     public ValidationResult() {
         this.type = null;
         this.params = null;
@@ -75,22 +76,4 @@ public class ValidationResult {
                 '}';
     }
 
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private static final XLogger logger = XLoggerFactory.getXLogger( ValidationResult.class );
-    private static final XLogger output = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
-
-    /**
-     * Contains the type of this validation error.
-     *
-     * For historical reasons, a type is a classification of an validation error.
-     */
-    private ValidationResultType type;
-
-    /**
-     * Map of extra parameters to the validation type.
-     */
-    private HashMap<String, Object> params;
 }
