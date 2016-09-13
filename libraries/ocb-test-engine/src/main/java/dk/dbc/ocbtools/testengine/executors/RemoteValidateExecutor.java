@@ -1,8 +1,4 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.executors;
-
-//-----------------------------------------------------------------------------
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 
 import dk.dbc.holdingsitems.HoldingsItemsException;
 import dk.dbc.iscrum.records.MarcRecord;
@@ -15,36 +11,47 @@ import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.updateservice.client.BibliographicRecordExtraData;
 import dk.dbc.updateservice.client.BibliographicRecordFactory;
-import dk.dbc.updateservice.client.UpdateService;
-import dk.dbc.updateservice.service.api.*;
+import dk.dbc.updateservice.service.api.Authentication;
+import dk.dbc.updateservice.service.api.CatalogingUpdatePortType;
+import dk.dbc.updateservice.service.api.Options;
+import dk.dbc.updateservice.service.api.UpdateOptionEnum;
+import dk.dbc.updateservice.service.api.UpdateRecordRequest;
+import dk.dbc.updateservice.service.api.UpdateRecordResult;
+import dk.dbc.updateservice.service.api.UpdateService;
+import dk.dbc.updateservice.service.api.UpdateStatusEnum;
 import org.perf4j.StopWatch;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.handler.MessageContext;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
-
-//-----------------------------------------------------------------------------
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Executor to test a testcase against the validation operation on an external
  * installation of Update.
  */
 public class RemoteValidateExecutor implements TestExecutor {
-    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
+    private static final String ENDPOINT_PATH = "/UpdateService/2.0";
+    private static final long DEFAULT_CONNECT_TIMEOUT_MS = 1 * 60 * 1000;    // 1 minute
+    private static final long DEFAULT_REQUEST_TIMEOUT_MS = 3 * 60 * 1000;    // 3 minutes
     protected static final String TRACKING_ID_FORMAT = "ocbtools-%s-%s-%s";
 
     protected XLogger logger;
@@ -73,12 +80,10 @@ public class RemoteValidateExecutor implements TestExecutor {
     @Override
     public boolean setup() {
         logger.entry();
-
         try {
             if (this.demoInfoPrinter != null) {
                 demoInfoPrinter.printHeader(this.tc, this);
             }
-
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
 
             RawRepo.teardownDatabase(settings);
@@ -91,15 +96,12 @@ public class RemoteValidateExecutor implements TestExecutor {
             if (!hasRawRepoSetup(tc)) {
                 return true;
             }
-
             try (Connection conn = RawRepo.getConnection(settings)) {
                 RawRepo rawRepo = null;
-
                 try {
                     rawRepo = new RawRepo(settings, conn);
                     rawRepo.saveRecords(tc.getFile().getParentFile(), tc.getSetup().getRawrepo());
                     setupRelations(fs, rawRepo);
-
                     conn.commit();
                 } catch (Throwable rrex) {
                     logger.error("rawrepo setup ERROR : ", rrex);
@@ -113,14 +115,12 @@ public class RemoteValidateExecutor implements TestExecutor {
                     return false;
                 }
             }
-
             setupHoldings(fs);
-
             if (this.demoInfoPrinter != null) {
                 demoInfoPrinter.printRemoteDatabases(this.tc, settings);
             }
             return true;
-        } catch( Throwable ex ) {
+        } catch (Throwable ex) {
             logger.error("setup ERROR : ", ex);
             return false;
         } finally {
@@ -133,37 +133,32 @@ public class RemoteValidateExecutor implements TestExecutor {
      *
      * @param fs The OCB filesystem to load records from.
      */
-    private void setupHoldings( OCBFileSystem fs ) throws SQLException, IOException, ClassNotFoundException, HoldingsItemsException {
-        logger.entry( fs );
-
+    private void setupHoldings(OCBFileSystem fs) throws SQLException, IOException, ClassNotFoundException, HoldingsItemsException {
+        logger.entry(fs);
         try {
-            if( !hasHoldings() ) {
+            if (!hasHoldings()) {
                 return;
             }
-
-            try( Connection conn = Holdings.getConnection( settings ) ) {
+            try (Connection conn = Holdings.getConnection(settings)) {
                 MarcRecord marcRecord;
 
                 // Setup holdings for the request record.
-                if( tc.getSetup().getHoldings() != null ) {
-                    marcRecord = fs.loadRecord( tc.getFile().getParentFile(), tc.getRequest().getRecord() );
-
-                    Holdings.saveHoldings( conn, marcRecord, tc.getSetup().getHoldings() );
+                if (tc.getSetup().getHoldings() != null) {
+                    marcRecord = fs.loadRecord(tc.getFile().getParentFile(), tc.getRequest().getRecord());
+                    Holdings.saveHoldings(conn, marcRecord, tc.getSetup().getHoldings());
                 }
 
                 // Setup holdings for records already in RawRepo.
-                if( tc.getSetup().getRawrepo() != null ) {
-                    for( UpdateTestcaseRecord record : tc.getSetup().getRawrepo() ) {
-                        if( !record.getHoldings().isEmpty() ) {
-                            marcRecord = fs.loadRecord( tc.getFile().getParentFile(), record.getRecord() );
-
-                            Holdings.saveHoldings( conn, marcRecord, record.getHoldings() );
+                if (tc.getSetup().getRawrepo() != null) {
+                    for (UpdateTestcaseRecord record : tc.getSetup().getRawrepo()) {
+                        if (!record.getHoldings().isEmpty()) {
+                            marcRecord = fs.loadRecord(tc.getFile().getParentFile(), record.getRecord());
+                            Holdings.saveHoldings(conn, marcRecord, record.getHoldings());
                         }
                     }
                 }
             }
-        }
-        finally {
+        } finally {
             logger.exit();
         }
     }
@@ -173,43 +168,35 @@ public class RemoteValidateExecutor implements TestExecutor {
      */
     private boolean hasHoldings() {
         logger.entry();
-
         Boolean result = null;
         try {
-            if( tc.getSetup() == null ) {
+            if (tc.getSetup() == null) {
                 return result = false;
             }
-
-            if( tc.getSetup().getHoldings() != null && !tc.getSetup().getHoldings().isEmpty() ) {
+            if (tc.getSetup().getHoldings() != null && !tc.getSetup().getHoldings().isEmpty()) {
                 return result = true;
             }
-
-            if( tc.getSetup().getRawrepo() != null ) {
-                for( UpdateTestcaseRecord record : tc.getSetup().getRawrepo() ) {
-                    if( !record.getHoldings().isEmpty() ) {
+            if (tc.getSetup().getRawrepo() != null) {
+                for (UpdateTestcaseRecord record : tc.getSetup().getRawrepo()) {
+                    if (!record.getHoldings().isEmpty()) {
                         return result = true;
                     }
                 }
             }
-
             return result = false;
-        }
-        finally {
-            logger.exit( result );
+        } finally {
+            logger.exit(result);
         }
     }
 
     private void setupRelations(OCBFileSystem fs, RawRepo rawRepo) throws IOException, RawRepoException {
         logger.entry(fs, rawRepo);
-
         try {
             File baseDir = tc.getFile().getParentFile();
             for (UpdateTestcaseRecord record : tc.getSetup().getRawrepo()) {
                 MarcRecord commonOrParentRecord = null;
-
                 if (record.getChildren() != null) {
                     commonOrParentRecord = fs.loadRecord(baseDir, record.getRecord());
-
                     for (String enrichmentOrChildFilename : record.getChildren()) {
                         rawRepo.saveRelation(commonOrParentRecord, fs.loadRecord(baseDir, enrichmentOrChildFilename));
                     }
@@ -219,7 +206,6 @@ public class RemoteValidateExecutor implements TestExecutor {
                     if (commonOrParentRecord == null) {
                         commonOrParentRecord = fs.loadRecord(baseDir, record.getRecord());
                     }
-
                     for (String enrichmentOrChildFilename : record.getEnrichments()) {
                         rawRepo.saveRelation(commonOrParentRecord, fs.loadRecord(baseDir, enrichmentOrChildFilename));
                     }
@@ -233,15 +219,10 @@ public class RemoteValidateExecutor implements TestExecutor {
     @Override
     public void teardown() {
         logger.entry();
-
         try {
-            if( solrServer != null ) {
+            if (solrServer != null) {
                 solrServer.stop();
             }
-            // RawRepo.teardownDatabase(settings);
-            // Holdings.teardownDatabase(settings);
-
-
             if (this.demoInfoPrinter != null) {
                 demoInfoPrinter.printRemoteDatabases(this.tc, settings);
             }
@@ -259,7 +240,6 @@ public class RemoteValidateExecutor implements TestExecutor {
     @Override
     public void executeTests() {
         logger.entry();
-
         try {
             assertNotNull("Property'en 'request' er obligatorisk.", tc.getRequest());
             assertNotNull("Property'en 'request.authentication' er obligatorisk.", tc.getRequest().getAuthentication());
@@ -268,7 +248,6 @@ public class RemoteValidateExecutor implements TestExecutor {
             assertNotNull("Property'en 'request.authentication.password' er obligatorisk.", tc.getRequest().getAuthentication().getPassword());
 
             URL url = createServiceUrl();
-            UpdateService caller = new UpdateService( url, createHeaders() );
 
             UpdateRecordRequest request = createRequest();
 
@@ -279,29 +258,28 @@ public class RemoteValidateExecutor implements TestExecutor {
                 demoInfoPrinter.printRequest(request, tc.loadRecord());
             }
             watch.start();
-            UpdateRecordResult response = caller.createPort().updateRecord(request);
+            CatalogingUpdatePortType catalogingUpdatePortType = createPort(url);
+            UpdateRecordResult response = catalogingUpdatePortType.updateRecord(request);
             watch.stop();
-            logger.debug("Receive response in {} ms: {}", watch.getElapsedTime(), Json.encodePretty( response) );
+            logger.debug("Receive response in {} ms: {}", watch.getElapsedTime(), Json.encodePretty(response));
             if (demoInfoPrinter != null) {
                 demoInfoPrinter.printResponse(response);
             }
 
             watch.start();
             try {
-                assertNull( "Unable to authenticate user:\n" + Json.encodePretty( tc.getRequest().getAuthentication() ), response.getError() );
-                UpdateAsserter.assertValidation(UpdateAsserter.VALIDATION_PREFIX_KEY, tc.getExpected().getValidation(), response.getValidateInstance());
+                // TODO: Hvordan kan man teste succesfuld authentication nu?
+                UpdateAsserter.assertValidation(UpdateAsserter.VALIDATION_PREFIX_KEY, tc.getExpected().getValidation(), response.getMessages());
                 if (!tc.getExpected().hasValidationErrors()) {
-                    assertEquals(UpdateStatusEnum.VALIDATE_ONLY, response.getUpdateStatus());
-
+                    assertEquals(UpdateStatusEnum.OK, response.getUpdateStatus());
                     if (tc.getExpected().getValidation() == null || tc.getExpected().getValidation().isEmpty()) {
-                        assertNull(response.getValidateInstance());
+                        assertTrue(response.getMessages() == null);
                     } else {
-                        assertNotNull(response.getValidateInstance());
+                        assertTrue(response.getMessages().getEntry().size() > 0);
                     }
                 } else {
-                    assertEquals(UpdateStatusEnum.VALIDATION_ERROR, response.getUpdateStatus());
+                    assertEquals(UpdateStatusEnum.FAILED, response.getUpdateStatus());
                 }
-                assertNull(response.getError());
             } finally {
                 watch.stop();
                 logger.debug("Test response in {} ms", watch.getElapsedTime());
@@ -313,13 +291,8 @@ public class RemoteValidateExecutor implements TestExecutor {
         }
     }
 
-    //-------------------------------------------------------------------------
-    //              Helpers
-    //-------------------------------------------------------------------------
-
     protected URL createServiceUrl() {
         logger.entry();
-
         URL result = null;
         try {
             String key = String.format("updateservice.%s.url", tc.getDistributionName());
@@ -333,22 +306,19 @@ public class RemoteValidateExecutor implements TestExecutor {
 
     protected Map<String, Object> createHeaders() {
         logger.entry();
-
         Map<String, Object> headers = new HashMap<>();
         try {
-            if( settings.containsKey( "request.headers.x.forwarded.for" ) ) {
-                headers.put( "x-forwarded-for", Arrays.asList( settings.getProperty( "request.headers.x.forwarded.for" ) ) );
+            if (settings.containsKey("request.headers.x.forwarded.for")) {
+                headers.put("x-forwarded-for", Collections.singletonList(settings.getProperty("request.headers.x.forwarded.for")));
             }
             return headers;
-        }
-        finally {
-            logger.exit( headers );
+        } finally {
+            logger.exit(headers);
         }
     }
 
     protected UpdateRecordRequest createRequest() throws IOException, JAXBException, SAXException, ParserConfigurationException {
         logger.entry();
-
         try {
             UpdateRecordRequest request = new UpdateRecordRequest();
 
@@ -367,16 +337,15 @@ public class RemoteValidateExecutor implements TestExecutor {
 
             String requestProviderNameKey = tc.getDistributionName() + ".request.provider.name";
 
-            logger.debug( "requestProviderNameKey: {}", requestProviderNameKey );
+            logger.debug("requestProviderNameKey: {}", requestProviderNameKey);
             BibliographicRecordExtraData extraData = null;
-            if( settings.containsKey( requestProviderNameKey ) ) {
+            if (settings.containsKey(requestProviderNameKey)) {
                 extraData = new BibliographicRecordExtraData();
-                extraData.setProviderName( settings.getProperty( requestProviderNameKey ) );
+                extraData.setProviderName(settings.getProperty(requestProviderNameKey));
             }
 
             File recordFile = new File(tc.getFile().getParentFile().getCanonicalPath() + "/" + tc.getRequest().getRecord());
-            request.setBibliographicRecord(BibliographicRecordFactory.loadMarcRecordInLineFormat( recordFile, extraData ) );
-
+            request.setBibliographicRecord(BibliographicRecordFactory.loadMarcRecordInLineFormat(recordFile, extraData));
             return request;
         } finally {
             logger.exit();
@@ -385,7 +354,6 @@ public class RemoteValidateExecutor implements TestExecutor {
 
     private boolean hasRawRepoSetup(UpdateTestcase tc) {
         logger.entry(tc);
-
         boolean result = true;
         try {
             if (tc.getSetup() == null) {
@@ -393,10 +361,33 @@ public class RemoteValidateExecutor implements TestExecutor {
             } else if (tc.getSetup().getRawrepo() == null) {
                 result = false;
             }
-
             return result;
         } finally {
             logger.exit(result);
+        }
+    }
+
+    protected CatalogingUpdatePortType createPort(URL baseUrl) throws MalformedURLException {
+        logger.entry();
+        try {
+            QName serviceName = new QName("http://oss.dbc.dk/ns/catalogingUpdate", "UpdateService");
+            String endpoint = baseUrl + ENDPOINT_PATH;
+            URL url = new URL(endpoint);
+            UpdateService updateService = new UpdateService(url, serviceName);
+            CatalogingUpdatePortType catalogingUpdatePortType = updateService.getCatalogingUpdatePort();
+            BindingProvider proxy = (BindingProvider) catalogingUpdatePortType;
+            logger.debug("Using base url: {}", baseUrl);
+            logger.debug("Using complete endpoint: {}", endpoint);
+            proxy.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint);
+            proxy.getRequestContext().put("com.sun.xml.ws.connect.timeout", DEFAULT_CONNECT_TIMEOUT_MS);
+            proxy.getRequestContext().put("com.sun.xml.ws.request.timeout", DEFAULT_REQUEST_TIMEOUT_MS);
+            Map<String, Object> headers = createHeaders();
+            if (headers != null && !headers.isEmpty()) {
+                proxy.getRequestContext().put(MessageContext.HTTP_REQUEST_HEADERS, headers);
+            }
+            return catalogingUpdatePortType;
+        } finally {
+            logger.exit();
         }
     }
 }

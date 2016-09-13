@@ -9,14 +9,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>OCB-Libraries</name>
     <artifactId>ocb-libraries</artifactId>
     <packaging>pom</packaging>
+
     <modules>
         <module>ocb-scripter</module>
         <module>ocb-commons-cli</module>
         <module>ocb-test-engine</module>
     </modules>
-
-    <name>OCB-Libraries</name>
-
 </project>

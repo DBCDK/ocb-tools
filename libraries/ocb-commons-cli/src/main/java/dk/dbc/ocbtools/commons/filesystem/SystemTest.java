@@ -1,11 +1,8 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.commons.filesystem;
 
-//-----------------------------------------------------------------------------
 import dk.dbc.ocbtools.commons.type.ApplicationType;
-import java.io.File;
 
-//-----------------------------------------------------------------------------
+import java.io.File;
 
 /**
  * Created by stp on 11/03/15.

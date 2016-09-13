@@ -8,10 +8,24 @@
             {
                 "type": "ERROR",
                 "params": {
-                    "url": "http://www.kat-format.dk/danMARC2/Danmarc2.5.htm",
-                    "message": "message",
-                    "fieldno": 2,
-                    "subfieldno": 5
+                    "param": [
+                        {
+                            "key": "message",
+                            "value": "message"
+                        },
+                        {
+                            "key": "url",
+                            "value": "http://www.kat-format.dk/danMARC2/Danmarc2.5.htm"
+                        },
+                        {
+                            "key": "fieldno",
+                            "value": 2
+                        },
+                        {
+                            "key": "ursubfieldno",
+                            "value": 5
+                        }
+                    ]
                 }
             }
         ]

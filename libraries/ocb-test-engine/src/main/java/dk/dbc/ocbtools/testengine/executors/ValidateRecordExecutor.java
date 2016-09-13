@@ -1,27 +1,20 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.executors;
-
-//-----------------------------------------------------------------------------
 
 import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.utils.json.Json;
-import dk.dbc.ocbtools.scripter.Distribution;
 import dk.dbc.ocbtools.scripter.ScripterException;
 import dk.dbc.ocbtools.scripter.ServiceScripter;
 import dk.dbc.ocbtools.testengine.asserters.UpdateAsserter;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
-import dk.dbc.ocbtools.testengine.testcases.ValidationResult;
+import dk.dbc.updateservice.service.api.Entry;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-//-----------------------------------------------------------------------------
 
 /**
  * Executor to test a testcase against the JavaScript logic.
@@ -54,13 +47,9 @@ public class ValidateRecordExecutor implements TestExecutor {
         return scripter;
     }
 
-    public void setScripter( ServiceScripter scripter ) {
+    public void setScripter(ServiceScripter scripter) {
         this.scripter = scripter;
     }
-
-    //-------------------------------------------------------------------------
-    //              TestExecutor interface
-    //-------------------------------------------------------------------------
 
     @Override
     public String name() {
@@ -86,7 +75,6 @@ public class ValidateRecordExecutor implements TestExecutor {
     @Override
     public void executeTests() {
         logger.entry();
-
         try {
             if (this.demoInfoPrinter != null) {
                 demoInfoPrinter.printLocaleRequest(tc);
@@ -95,9 +83,8 @@ public class ValidateRecordExecutor implements TestExecutor {
             MarcRecord record = tc.loadRecord();
             Map<String, String> settings = createSettings();
 
-            Object jsResult = scripter.callMethod(SCRIPT_FILENAME, SCRIPT_FUNCTION,
-                    tc, Json.encode(record), settings);
-            List<ValidationResult> valErrors = Json.decodeArray(jsResult.toString(), ValidationResult.class);
+            Object jsResult = scripter.callMethod(SCRIPT_FILENAME, SCRIPT_FUNCTION, tc, Json.encode(record), settings);
+            List<Entry> valErrors = Json.decodeArray(jsResult.toString(), Entry.class);
             UpdateAsserter.assertValidation(UpdateAsserter.VALIDATION_PREFIX_KEY, tc.getExpected().getValidation(), valErrors);
         } catch (IOException | ScripterException ex) {
             throw new AssertionError(String.format("Fatal error when checking template for testcase %s", tc.getName()), ex);
@@ -106,32 +93,11 @@ public class ValidateRecordExecutor implements TestExecutor {
         }
     }
 
-    //-------------------------------------------------------------------------
-    //              Helpers
-    //-------------------------------------------------------------------------
-
     private Map<String, String> createSettings() {
         HashMap<String, String> settings = new HashMap<>();
         settings.put("javascript.basedir", baseDir.getAbsolutePath());
         settings.put("javascript.install.name", tc.getDistributionName());
         settings.put("solr.url", "");
-
         return settings;
-    }
-
-    private ServiceScripter createScripter() throws IOException {
-        ServiceScripter scripter = new ServiceScripter();
-        scripter.setBaseDir(baseDir.getCanonicalPath());
-        scripter.setModulesKey("unittest.modules.search.path");
-
-        ArrayList<Distribution> distributions = new ArrayList<>();
-        distributions.add(new Distribution("ocbtools", "ocb-tools"));
-        distributions.add(new Distribution(tc.getDistributionName(), "distributions/" + tc.getDistributionName()));
-        logger.debug("Using distributions: {}", distributions);
-
-        scripter.setDistributions(distributions);
-        scripter.setServiceName(SERVICE_NAME);
-
-        return scripter;
     }
 }

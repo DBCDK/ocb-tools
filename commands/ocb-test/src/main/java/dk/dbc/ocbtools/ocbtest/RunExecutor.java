@@ -1,7 +1,4 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.ocbtest;
-
-//-----------------------------------------------------------------------------
 
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
@@ -29,15 +26,17 @@ import dk.dbc.ocbtools.testengine.testcases.BuildTestcaseRepositoryFactory;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRepository;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRepositoryFactory;
-import dk.dbc.ocbtools.testengine.testcases.ValidationResult;
+import dk.dbc.updateservice.service.api.Entry;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-
-//-----------------------------------------------------------------------------
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Executes the 'run' subcommand.
@@ -106,12 +105,11 @@ public class RunExecutor implements SubcommandExecutor {
         }
     }
 
-
-    private void checkForNonExistantTestcases(UpdateTestcaseRepository repo) throws CliException {
-        output.entry(repo);
+    private void checkForNonExistantTestcases(UpdateTestcaseRepository updateTestcaseRepository) throws CliException {
+        output.entry(updateTestcaseRepository);
         try {
             for (String testName : tcNames) {
-                if (!repo.findAllTestcaseNames().contains(testName)) {
+                if (!updateTestcaseRepository.findAllTestcaseNames().contains(testName)) {
                     throw new CliException("Testcase : <<<< " + testName + " >>>> does not exists");
                 }
             }
@@ -120,11 +118,11 @@ public class RunExecutor implements SubcommandExecutor {
         }
     }
 
-    private void checkForNonExistantTestcases(BuildTestcaseRepository repo) throws CliException {
-        output.entry();
+    private void checkForNonExistantTestcases(BuildTestcaseRepository buildTestcaseRepository) throws CliException {
+        output.entry(buildTestcaseRepository);
         try {
             for (String testName : tcNames) {
-                if (!repo.findAllTestcaseNames().contains(testName)) {
+                if (!buildTestcaseRepository.findAllTestcaseNames().contains(testName)) {
                     throw new CliException("Testcase : <<<< " + testName + " >>>> does not exists");
                 }
             }
@@ -139,13 +137,13 @@ public class RunExecutor implements SubcommandExecutor {
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
             UpdateTestcaseRepository repo = UpdateTestcaseRepositoryFactory.newInstanceWithTestcases(fs);
 
-            Properties settings = fs.loadSettings(this.configName);
+            Properties settings = fs.loadSettings(configName);
             if (settings == null) {
-                output.error("Unable to load config '{}'", this.configName);
+                output.error("Unable to load config '{}'", configName);
                 return;
             }
 
-            if (this.useRemote) {
+            if (useRemote) {
                 output.info("Using dataio url: {}", settings.getProperty("updateservice.dataio.url"));
                 output.info("Using fbs url: {}", settings.getProperty("updateservice.fbs.url"));
                 output.info("Using rawrepo database: {}", settings.getProperty("rawrepo.jdbc.conn.url"));
@@ -160,9 +158,9 @@ public class RunExecutor implements SubcommandExecutor {
                     continue;
                 }
                 List<TestExecutor> executors = new ArrayList<>();
-                if (!this.useRemote) {
+                if (!useRemote) {
                     if (tc.getExpected().getValidation() != null) {
-                        ValidateRecordExecutor validateRecordExecutor = new ValidateRecordExecutor(baseDir, tc, this.printDemoInfo);
+                        ValidateRecordExecutor validateRecordExecutor = new ValidateRecordExecutor(baseDir, tc, printDemoInfo);
 
                         ServiceScripter scripter = getOrCreateScripter(scripterCache, tc.getDistributionName());
                         validateRecordExecutor.setScripter(scripter);
@@ -173,15 +171,15 @@ public class RunExecutor implements SubcommandExecutor {
                         executors.add(new CheckTemplateExecutor(baseDir, tc));
                     }
                 } else {
-                    List<ValidationResult> validation = tc.getExpected().getValidation();
+                    List<Entry> validation = tc.getExpected().getValidation();
                     if (validation != null) {
-                        executors.add(new RemoteValidateExecutor(tc, settings, this.printDemoInfo));
+                        executors.add(new RemoteValidateExecutor(tc, settings, printDemoInfo));
                     }
 
                     if (tc.getExpected().getUpdate() != null) {
-                        executors.add(new RemoteUpdateExecutor(tc, settings, this.printDemoInfo));
+                        executors.add(new RemoteUpdateExecutor(tc, settings, printDemoInfo));
                     } else if (validation != null && !validation.isEmpty()) {
-                        executors.add(new RemoteUpdateExecutor(tc, settings, this.printDemoInfo));
+                        executors.add(new RemoteUpdateExecutor(tc, settings, printDemoInfo));
                     }
                 }
 
@@ -199,7 +197,6 @@ public class RunExecutor implements SubcommandExecutor {
                 output.error("");
                 throw new CliException("Errors where found in system-tests.");
             }
-
         } catch (IOException ex) {
             throw new CliException(ex.getMessage(), ex);
         } finally {
@@ -213,14 +210,14 @@ public class RunExecutor implements SubcommandExecutor {
         try {
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.BUILD);
             BuildTestcaseRepository repo = BuildTestcaseRepositoryFactory.newInstanceWithTestcases(fs);
-            Properties settings = fs.loadSettings(this.configName);
+            Properties settings = fs.loadSettings(configName);
 
             if (settings == null) {
-                output.error("Unable to load config '{}'", this.configName);
+                output.error("Unable to load config '{}'", configName);
                 return;
             }
 
-            if (this.useRemote) {
+            if (useRemote) {
                 output.info("Using dataio url: {}", settings.getProperty("buildservice.dataio.url"));
                 output.info("Using fbs url: {}", settings.getProperty("buildservice.fbs.url"));
                 output.info("");
@@ -230,22 +227,19 @@ public class RunExecutor implements SubcommandExecutor {
             List<BuildTestRunnerItem> items = new ArrayList<>();
             checkForNonExistantTestcases(repo);
             for (BuildTestcase buildTestcase : repo.findAllTestcases()) {
-                if (!matchAnyNames(buildTestcase , tcNames)) {
+                if (!matchAnyNames(buildTestcase, tcNames)) {
                     continue;
                 }
                 List<TestExecutor> executors = new ArrayList<>();
-                if (this.useRemote) {
-                    RemoteBuildExecutor remoteBuildExecutor = new RemoteBuildExecutor(buildTestcase, settings, this.printDemoInfo);
+                if (useRemote) {
+                    RemoteBuildExecutor remoteBuildExecutor = new RemoteBuildExecutor(buildTestcase, settings, printDemoInfo);
                     executors.add(remoteBuildExecutor);
                 } else {
-                    BuildRecordExecutor buildRecordExecutor = new BuildRecordExecutor(baseDir, buildTestcase, settings, this.printDemoInfo);
-
+                    BuildRecordExecutor buildRecordExecutor = new BuildRecordExecutor(baseDir, buildTestcase, settings, printDemoInfo);
                     ServiceScripter scripter = getOrCreateScripter(scripterCache, buildTestcase.getDistributionName());
                     buildRecordExecutor.setScripter(scripter);
-
                     executors.add(buildRecordExecutor);
                 }
-
                 items.add(new BuildTestRunnerItem(buildTestcase, executors));
             }
 
@@ -255,12 +249,10 @@ public class RunExecutor implements SubcommandExecutor {
             for (TestReport report : reports) {
                 report.produce(testResult);
             }
-
             if (testResult.hasError()) {
                 output.error("");
                 throw new CliException("Errors where found in system-tests.");
             }
-
         } catch (IOException e) {
             throw new CliException(e.getMessage(), e);
         } finally {
@@ -270,10 +262,8 @@ public class RunExecutor implements SubcommandExecutor {
 
     private boolean matchAnyNames(UpdateTestcase tc, List<String> names) {
         output.entry(tc, names);
-
         try {
             return names.isEmpty() || names.contains(tc.getName());
-
         } finally {
             output.exit();
         }
@@ -281,10 +271,8 @@ public class RunExecutor implements SubcommandExecutor {
 
     private boolean matchAnyNames(BuildTestcase tc, List<String> names) {
         output.entry(tc, names);
-
         try {
             return names.isEmpty() || names.contains(tc.getName());
-
         } finally {
             output.exit();
         }
@@ -306,7 +294,6 @@ public class RunExecutor implements SubcommandExecutor {
      */
     private ServiceScripter getOrCreateScripter(Map<String, ServiceScripter> cache, String distributionName) throws IOException {
         logger.entry();
-
         ServiceScripter scripter = null;
         try {
             if (!cache.containsKey(distributionName)) {
@@ -315,7 +302,6 @@ public class RunExecutor implements SubcommandExecutor {
             } else {
                 scripter = cache.get(distributionName);
             }
-
             return scripter;
         } finally {
             logger.exit(scripter);
@@ -324,7 +310,6 @@ public class RunExecutor implements SubcommandExecutor {
 
     private ServiceScripter createScripter(String distributionName) throws IOException {
         logger.entry();
-
         ServiceScripter scripter = null;
         try {
             scripter = new ServiceScripter();

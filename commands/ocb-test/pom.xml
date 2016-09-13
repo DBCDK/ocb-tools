@@ -74,7 +74,6 @@
                 <executions>
                     <execution>
                         <id>copy-jar</id>
-                        <!-- here the phase you need -->
                         <phase>package</phase>
                         <goals>
                             <goal>copy-resources</goal>
@@ -94,7 +93,6 @@
                     </execution>
                     <execution>
                         <id>copy-scripts</id>
-                        <!-- here the phase you need -->
                         <phase>package</phase>
                         <goals>
                             <goal>copy-resources</goal>

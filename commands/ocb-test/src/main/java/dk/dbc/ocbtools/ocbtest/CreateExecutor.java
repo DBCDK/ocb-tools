@@ -1,7 +1,5 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.ocbtest;
 
-//-----------------------------------------------------------------------------
 import dk.dbc.iscrum.records.MarcReader;
 import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.records.providers.MarcRecordProvider;
@@ -9,7 +7,11 @@ import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.cli.CliException;
-import dk.dbc.ocbtools.testengine.testcases.*;
+import dk.dbc.ocbtools.testengine.testcases.TestcaseAuthentication;
+import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
+import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseExpectedResult;
+import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRequest;
+import dk.dbc.updateservice.service.api.Entry;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -19,20 +21,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-//-----------------------------------------------------------------------------
-
 /**
  * Created by stp on 06/05/15.
  */
 public class CreateExecutor implements SubcommandExecutor {
+    private static final XLogger logger = XLoggerFactory.getXLogger(CreateExecutor.class);
+    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
+
+    private File baseDir;
+    private String testcaseFilename = null;
+    private MarcRecordProvider recordsProvider = null;
+    private String testcaseName = null;
+    private String description = null;
+    private TestcaseAuthentication authentication = null;
+    private String templateName = null;
+
     public CreateExecutor(File baseDir) {
         this.baseDir = baseDir;
-        this.testcaseFilename = null;
-        this.recordsProvider = null;
-        this.testcaseName = null;
-        this.description = null;
-        this.authentication = null;
-        this.templateName = null;
     }
 
     public String getTestcaseFilename() {
@@ -88,11 +93,11 @@ public class CreateExecutor implements SubcommandExecutor {
         logger.entry();
 
         try {
-            boolean hasMultibleRecords = this.recordsProvider.hasMultibleRecords();
+            boolean hasMultibleRecords = recordsProvider.hasMultibleRecords();
 
             List<UpdateTestcase> updateTestcases = new ArrayList<>();
             int recordNo = 1;
-            for (MarcRecord record : this.recordsProvider) {
+            for (MarcRecord record : recordsProvider) {
                 logger.debug("Creating testcase for record [{}:{}]",
                         MarcReader.getRecordValue(record, "001", "a"),
                         MarcReader.getRecordValue(record, "001", "b"));
@@ -106,34 +111,33 @@ public class CreateExecutor implements SubcommandExecutor {
                 logger.debug("Wrote record to {}", file.getCanonicalPath());
 
                 UpdateTestcase tc = new UpdateTestcase();
-                tc.setName(this.testcaseName);
+                tc.setName(testcaseName);
                 if (hasMultibleRecords) {
                     tc.setName(String.format("%s-t%s", "record", recordNo));
                 }
                 tc.setBugs(null);
-                tc.setDescription(this.description);
+                tc.setDescription(description);
                 if (hasMultibleRecords) {
                     tc.setDescription(null);
                 }
 
                 UpdateTestcaseRequest request = new UpdateTestcaseRequest();
                 request.setRecord(filename);
-                request.setAuthentication(this.authentication);
-                request.setTemplateName(this.templateName);
+                request.setAuthentication(authentication);
+                request.setTemplateName(templateName);
                 tc.setRequest(request);
 
                 UpdateTestcaseExpectedResult expected = new UpdateTestcaseExpectedResult();
-                expected.setValidation(new ArrayList<ValidationResult>());
+                expected.setValidation(new ArrayList<Entry>());
                 expected.setUpdate(null);
                 tc.setExpected(expected);
 
                 updateTestcases.add(tc);
-
                 recordNo++;
             }
-            this.recordsProvider.close();
+            recordsProvider.close();
 
-            File file = new File(this.testcaseFilename);
+            File file = new File(testcaseFilename);
             String testcasesEncoded = Json.encodePretty(updateTestcases);
             logger.debug("Testcases encoded size: {} bytes", testcasesEncoded.getBytes("UTF-8").length);
 
@@ -145,20 +149,4 @@ public class CreateExecutor implements SubcommandExecutor {
             logger.exit();
         }
     }
-
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private static final XLogger logger = XLoggerFactory.getXLogger(CreateExecutor.class);
-    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
-
-    private File baseDir;
-    private String testcaseFilename;
-    private MarcRecordProvider recordsProvider;
-
-    private String testcaseName;
-    private String description;
-    private TestcaseAuthentication authentication;
-    private String templateName;
 }

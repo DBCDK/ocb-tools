@@ -17,18 +17,6 @@
     </properties>
 
     <dependencies>
-        <!-- ************************************************************* -->
-        <!-- Updateservice                                                 -->
-        <!-- ************************************************************* -->
-        <dependency>
-            <groupId>dk.dbc</groupId>
-            <artifactId>updateservice-client</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
-        <!-- ************************************************************* -->
-        <!-- Persistence                                                   -->
-        <!-- ************************************************************* -->
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>eclipselink</artifactId>

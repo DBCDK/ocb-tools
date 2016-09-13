@@ -1,9 +1,10 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.scripter;
 
-//-----------------------------------------------------------------------------
 public class Distribution {
-    public Distribution( String schemaName, String dirName ) {
+    private String schemaName;
+    private String dirName;
+
+    public Distribution(String schemaName, String dirName) {
         this.schemaName = schemaName;
         this.dirName = dirName;
     }
@@ -18,9 +19,6 @@ public class Distribution {
 
     @Override
     public String toString() {
-        return String.format( "{schemaName: %s, dirName: %s}", schemaName, dirName );
+        return String.format("{schemaName: %s, dirName: %s}", schemaName, dirName);
     }
-
-    private String schemaName;
-    private String dirName;
 }

@@ -1,7 +1,4 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.testcases;
-
-//-----------------------------------------------------------------------------
 
 import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.ocbtools.commons.filesystem.SystemTest;
@@ -12,17 +9,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-//-----------------------------------------------------------------------------
-
 /**
  * Testcase factory to create Updateservice Testcase instances from json files.
  */
 public class UpdateTestcaseFactory {
     private static final XLogger logger = XLoggerFactory.getXLogger(UpdateTestcaseRepositoryFactory.class);
-
-    //-------------------------------------------------------------------------
-    //              Loaders
-    //-------------------------------------------------------------------------
 
     public static List<UpdateTestcase> newInstances(SystemTest systemTest) throws IOException {
         logger.entry(systemTest);

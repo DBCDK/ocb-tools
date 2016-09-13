@@ -1,16 +1,12 @@
 #!/bin/bash
 
+cd ${OCB_USER_HOME}/opencat-business
 generate_settings.sh
-
-whoami
-env
-
-cd ${HOME}/opencat-business
 
 ocb-test.sh run --application Update --summary --remote --config settings
 cd -
 
-pwd
+cd ${OCB_USER_HOME}
 mkdir -p results
 
 cp opencat-business/*.log results/.

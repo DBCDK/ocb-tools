@@ -1,7 +1,4 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.ocbtest;
-
-//-----------------------------------------------------------------------------
 
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.Subcommand;
@@ -21,8 +18,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-//-----------------------------------------------------------------------------
-
 /**
  * Created by stp on 11/03/15.
  */
@@ -36,7 +31,6 @@ public class RunDefinition implements SubcommandDefinition {
     @Override
     public List<Option> createOptions() throws CliException {
         List<Option> options = new ArrayList<>();
-
         Option option;
         option = new Option("r", "remote", false, "Udfør de enkelte testcases imod en remote installation af UpdateService");
         options.add(option);
@@ -49,14 +43,12 @@ public class RunDefinition implements SubcommandDefinition {
         option = new Option("a", "application", true, "Hvilken applikation der skal kaldes, U/Update for Updateservice eller B/Build for Buildservice.");
         option.setRequired(true);
         options.add(option);
-
         return options;
     }
 
     @Override
     public SubcommandExecutor createExecutor(File baseDir, CommandLine line) throws CliException {
         logger.entry(baseDir, line);
-
         try {
             List<TestReport> reports = new ArrayList<>();
 
@@ -79,7 +71,6 @@ public class RunDefinition implements SubcommandDefinition {
             runExecutor.setTcNames(line.getArgList());
             runExecutor.setReports(reports);
             runExecutor.setApplicationType(CommonMethods.parseApplicationType(line));
-
             return runExecutor;
         } catch (IOException ex) {
             output.error("Unable to execute command 'run': " + ex.getMessage(), ex);

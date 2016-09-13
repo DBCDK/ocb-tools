@@ -1,7 +1,4 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.runners;
-
-//-----------------------------------------------------------------------------
 
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.testengine.executors.TestExecutor;
@@ -11,8 +8,6 @@ import org.slf4j.ext.XLoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-
-//-----------------------------------------------------------------------------
 
 /**
  * Class to run tests for a number of Updateservice testcases.
@@ -27,10 +22,8 @@ public class UpdateTestRunner {
 
     public TestResult run() {
         output.entry();
-
         try {
             TestResult testResult = new TestResult();
-
             for (UpdateTestRunnerItem item : items) {
                 output.info("Running testcase '{}'", item.getUpdateTestcase().getName());
 
@@ -40,7 +33,6 @@ public class UpdateTestRunner {
                 }
             }
             output.info("");
-
             return testResult;
         } catch (Exception ex) {
             output.error("Unable to run tests: {}", ex.getMessage());
@@ -48,25 +40,20 @@ public class UpdateTestRunner {
         } finally {
             output.exit();
         }
-
         return null;
     }
 
     public TestcaseResult runTestcase(UpdateTestRunnerItem updateTestRunnerItem) {
         output.entry(updateTestRunnerItem);
-
         TestcaseResult res = null;
         try {
             ArrayList<TestExecutorResult> testExecutorResults = new ArrayList<>();
             for (TestExecutor exec : updateTestRunnerItem.getExecutors()) {
                 StopWatch watch = new StopWatch();
-
                 try {
-                    if ( exec.setup() ) {
-
+                    if (exec.setup()) {
                         try {
                             exec.executeTests();
-
                             watch.stop();
                             TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, null);
                             testExecutorResult.setTime(watch.getElapsedTime());
@@ -77,7 +64,7 @@ public class UpdateTestRunner {
                             TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, ex);
                             testExecutorResult.setTime(watch.getElapsedTime());
                             testExecutorResults.add(testExecutorResult);
-                        } catch ( Throwable ex ) {
+                        } catch (Throwable ex) {
                             output.error("runTestcase update execute ERROR : {}", ex);
                             watch.stop();
                             TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(ex.getMessage(), ex));
@@ -90,9 +77,8 @@ public class UpdateTestRunner {
                         exec.teardown();
                         return res;
                     }
-
                     exec.teardown();
-                } catch (Throwable ex ) {
+                } catch (Throwable ex) {
                     output.error("runTestcase update ERROR : ", ex);
                     watch.stop();
                     TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(ex.getMessage(), ex));
@@ -101,7 +87,6 @@ public class UpdateTestRunner {
                     throw new IllegalStateException("Unexpected error", ex);
                 }
             }
-
             res = new TestcaseResult(updateTestRunnerItem.getUpdateTestcase(), testExecutorResults);
             return res;
         } finally {

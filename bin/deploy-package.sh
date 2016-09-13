@@ -2,4 +2,4 @@
 
 cd ../target/dist
 
-tar -c -z ocb-tools-1.0.0 > ocb-tools-1.0.0.tgz
+tar -czf ocb-tools-1.0.0.tar.gz ocb-tools-1.0.0

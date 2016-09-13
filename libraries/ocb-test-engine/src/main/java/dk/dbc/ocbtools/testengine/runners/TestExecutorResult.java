@@ -1,17 +1,16 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.runners;
 
-//-----------------------------------------------------------------------------
 import dk.dbc.ocbtools.testengine.executors.TestExecutor;
-import org.slf4j.ext.XLogger;
-import org.slf4j.ext.XLoggerFactory;
 
-//-----------------------------------------------------------------------------
 /**
  * Created by stp on 02/03/15.
  */
 public class TestExecutorResult {
-    public TestExecutorResult( long time, TestExecutor executor, AssertionError assertionError ) {
+    private long time;
+    private TestExecutor executor;
+    private AssertionError assertionError;
+
+    public TestExecutorResult(long time, TestExecutor executor, AssertionError assertionError) {
         this.time = time;
         this.executor = executor;
         this.assertionError = assertionError;
@@ -21,7 +20,7 @@ public class TestExecutorResult {
         return time;
     }
 
-    public void setTime( long time ) {
+    public void setTime(long time) {
         this.time = time;
     }
 
@@ -44,14 +43,4 @@ public class TestExecutorResult {
                 ", executor=" + executor +
                 '}';
     }
-
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private static final XLogger logger = XLoggerFactory.getXLogger( TestExecutorResult.class );
-
-    private long time;
-    private TestExecutor executor;
-    private AssertionError assertionError;
 }

@@ -1,12 +1,7 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.testcases;
-
-//-----------------------------------------------------------------------------
 
 import java.util.ArrayList;
 import java.util.List;
-
-//-----------------------------------------------------------------------------
 
 /**
  * Represents a setup structure in a testcase json file.
@@ -21,10 +16,6 @@ public class UpdateTestcaseSetup {
         this.rawrepo = null;
         this.solr = null;
     }
-
-    //-------------------------------------------------------------------------
-    //              Properties
-    //-------------------------------------------------------------------------
 
     public List<Integer> getHoldings() {
         return holdings;

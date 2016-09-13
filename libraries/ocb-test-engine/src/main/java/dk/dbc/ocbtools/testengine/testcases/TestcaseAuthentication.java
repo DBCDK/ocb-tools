@@ -1,15 +1,17 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.testcases;
 
-//-----------------------------------------------------------------------------
 /**
  * Created by stp on 19/03/15.
  */
 public class TestcaseAuthentication {
+    private String group;
+    private String user;
+    private String password;
+
     public TestcaseAuthentication() {
-        this.group = "";
-        this.user = "";
-        this.password = "";
+        group = "";
+        user = "";
+        password = "";
     }
 
     public String getGroup() {
@@ -36,10 +38,6 @@ public class TestcaseAuthentication {
         this.password = password;
     }
 
-    //-------------------------------------------------------------------------
-    //              Object
-    //-------------------------------------------------------------------------
-
     @Override
     public String toString() {
         return "TestcaseAuthentication{" +
@@ -48,12 +46,4 @@ public class TestcaseAuthentication {
                 ", password='" + password + '\'' +
                 '}';
     }
-
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private String group;
-    private String user;
-    private String password;
 }

@@ -1,29 +1,18 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.testcases;
 
-//-----------------------------------------------------------------------------
-
 import java.util.Map;
-
-//-----------------------------------------------------------------------------
 
 /**
  * Created by stp on 16/02/15.
  */
 public class UpdateTestcaseRequest {
-    private String templateName;
-    private TestcaseAuthentication authentication;
-    private Map<String, Object> headers;
-    private String record;
+    private String templateName = null;
+    private TestcaseAuthentication authentication = new TestcaseAuthentication();
+    private Map<String, Object> headers = null;
+    private String record = null;
 
     public UpdateTestcaseRequest() {
-        this.templateName = null;
-        this.record = null;
     }
-
-    //-------------------------------------------------------------------------
-    //              Properties
-    //-------------------------------------------------------------------------
 
     public String getTemplateName() {
         return templateName;
@@ -56,10 +45,6 @@ public class UpdateTestcaseRequest {
     public void setRecord(String record) {
         this.record = record;
     }
-
-    //-------------------------------------------------------------------------
-    //              Object
-    //-------------------------------------------------------------------------
 
     @Override
     public String toString() {

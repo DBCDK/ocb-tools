@@ -1,15 +1,10 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.testcases;
-
-//-----------------------------------------------------------------------------
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-//-----------------------------------------------------------------------------
 
 /**
  * Represents a record structure in a testcase json file.
@@ -38,10 +33,6 @@ public class UpdateTestcaseRecord {
         this.enqueued = false;
     }
 
-    //-------------------------------------------------------------------------
-    //              Properties
-    //-------------------------------------------------------------------------
-
     public String getRecord() {
         return record;
     }
@@ -54,7 +45,7 @@ public class UpdateTestcaseRecord {
         return holdings;
     }
 
-    public void setHoldings( List<Integer> holdings ) {
+    public void setHoldings(List<Integer> holdings) {
         this.holdings = holdings;
     }
 
@@ -105,10 +96,6 @@ public class UpdateTestcaseRecord {
     public void setEnqueued(Boolean enqueued) {
         this.enqueued = enqueued;
     }
-
-    //-------------------------------------------------------------------------
-    //              Object
-    //-------------------------------------------------------------------------
 
     @Override
     public String toString() {

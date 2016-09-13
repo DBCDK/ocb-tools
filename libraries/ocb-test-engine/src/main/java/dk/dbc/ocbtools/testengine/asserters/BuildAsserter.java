@@ -20,8 +20,7 @@ public class BuildAsserter {
     public static void assertValidation(BuildTestcase buildTestcase, String actual) {
         logger.entry(buildTestcase, actual);
         try {
-            ResourceBundle bundle = ResourceBundles.getBundle(UpdateAsserter.class.getPackage().getName() + ".messages");
-
+            ResourceBundle bundle = ResourceBundles.getBundle("messages");
             String actualResult;
             String expectedResult;
             if (StringUtils.isNotEmpty(buildTestcase.getExpected().getError())) {

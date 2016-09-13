@@ -2,8 +2,6 @@
 
 set -e
 
-env
-
 mkdir -p ${OCB_USER_HOME}/.ocb-tools
 cat << EOF > ${OCB_USER_HOME}/.ocb-tools/settings.properties
 updateservice.dataio.url = http://${UPDATE_DATAIO_PORT_8080_TCP_ADDR}:${UPDATE_DATAIO_PORT_8080_TCP_PORT}

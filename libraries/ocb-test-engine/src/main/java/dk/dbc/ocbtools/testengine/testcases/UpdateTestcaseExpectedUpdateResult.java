@@ -1,39 +1,26 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.testcases;
 
-//-----------------------------------------------------------------------------
+import dk.dbc.updateservice.service.api.Entry;
+import dk.dbc.updateservice.service.api.Type;
 
 import java.util.List;
-
-//-----------------------------------------------------------------------------
 
 /**
  * Defines the expected update result of a testcase in json.
  */
 public class UpdateTestcaseExpectedUpdateResult {
-    private List<ValidationResult> errors;
-    private List<UpdateTestcaseRecord> rawrepo;
-
-    /**
-     * List of file names that contains mails that should be send by Update.
-     */
-    private UpdateTestcaseExpectedMail mail;
+    private List<Entry> errors = null;
+    private List<UpdateTestcaseRecord> rawrepo = null;
+    private UpdateTestcaseExpectedMail mail = null;
 
     public UpdateTestcaseExpectedUpdateResult() {
-        this.errors = null;
-        this.rawrepo = null;
-        this.mail = null;
     }
 
-    //-------------------------------------------------------------------------
-    //              Properties
-    //-------------------------------------------------------------------------
-
-    public List<ValidationResult> getErrors() {
+    public List<Entry> getErrors() {
         return errors;
     }
 
-    public void setErrors(List<ValidationResult> errors) {
+    public void setErrors(List<Entry> errors) {
         this.errors = errors;
     }
 
@@ -49,31 +36,42 @@ public class UpdateTestcaseExpectedUpdateResult {
         return mail;
     }
 
-    public void setMail( UpdateTestcaseExpectedMail mail ) {
+    public void setMail(UpdateTestcaseExpectedMail mail) {
         this.mail = mail;
     }
 
-    //-------------------------------------------------------------------------
-    //              Checks
-    //-------------------------------------------------------------------------
-
-    public boolean hasUpdateErrors() {
-        if (errors == null) {
-            return false;
-        }
-
-        for (ValidationResult errResult : errors) {
-            if (errResult.getType() == ValidationResultType.ERROR) {
-                return true;
+    public boolean hasErrors() {
+        if (errors != null) {
+            for (Entry errResult : errors) {
+                if (errResult.getType() == Type.ERROR) {
+                    return true;
+                }
             }
         }
-
         return false;
     }
 
-    //-------------------------------------------------------------------------
-    //              Object
-    //-------------------------------------------------------------------------
+    public boolean hasWarnings() {
+        if (errors != null) {
+            for (Entry errResult : errors) {
+                if (errResult.getType() == Type.WARNING) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean hasDoublepostKey() {
+        if (errors != null) {
+            for (Entry errResult : errors) {
+                if (errResult.getType() == Type.DOUBLE_RECORD) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     @Override
     public String toString() {

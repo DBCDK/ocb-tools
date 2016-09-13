@@ -1,33 +1,25 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.testcases;
 
-//-----------------------------------------------------------------------------
+import dk.dbc.updateservice.service.api.Entry;
+import dk.dbc.updateservice.service.api.Type;
 
 import java.util.List;
-
-//-----------------------------------------------------------------------------
 
 /**
  * Defines the expected result of a update testcase in json.
  */
 public class UpdateTestcaseExpectedResult {
-    private List<ValidationResult> validation;
-    private UpdateTestcaseExpectedUpdateResult update;
+    private List<Entry> validation = null;
+    private UpdateTestcaseExpectedUpdateResult update = null;
 
     public UpdateTestcaseExpectedResult() {
-        this.validation = null;
-        this.update = null;
     }
 
-    //-------------------------------------------------------------------------
-    //              Properties
-    //-------------------------------------------------------------------------
-
-    public List<ValidationResult> getValidation() {
+    public List<Entry> getValidation() {
         return validation;
     }
 
-    public void setValidation(List<ValidationResult> validation) {
+    public void setValidation(List<Entry> validation) {
         this.validation = validation;
     }
 
@@ -39,27 +31,17 @@ public class UpdateTestcaseExpectedResult {
         this.update = update;
     }
 
-    //-------------------------------------------------------------------------
-    //              Checks
-    //-------------------------------------------------------------------------
-
     public boolean hasValidationErrors() {
         if (validation == null) {
             return false;
         }
-
-        for (ValidationResult valResult : validation) {
-            if (valResult.getType() == ValidationResultType.ERROR) {
+        for (Entry valResult : validation) {
+            if (valResult.getType() == Type.ERROR) {
                 return true;
             }
         }
-
         return false;
     }
-
-    //-------------------------------------------------------------------------
-    //              Object
-    //-------------------------------------------------------------------------
 
     @Override
     public String toString() {
