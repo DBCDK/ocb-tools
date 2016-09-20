@@ -9,5 +9,5 @@ cd -
 cd ${OCB_USER_HOME}
 mkdir -p results
 
-cp opencat-business/*.log results/.
-cp opencat-business/target/surefire-reports/TEST-*.xml results/.
+cp ${OCB_USER_HOME}/opencat-business/*.log results/.
+cp ${OCB_USER_HOME}/opencat-business/target/surefire-reports/TEST-*.xml results/.
