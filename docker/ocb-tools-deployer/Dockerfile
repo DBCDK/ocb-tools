@@ -23,7 +23,8 @@ RUN cd $OCB_USER_HOME && \
     ln -s ../ocb-tools-1.0.0/bin/ocb-test.sh . && \
     chmod +x $OCB_USER_HOME/bin/*.sh && \
     chown -R $OCB_USER:$OCB_USER $OCB_USER_HOME && \
-    chown -R $OCB_USER:$OCB_USER $LOG_DIR
+    chown -R $OCB_USER:$OCB_USER $LOG_DIR && \
+    chmod 666 $LOG_DIR
 
 USER $OCB_USER
 EXPOSE 8080
