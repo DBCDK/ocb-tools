@@ -24,7 +24,7 @@ RUN cd $OCB_USER_HOME && \
     chmod +x $OCB_USER_HOME/bin/*.sh && \
     chown -R $OCB_USER:$OCB_USER $OCB_USER_HOME && \
     chown -R $OCB_USER:$OCB_USER $LOG_DIR && \
-    chmod +rw $LOG_DIR
+    chmod 777 $LOG_DIR
 
 USER $OCB_USER
 EXPOSE 8080
