@@ -7,7 +7,12 @@ RUN useradd $OCB_USER && \
     mkdir -p $OCB_USER_HOME/bin
 
 ENV LOG_DIR /data/logs
-RUN mkdir -p $LOG_DIR
+RUN mkdir -p ${LOG_DIR}
+RUN mkdir -p results &&\
+chown -R $OCB_USER:$OCB_USER results
+
+RUN mkdir -p /opencat-business/target/surefire-reports
+
 
 ENV PATH $PATH:$OCB_USER_HOME/bin
 
@@ -24,7 +29,8 @@ RUN cd $OCB_USER_HOME && \
     chmod +x $OCB_USER_HOME/bin/*.sh && \
     chown -R $OCB_USER:$OCB_USER $OCB_USER_HOME && \
     chown -R $OCB_USER:$OCB_USER $LOG_DIR && \
-    chmod 777 $LOG_DIR
+#    Why make everything executeable under log ?
+    chmod 775 $LOG_DIR
 
 USER $OCB_USER
 EXPOSE 8080

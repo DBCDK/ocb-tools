@@ -6,12 +6,6 @@ generate_settings.sh
 ocb-test.sh run --application Update --summary --remote --config settings
 cd -
 
-cd ${LOG_DIR}
-whoami
-pwd
-ls -lh
-mkdir -p results
-
 cp ${OCB_USER_HOME}/opencat-business/*.log results/.
 cp ${OCB_USER_HOME}/opencat-business/target/surefire-reports/TEST-*.xml results/.
 
