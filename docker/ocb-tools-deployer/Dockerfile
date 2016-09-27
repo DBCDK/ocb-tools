@@ -12,8 +12,6 @@ RUN mkdir -p results &&\
 chown -R $OCB_USER:$OCB_USER results
 
 RUN mkdir -p /opencat-business/target/surefire-reports
-
-
 ENV PATH $PATH:$OCB_USER_HOME/bin
 
 ADD http://is.dbc.dk/user/iscrum/my-views/view/opencat/job/ocb-tools-head/lastSuccessfulBuild/artifact/target/dist/ocb-tools-1.0.0.tar.gz $OCB_USER_HOME/
@@ -29,8 +27,6 @@ RUN cd $OCB_USER_HOME && \
     chmod +x $OCB_USER_HOME/bin/*.sh && \
     chown -R $OCB_USER:$OCB_USER $OCB_USER_HOME && \
     chown -R $OCB_USER:$OCB_USER $LOG_DIR && \
-#    Why make everything executeable under log ?
-    chmod 775 $LOG_DIR
 
 USER $OCB_USER
 EXPOSE 8080
