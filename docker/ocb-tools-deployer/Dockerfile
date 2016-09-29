@@ -8,8 +8,7 @@ RUN useradd $OCB_USER && \
 
 ENV LOG_DIR /data/logs
 RUN mkdir -p ${LOG_DIR}
-RUN mkdir -p results &&\
-chown -R $OCB_USER:$OCB_USER results
+RUN mkdir -p $OCB_USER_HOME/results
 
 RUN mkdir -p /opencat-business/target/surefire-reports
 ENV PATH $PATH:$OCB_USER_HOME/bin

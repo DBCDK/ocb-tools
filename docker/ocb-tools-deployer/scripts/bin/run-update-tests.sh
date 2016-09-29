@@ -6,7 +6,10 @@ generate_settings.sh
 ocb-test.sh run --application Update --summary --remote --config settings
 cd -
 
-cp ${OCB_USER_HOME}/opencat-business/*.log /results/
-cp ${OCB_USER_HOME}/opencat-business/target/surefire-reports/TEST-ocb-tests.xml /results/
+echo $USER
+cat /etc/passwd
+
+cp ${OCB_USER_HOME}/opencat-business/*.log ${OCB_USER_HOME}/results/
+cp ${OCB_USER_HOME}/opencat-business/target/surefire-reports/TEST-ocb-tests.xml ${OCB_USER_HOME}/results/
 
 cd -
