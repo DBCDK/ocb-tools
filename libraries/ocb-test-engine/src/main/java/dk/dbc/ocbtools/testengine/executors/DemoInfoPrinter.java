@@ -1,7 +1,4 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.executors;
-
-//-----------------------------------------------------------------------------
 
 import dk.dbc.buildservice.service.api.BuildRequest;
 import dk.dbc.buildservice.service.api.BuildResult;
@@ -27,12 +24,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
-//-----------------------------------------------------------------------------
-
-/**
- * Created by stp on 03/04/15.
- */
-public class DemoInfoPrinter {
+class DemoInfoPrinter {
     private static final XLogger logger = XLoggerFactory.getXLogger(CheckTemplateExecutor.class);
     private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
 
@@ -40,7 +32,7 @@ public class DemoInfoPrinter {
     private static final String HEADER_LINE = makeString("#", WIDTH);
     private static final String SEP_LINE = makeString("-", WIDTH);
 
-    public void printHeader(BaseTestcase tc, TestExecutor executor) {
+    void printHeader(BaseTestcase tc, TestExecutor executor) {
         output.info("");
         output.info(HEADER_LINE);
         output.info("Testing {}", tc.getName());
@@ -52,12 +44,12 @@ public class DemoInfoPrinter {
         output.info("Description: {}", tc.getDescription());
     }
 
-    public void printFooter() {
+    void printFooter() {
         output.info(HEADER_LINE);
         output.info("");
     }
 
-    public void printSetup(UpdateTestcase tc) {
+    void printSetup(UpdateTestcase tc) {
         try {
             output.info(SEP_LINE);
             output.info("");
@@ -96,7 +88,7 @@ public class DemoInfoPrinter {
         }
     }
 
-    public void printLocaleRequest(UpdateTestcase tc) {
+    void printLocaleRequest(UpdateTestcase tc) {
         try {
             output.info(SEP_LINE);
             output.info("Validating request against JavaScript");
@@ -111,7 +103,7 @@ public class DemoInfoPrinter {
         }
     }
 
-    public void printLocaleRequest(BuildTestcase tc) {
+    void printLocaleRequest(BuildTestcase tc) {
         try {
             output.info(SEP_LINE);
             output.info("Building record with JavaScript");
@@ -127,7 +119,7 @@ public class DemoInfoPrinter {
         }
     }
 
-    public void printRemoteDatabases(UpdateTestcase tc, Properties settings) throws SQLException, ClassNotFoundException, HoldingsItemsException, RawRepoException {
+    void printRemoteDatabases(UpdateTestcase tc, Properties settings) throws SQLException, ClassNotFoundException, HoldingsItemsException, RawRepoException {
         try {
             output.info(SEP_LINE);
             output.info("");
@@ -166,7 +158,7 @@ public class DemoInfoPrinter {
         }
     }
 
-    public void printRequest(UpdateRecordRequest request, MarcRecord record) throws IOException {
+    void printRequest(UpdateRecordRequest request, MarcRecord record) throws IOException {
         logger.entry();
 
         try {
@@ -177,7 +169,7 @@ public class DemoInfoPrinter {
         }
     }
 
-    public void printRequest(BuildRequest request, MarcRecord record) throws IOException {
+    void printRequest(BuildRequest request, MarcRecord record) throws IOException {
         logger.entry();
 
         try {
@@ -188,7 +180,7 @@ public class DemoInfoPrinter {
         }
     }
 
-    public void printResponse(UpdateRecordResult response) throws IOException {
+    void printResponse(UpdateRecordResult response) throws IOException {
         logger.entry();
 
         try {
@@ -198,7 +190,7 @@ public class DemoInfoPrinter {
         }
     }
 
-    public void printResponse(BuildResult response) throws IOException {
+    void printResponse(BuildResult response) throws IOException {
         logger.entry();
 
         try {
@@ -208,7 +200,7 @@ public class DemoInfoPrinter {
         }
     }
 
-    public String formatRecordIds(Iterable<RecordId> ids) {
+    private String formatRecordIds(Iterable<RecordId> ids) {
         logger.entry();
 
         String result = "";

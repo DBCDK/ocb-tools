@@ -1,7 +1,4 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.commons.api;
-
-//-----------------------------------------------------------------------------
 
 import dk.dbc.ocbtools.commons.cli.CliException;
 import org.apache.commons.cli.CommandLine;
@@ -10,7 +7,6 @@ import org.apache.commons.cli.Option;
 import java.io.File;
 import java.util.List;
 
-//-----------------------------------------------------------------------------
 /**
  * Interface to parse the arguments parsed to a given subcommand.
  * <p/>
@@ -33,8 +29,7 @@ public interface SubcommandDefinition {
      * succesfully parsed.
      *
      * @param line The parsed values from the command line.
-     *
      * @return A command executor.
      */
-    SubcommandExecutor createExecutor( File baseDir, CommandLine line ) throws CliException;
+    SubcommandExecutor createExecutor(File baseDir, CommandLine line) throws CliException;
 }

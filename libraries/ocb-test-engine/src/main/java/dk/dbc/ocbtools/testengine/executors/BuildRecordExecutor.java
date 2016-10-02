@@ -2,7 +2,6 @@ package dk.dbc.ocbtools.testengine.executors;
 
 import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.utils.json.Json;
-import dk.dbc.ocbtools.scripter.Distribution;
 import dk.dbc.ocbtools.scripter.ScripterException;
 import dk.dbc.ocbtools.scripter.ServiceScripter;
 import dk.dbc.ocbtools.testengine.asserters.BuildAsserter;
@@ -12,7 +11,6 @@ import org.slf4j.ext.XLoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -50,7 +48,7 @@ public class BuildRecordExecutor implements TestExecutor {
         return scripter;
     }
 
-    public void setScripter( ServiceScripter scripter ) {
+    public void setScripter(ServiceScripter scripter) {
         this.scripter = scripter;
     }
 
@@ -93,7 +91,7 @@ public class BuildRecordExecutor implements TestExecutor {
             if (record != null) {
                 encodedRecord = Json.encode(record);
             }
-            logger.debug("settings="+settings);
+            logger.debug("settings=" + settings);
             Object jsResult = scripter.callMethod(SCRIPT_FILENAME, SCRIPT_FUNCTION, tc, encodedRecord, settings);
             String jsResultAsString = (String) jsResult;
             String jsResultAsStringTrimmed = jsResultAsString.trim();
@@ -120,28 +118,6 @@ public class BuildRecordExecutor implements TestExecutor {
             return settings;
         } finally {
             logger.exit(settings);
-        }
-    }
-
-    private ServiceScripter createScripter() throws IOException {
-        logger.entry();
-        ServiceScripter scripter = null;
-        try {
-            scripter = new ServiceScripter();
-            scripter.setBaseDir(baseDir.getCanonicalPath());
-            scripter.setModulesKey("unittest.modules.search.path");
-
-            ArrayList<Distribution> distributions = new ArrayList<>();
-            distributions.add(new Distribution("ocbtools", "ocb-tools"));
-            distributions.add(new Distribution(tc.getDistributionName(), "distributions/" + tc.getDistributionName()));
-            logger.debug("Using distributions: {}", distributions);
-
-            scripter.setDistributions(distributions);
-            scripter.setServiceName(SERVICE_NAME);
-
-            return scripter;
-        } finally {
-            logger.exit(scripter);
         }
     }
 

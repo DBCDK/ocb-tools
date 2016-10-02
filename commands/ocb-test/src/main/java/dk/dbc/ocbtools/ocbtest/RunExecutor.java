@@ -41,7 +41,7 @@ import java.util.Properties;
 /**
  * Executes the 'run' subcommand.
  */
-public class RunExecutor implements SubcommandExecutor {
+class RunExecutor implements SubcommandExecutor {
     private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
     private static final XLogger logger = XLoggerFactory.getXLogger(RunExecutor.class);
     private static final String SERVICE_NAME = "ocb-test";
@@ -56,7 +56,7 @@ public class RunExecutor implements SubcommandExecutor {
 
     private List<TestReport> reports;
 
-    public RunExecutor(File baseDir) {
+    RunExecutor(File baseDir) {
         this.baseDir = baseDir;
         this.useRemote = false;
         this.configName = "servers";
@@ -66,27 +66,27 @@ public class RunExecutor implements SubcommandExecutor {
         this.applicationType = null;
     }
 
-    public void setUseRemote(boolean useRemote) {
+    void setUseRemote(boolean useRemote) {
         this.useRemote = useRemote;
     }
 
-    public void setConfigName(String configName) {
+    void setConfigName(String configName) {
         this.configName = configName;
     }
 
-    public void setPrintDemoInfo(boolean printDemoInfo) {
+    void setPrintDemoInfo(boolean printDemoInfo) {
         this.printDemoInfo = printDemoInfo;
     }
 
-    public void setTcNames(List<String> tcNames) {
+    void setTcNames(List<String> tcNames) {
         this.tcNames = tcNames;
     }
 
-    public void setReports(List<TestReport> reports) {
+    void setReports(List<TestReport> reports) {
         this.reports = reports;
     }
 
-    public void setApplicationType(ApplicationType applicationType) {
+    void setApplicationType(ApplicationType applicationType) {
         this.applicationType = applicationType;
     }
 

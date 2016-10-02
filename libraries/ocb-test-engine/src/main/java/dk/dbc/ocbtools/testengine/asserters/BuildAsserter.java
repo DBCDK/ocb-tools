@@ -51,10 +51,10 @@ public class BuildAsserter {
                 int idx = record.indexOf("001 00");
                 if (idx > -1) {
                     idx = record.indexOf("*a");
-                    if (idx > -1 ) {
+                    if (idx > -1) {
                         idx = record.indexOf(" ", idx);
                         res = record.substring(0, idx);
-                        idx = record.indexOf(" ", idx+1);
+                        idx = record.indexOf(" ", idx + 1);
                         res += record.substring(idx);
                     }
                 }

@@ -5,9 +5,6 @@ import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
 
 import java.util.List;
 
-/**
- * Created by stp on 02/03/15.
- */
 public class UpdateTestRunnerItem {
     private UpdateTestcase updateTestcase;
     private List<TestExecutor> executors;
@@ -17,7 +14,7 @@ public class UpdateTestRunnerItem {
         this.executors = executors;
     }
 
-    public UpdateTestcase getUpdateTestcase() {
+    UpdateTestcase getUpdateTestcase() {
         return updateTestcase;
     }
 

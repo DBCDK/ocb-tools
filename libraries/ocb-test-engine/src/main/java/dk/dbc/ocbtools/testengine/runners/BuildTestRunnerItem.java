@@ -14,12 +14,8 @@ public class BuildTestRunnerItem {
         this.executors = executors;
     }
 
-    public BuildTestcase getBuildTestcase() {
+    BuildTestcase getBuildTestcase() {
         return buildTestcase;
-    }
-
-    public void setBuildTestcase(BuildTestcase buildTestcase) {
-        this.buildTestcase = buildTestcase;
     }
 
     public List<TestExecutor> getExecutors() {

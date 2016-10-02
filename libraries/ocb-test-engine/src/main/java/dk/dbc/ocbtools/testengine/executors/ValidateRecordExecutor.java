@@ -25,7 +25,6 @@ public class ValidateRecordExecutor implements TestExecutor {
     private static final XLogger logger = XLoggerFactory.getXLogger(ValidateRecordExecutor.class);
     private static final String SCRIPT_FILENAME = "ValidateRecordExecutor.use.js";
     private static final String SCRIPT_FUNCTION = "validateRecord";
-    private static final String SERVICE_NAME = "ocb-test";
 
     private File baseDir;
     private DemoInfoPrinter demoInfoPrinter;

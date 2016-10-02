@@ -37,11 +37,11 @@ public class BuildTestcaseExpectedResult {
         this.record = record;
     }
 
-    public File getRecordFile() {
+    File getRecordFile() {
         return recordFile;
     }
 
-    public void setRecordFile(File recordFile) {
+    void setRecordFile(File recordFile) {
         this.recordFile = recordFile;
     }
 

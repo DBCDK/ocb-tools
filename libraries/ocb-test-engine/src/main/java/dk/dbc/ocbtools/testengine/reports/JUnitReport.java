@@ -1,7 +1,4 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.reports;
-
-//-----------------------------------------------------------------------------
 
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.testengine.runners.TestExecutorResult;
@@ -25,9 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 
-/**
- * Created by stp on 14/03/15.
- */
 public class JUnitReport implements TestReport {
     private static final XLogger logger = XLoggerFactory.getXLogger(JUnitReport.class);
     private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);

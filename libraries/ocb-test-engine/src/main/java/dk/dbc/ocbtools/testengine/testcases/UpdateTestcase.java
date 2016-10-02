@@ -18,8 +18,8 @@ import java.util.List;
  */
 public class UpdateTestcase extends BaseTestcase {
     private static final XLogger logger = XLoggerFactory.getXLogger(UpdateTestcase.class);
-    public static final String WIREMOCK_ROOT_DIR = "__wiremock";
-    public static final String SOLR_ROOT_DIR = WIREMOCK_ROOT_DIR + "/solr";
+    static final String WIREMOCK_ROOT_DIR = "__wiremock";
+    private static final String SOLR_ROOT_DIR = WIREMOCK_ROOT_DIR + "/solr";
 
     private List<String> bugs = new ArrayList<>();
     private UpdateTestcaseSetup setup = null;
@@ -124,11 +124,8 @@ public class UpdateTestcase extends BaseTestcase {
         if (description != null ? !description.equals(updateTestcase.description) : updateTestcase.description != null) {
             return false;
         }
-        if (name != null ? !name.equals(updateTestcase.name) : updateTestcase.name != null) {
-            return false;
-        }
+        return name != null ? name.equals(updateTestcase.name) : updateTestcase.name == null;
 
-        return true;
     }
 
     @Override

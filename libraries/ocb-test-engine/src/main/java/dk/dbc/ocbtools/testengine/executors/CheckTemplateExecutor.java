@@ -1,7 +1,4 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.executors;
-
-//-----------------------------------------------------------------------------
 
 import dk.dbc.ocbtools.scripter.Distribution;
 import dk.dbc.ocbtools.scripter.ScripterException;
@@ -17,7 +14,6 @@ import java.util.HashMap;
 
 import static org.junit.Assert.assertTrue;
 
-//-----------------------------------------------------------------------------
 /**
  * Test executor that checks that a template exists and can be loaded.
  */
@@ -34,10 +30,6 @@ public class CheckTemplateExecutor implements TestExecutor {
         this.baseDir = baseDir;
         this.tc = tc;
     }
-
-    //-------------------------------------------------------------------------
-    //              TestExecutor interface
-    //-------------------------------------------------------------------------
 
     @Override
     public String name() {

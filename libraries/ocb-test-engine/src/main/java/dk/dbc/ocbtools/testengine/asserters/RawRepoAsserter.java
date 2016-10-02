@@ -1,7 +1,5 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.asserters;
 
-//-----------------------------------------------------------------------------
 import dk.dbc.iscrum.records.MarcConverter;
 import dk.dbc.iscrum.records.MarcField;
 import dk.dbc.iscrum.records.MarcRecord;
@@ -23,7 +21,6 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 
-//-----------------------------------------------------------------------------
 /**
  * Asserter class to check records against rawrepo.
  */

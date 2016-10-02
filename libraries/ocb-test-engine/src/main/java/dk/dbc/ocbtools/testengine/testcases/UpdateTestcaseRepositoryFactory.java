@@ -7,9 +7,6 @@ import org.slf4j.ext.XLoggerFactory;
 
 import java.io.IOException;
 
-/**
- * Created by stp on 14/02/15.
- */
 public class UpdateTestcaseRepositoryFactory {
     private static final XLogger logger = XLoggerFactory.getXLogger(UpdateTestcaseRepositoryFactory.class);
 

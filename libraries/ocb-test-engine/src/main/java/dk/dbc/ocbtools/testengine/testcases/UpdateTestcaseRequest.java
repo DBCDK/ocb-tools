@@ -2,9 +2,6 @@ package dk.dbc.ocbtools.testengine.testcases;
 
 import java.util.Map;
 
-/**
- * Created by stp on 16/02/15.
- */
 public class UpdateTestcaseRequest {
     private String templateName = null;
     private TestcaseAuthentication authentication = new TestcaseAuthentication();

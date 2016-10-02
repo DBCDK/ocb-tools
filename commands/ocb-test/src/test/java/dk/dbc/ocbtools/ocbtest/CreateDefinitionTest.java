@@ -1,7 +1,5 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.ocbtest;
 
-//-----------------------------------------------------------------------------
 import dk.dbc.iscrum.records.providers.ISO2709Provider;
 import dk.dbc.iscrum.records.providers.MarcXChangeProvider;
 import dk.dbc.iscrum.utils.IOUtils;
@@ -28,10 +26,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.*;
 
-//-----------------------------------------------------------------------------
-/**
- * Created by stp on 07/05/15.
- */
 public class CreateDefinitionTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -42,17 +36,17 @@ public class CreateDefinitionTest {
 
     @BeforeClass
     public static void init() {
-        bundle = ResourceBundles.getBundle( "create_subcommand" );
+        bundle = ResourceBundles.getBundle("create_subcommand");
     }
 
     @Before
     public void setupTestDir() throws IOException {
-        testDir = IOUtils.mkdirs( "target/create-testdir" );
+        testDir = IOUtils.mkdirs("target/create-testdir");
     }
 
     @After
     public void deleteTestDir() throws FileNotFoundException {
-        IOUtils.deleteDirRecursively( testDir );
+        IOUtils.deleteDirRecursively(testDir);
     }
 
     //-------------------------------------------------------------------------
@@ -61,12 +55,12 @@ public class CreateDefinitionTest {
 
     @Test
     public void testAnnotations() {
-        Subcommand subCommand = CreateDefinition.class.getAnnotation( Subcommand.class );
-        assertNotNull( subCommand );
+        Subcommand subCommand = CreateDefinition.class.getAnnotation(Subcommand.class);
+        assertNotNull(subCommand);
 
-        assertNotSame( "", subCommand.name() );
-        assertNotSame( "", subCommand.usage() );
-        assertNotSame( "", subCommand.description() );
+        assertNotSame("", subCommand.name());
+        assertNotSame("", subCommand.usage());
+        assertNotSame("", subCommand.description());
     }
 
     @Test
@@ -74,13 +68,13 @@ public class CreateDefinitionTest {
         CreateDefinition instance = new CreateDefinition();
         CommandLineParser parser = new GnuParser();
 
-        String[] args = { "-a", "netpunkt:700800:20Koster" };
-        CommandLine line = parser.parse( createOptions( instance ), args );
-        assertNotNull( line );
+        String[] args = {"-a", "netpunkt:700800:20Koster"};
+        CommandLine line = parser.parse(createOptions(instance), args);
+        assertNotNull(line);
 
-        thrown.expect( CliException.class );
-        thrown.expectMessage( is( bundle.getString( "auth.arg.error" ) ) );
-        instance.createExecutor( new File( "." ), line );
+        thrown.expect(CliException.class);
+        thrown.expectMessage(is(bundle.getString("auth.arg.error")));
+        instance.createExecutor(new File("."), line);
     }
 
     @Test
@@ -89,12 +83,12 @@ public class CreateDefinitionTest {
         CommandLineParser parser = new GnuParser();
 
         String[] args = {};
-        CommandLine line = parser.parse( createOptions( instance ), args );
-        assertNotNull( line );
+        CommandLine line = parser.parse(createOptions(instance), args);
+        assertNotNull(line);
 
-        thrown.expect( CliException.class );
-        thrown.expectMessage( is( bundle.getString( "inputfile.arg.missing.error" ) ) );
-        instance.createExecutor( new File( "." ), line );
+        thrown.expect(CliException.class);
+        thrown.expectMessage(is(bundle.getString("inputfile.arg.missing.error")));
+        instance.createExecutor(new File("."), line);
     }
 
     @Test
@@ -102,13 +96,13 @@ public class CreateDefinitionTest {
         CreateDefinition instance = new CreateDefinition();
         CommandLineParser parser = new GnuParser();
 
-        String[] args = { "../../src/test/resources/records.xml" };
-        CommandLine line = parser.parse( createOptions( instance ), args );
-        assertNotNull( line );
+        String[] args = {"../../src/test/resources/records.xml"};
+        CommandLine line = parser.parse(createOptions(instance), args);
+        assertNotNull(line);
 
-        thrown.expect( CliException.class );
-        thrown.expectMessage( is( bundle.getString( "tc_file.arg.missing.error" ) ) );
-        instance.createExecutor( testDir, line );
+        thrown.expect(CliException.class);
+        thrown.expectMessage(is(bundle.getString("tc_file.arg.missing.error")));
+        instance.createExecutor(testDir, line);
     }
 
     @Test
@@ -123,19 +117,19 @@ public class CreateDefinitionTest {
                 "-t", "bog",
                 "../../src/test/resources/records.xml", "tc_records.json"
         };
-        CommandLine line = parser.parse( createOptions( instance ), args );
-        assertNotNull( line );
+        CommandLine line = parser.parse(createOptions(instance), args);
+        assertNotNull(line);
 
-        CreateExecutor executor = (CreateExecutor) instance.createExecutor( testDir, line );
-        assertEquals( testDir.getCanonicalPath() + "/tc_records.json", executor.getTestcaseFilename() );
-        assertTrue( executor.getRecordsProvider() instanceof MarcXChangeProvider );
-        assertEquals( "records", executor.getTestcaseName() );
-        assertEquals( "description", executor.getDescription() );
-        assertNotNull( executor.getAuthentication() );
-        assertEquals( "netpunkt", executor.getAuthentication().getGroup() );
-        assertEquals( "700400", executor.getAuthentication().getUser() );
-        assertEquals( "20Koster", executor.getAuthentication().getPassword() );
-        assertEquals( "bog", executor.getTemplateName() );
+        CreateExecutor executor = (CreateExecutor) instance.createExecutor(testDir, line);
+        assertEquals(testDir.getCanonicalPath() + "/tc_records.json", executor.getTestcaseFilename());
+        assertTrue(executor.getRecordsProvider() instanceof MarcXChangeProvider);
+        assertEquals("records", executor.getTestcaseName());
+        assertEquals("description", executor.getDescription());
+        assertNotNull(executor.getAuthentication());
+        assertEquals("netpunkt", executor.getAuthentication().getGroup());
+        assertEquals("700400", executor.getAuthentication().getUser());
+        assertEquals("20Koster", executor.getAuthentication().getPassword());
+        assertEquals("bog", executor.getTemplateName());
     }
 
     @Test
@@ -150,24 +144,24 @@ public class CreateDefinitionTest {
                 "-t", "bog",
                 "../../src/test/resources/records.iso", "tc_records.json"
         };
-        CommandLine line = parser.parse( createOptions( instance ), args );
-        assertNotNull( line );
+        CommandLine line = parser.parse(createOptions(instance), args);
+        assertNotNull(line);
 
-        CreateExecutor executor = (CreateExecutor) instance.createExecutor( testDir, line );
-        assertEquals( testDir.getCanonicalPath() + "/tc_records.json", executor.getTestcaseFilename() );
+        CreateExecutor executor = (CreateExecutor) instance.createExecutor(testDir, line);
+        assertEquals(testDir.getCanonicalPath() + "/tc_records.json", executor.getTestcaseFilename());
 
-        assertTrue( executor.getRecordsProvider() instanceof ISO2709Provider );
+        assertTrue(executor.getRecordsProvider() instanceof ISO2709Provider);
         ISO2709Provider provider = (ISO2709Provider) executor.getRecordsProvider();
-        assertThat( provider, notNullValue() );
-        assertThat( provider.getCharset(), is( StandardCharsets.UTF_8 ) );
+        assertThat(provider, notNullValue());
+        assertThat(provider.getCharset(), is(StandardCharsets.UTF_8));
 
-        assertEquals( "records", executor.getTestcaseName() );
-        assertEquals( "description", executor.getDescription() );
-        assertNotNull( executor.getAuthentication() );
-        assertEquals( "netpunkt", executor.getAuthentication().getGroup() );
-        assertEquals( "700400", executor.getAuthentication().getUser() );
-        assertEquals( "20Koster", executor.getAuthentication().getPassword() );
-        assertEquals( "bog", executor.getTemplateName() );
+        assertEquals("records", executor.getTestcaseName());
+        assertEquals("description", executor.getDescription());
+        assertNotNull(executor.getAuthentication());
+        assertEquals("netpunkt", executor.getAuthentication().getGroup());
+        assertEquals("700400", executor.getAuthentication().getUser());
+        assertEquals("20Koster", executor.getAuthentication().getPassword());
+        assertEquals("bog", executor.getTemplateName());
     }
 
     @Test
@@ -183,27 +177,27 @@ public class CreateDefinitionTest {
                 "-c", "dm2",
                 "../../src/test/resources/records.iso", "tc_records.json"
         };
-        CommandLine line = parser.parse( createOptions( instance ), args );
-        assertNotNull( line );
+        CommandLine line = parser.parse(createOptions(instance), args);
+        assertNotNull(line);
 
-        CreateExecutor executor = (CreateExecutor) instance.createExecutor( testDir, line );
-        assertEquals( testDir.getCanonicalPath() + "/tc_records.json", executor.getTestcaseFilename() );
+        CreateExecutor executor = (CreateExecutor) instance.createExecutor(testDir, line);
+        assertEquals(testDir.getCanonicalPath() + "/tc_records.json", executor.getTestcaseFilename());
 
-        assertTrue( executor.getRecordsProvider() instanceof ISO2709Provider );
+        assertTrue(executor.getRecordsProvider() instanceof ISO2709Provider);
         ISO2709Provider provider = (ISO2709Provider) executor.getRecordsProvider();
-        assertThat( provider, notNullValue() );
-        assertThat( provider.getCharset(), Is.<Charset>is( new DanMarc2Charset() ) );
+        assertThat(provider, notNullValue());
+        assertThat(provider.getCharset(), Is.is(new DanMarc2Charset()));
 
-        assertEquals( "records", executor.getTestcaseName() );
-        assertEquals( "description", executor.getDescription() );
-        assertNotNull( executor.getAuthentication() );
-        assertEquals( "netpunkt", executor.getAuthentication().getGroup() );
-        assertEquals( "700400", executor.getAuthentication().getUser() );
-        assertEquals( "20Koster", executor.getAuthentication().getPassword() );
-        assertEquals( "bog", executor.getTemplateName() );
+        assertEquals("records", executor.getTestcaseName());
+        assertEquals("description", executor.getDescription());
+        assertNotNull(executor.getAuthentication());
+        assertEquals("netpunkt", executor.getAuthentication().getGroup());
+        assertEquals("700400", executor.getAuthentication().getUser());
+        assertEquals("20Koster", executor.getAuthentication().getPassword());
+        assertEquals("bog", executor.getTemplateName());
     }
 
-    @Test( expected = java.nio.charset.UnsupportedCharsetException.class )
+    @Test(expected = java.nio.charset.UnsupportedCharsetException.class)
     public void testParseArgumentsIso2709FileUnknownCharset() throws Exception {
         CreateDefinition instance = new CreateDefinition();
         CommandLineParser parser = new GnuParser();
@@ -216,20 +210,20 @@ public class CreateDefinitionTest {
                 "-c", "xxx-unknown",
                 "../../src/test/resources/records.iso", "tc_records.json"
         };
-        CommandLine line = parser.parse( createOptions( instance ), args );
-        assertNotNull( line );
+        CommandLine line = parser.parse(createOptions(instance), args);
+        assertNotNull(line);
 
-        instance.createExecutor( testDir, line );
+        instance.createExecutor(testDir, line);
     }
 
     //-------------------------------------------------------------------------
     //              Helpers
     //-------------------------------------------------------------------------
 
-    private Options createOptions( SubcommandDefinition def ) throws CliException {
+    private Options createOptions(SubcommandDefinition def) throws CliException {
         Options options = new Options();
-        for( Option option : def.createOptions() ) {
-            options.addOption( option );
+        for (Option option : def.createOptions()) {
+            options.addOption(option);
         }
 
         return options;

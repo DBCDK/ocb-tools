@@ -9,11 +9,11 @@ public class Distribution {
         this.dirName = dirName;
     }
 
-    public String getSchemaName() {
+    String getSchemaName() {
         return this.schemaName;
     }
 
-    public String getDirName() {
+    String getDirName() {
         return this.dirName;
     }
 

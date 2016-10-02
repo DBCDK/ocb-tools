@@ -52,12 +52,12 @@ public class RemoteValidateExecutor implements TestExecutor {
     private static final String ENDPOINT_PATH = "/UpdateService/2.0";
     private static final long DEFAULT_CONNECT_TIMEOUT_MS = 1 * 60 * 1000;    // 1 minute
     private static final long DEFAULT_REQUEST_TIMEOUT_MS = 3 * 60 * 1000;    // 3 minutes
-    protected static final String TRACKING_ID_FORMAT = "ocbtools-%s-%s-%s";
+    private static final String TRACKING_ID_FORMAT = "ocbtools-%s-%s-%s";
 
     protected XLogger logger;
     protected UpdateTestcase tc;
     protected Properties settings;
-    protected DemoInfoPrinter demoInfoPrinter;
+    DemoInfoPrinter demoInfoPrinter;
     private SolrServer solrServer;
 
     public RemoteValidateExecutor(UpdateTestcase tc, Properties settings, boolean printDemoInfo) {
@@ -291,7 +291,7 @@ public class RemoteValidateExecutor implements TestExecutor {
         }
     }
 
-    protected URL createServiceUrl() {
+    URL createServiceUrl() {
         logger.entry();
         URL result = null;
         try {
@@ -304,7 +304,7 @@ public class RemoteValidateExecutor implements TestExecutor {
         }
     }
 
-    protected Map<String, Object> createHeaders() {
+    private Map<String, Object> createHeaders() {
         logger.entry();
         Map<String, Object> headers = new HashMap<>();
         try {
@@ -367,7 +367,7 @@ public class RemoteValidateExecutor implements TestExecutor {
         }
     }
 
-    protected CatalogingUpdatePortType createPort(URL baseUrl) throws MalformedURLException {
+    CatalogingUpdatePortType createPort(URL baseUrl) throws MalformedURLException {
         logger.entry();
         try {
             QName serviceName = new QName("http://oss.dbc.dk/ns/catalogingUpdate", "UpdateService");

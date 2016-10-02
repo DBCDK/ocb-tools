@@ -4,9 +4,6 @@ import dk.dbc.ocbtools.commons.type.ApplicationType;
 
 import java.io.File;
 
-/**
- * Created by stp on 11/03/15.
- */
 public class SystemTest implements Comparable<SystemTest> {
     private String distributionName;
     private File file;
@@ -24,10 +21,6 @@ public class SystemTest implements Comparable<SystemTest> {
 
     public File getFile() {
         return file;
-    }
-
-    public ApplicationType getApplicationType() {
-        return applicationType;
     }
 
     @Override

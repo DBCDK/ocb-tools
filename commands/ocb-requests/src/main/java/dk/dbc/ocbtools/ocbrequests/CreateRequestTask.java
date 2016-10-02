@@ -1,7 +1,5 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.ocbrequests;
 
-//-----------------------------------------------------------------------------
 import dk.dbc.iscrum.records.AgencyNumber;
 import dk.dbc.iscrum.records.MarcConverter;
 import dk.dbc.iscrum.records.MarcRecord;
@@ -27,11 +25,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import java.io.*;
 
-//-----------------------------------------------------------------------------
-/**
- * Created by stp on 05/04/16.
- */
-public class CreateRequestTask implements Runnable {
+class CreateRequestTask implements Runnable {
 
 
     private static final XLogger logger = XLoggerFactory.getXLogger( CreateRequestTask.class );
@@ -43,7 +37,7 @@ public class CreateRequestTask implements Runnable {
     private AgencyNumber agencyId;
     private RecordEntity record;
 
-    public CreateRequestTask( File baseDir ) {
+    CreateRequestTask(File baseDir) {
         this.baseDir = baseDir;
         this.userNumber = null;
         this.requestNumber = null;
@@ -51,43 +45,19 @@ public class CreateRequestTask implements Runnable {
         this.agencyId = null;
     }
 
-    public File getBaseDir() {
-        return baseDir;
-    }
-
-    public void setBaseDir( File baseDir ) {
-        this.baseDir = baseDir;
-    }
-
-    public Integer getUserNumber() {
-        return userNumber;
-    }
-
-    public void setUserNumber( Integer userNumber ) {
+    void setUserNumber(Integer userNumber) {
         this.userNumber = userNumber;
     }
 
-    public Integer getRequestNumber() {
-        return requestNumber;
-    }
-
-    public void setRequestNumber( Integer requestNumber ) {
+    void setRequestNumber(Integer requestNumber) {
         this.requestNumber = requestNumber;
     }
 
-    public AgencyNumber getAgencyId() {
-        return agencyId;
-    }
-
-    public void setAgencyId( AgencyNumber agencyId ) {
+    void setAgencyId(AgencyNumber agencyId) {
         this.agencyId = agencyId;
     }
 
-    public RecordEntity getRecord() {
-        return record;
-    }
-
-    public void setRecord( RecordEntity record ) {
+    void setRecord(RecordEntity record) {
         this.record = record;
     }
 
@@ -129,7 +99,7 @@ public class CreateRequestTask implements Runnable {
         }
     }
 
-    public SOAPMessage createSoapRequest() throws ParserConfigurationException, JAXBException, SAXException, IOException, SOAPException {
+    private SOAPMessage createSoapRequest() throws ParserConfigurationException, JAXBException, SAXException, IOException, SOAPException {
         logger.entry();
 
         try {
@@ -165,7 +135,7 @@ public class CreateRequestTask implements Runnable {
         }
     }
 
-    public UpdateRecordRequest createRequest() throws IOException, ParserConfigurationException, JAXBException, SAXException {
+    private UpdateRecordRequest createRequest() throws IOException, ParserConfigurationException, JAXBException, SAXException {
         logger.entry();
 
         try {

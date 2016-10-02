@@ -1,8 +1,4 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.commons.api;
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 
 import dk.dbc.ocbtools.commons.cli.CliException;
 
@@ -16,5 +12,5 @@ public interface SubcommandExecutor {
     /**
      * Performes the actions for the subcommand.
      */
-    public void actionPerformed() throws CliException;
+    void actionPerformed() throws CliException;
 }

@@ -9,7 +9,7 @@ import org.slf4j.ext.XLoggerFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class BuildTestcase extends BaseTestcase{
+public class BuildTestcase extends BaseTestcase {
     private static final XLogger logger = XLoggerFactory.getXLogger(BuildTestcase.class);
 
     private BuildTestcaseRequest request;

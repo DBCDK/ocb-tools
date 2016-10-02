@@ -1,7 +1,7 @@
 package dk.dbc.ocbtools.ocbtest;
 
-import dk.dbc.iscrum.records.MarcReader;
 import dk.dbc.iscrum.records.MarcRecord;
+import dk.dbc.iscrum.records.MarcRecordReader;
 import dk.dbc.iscrum.records.providers.MarcRecordProvider;
 import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
@@ -11,7 +11,6 @@ import dk.dbc.ocbtools.testengine.testcases.TestcaseAuthentication;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseExpectedResult;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRequest;
-import dk.dbc.updateservice.service.api.Entry;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -21,9 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by stp on 06/05/15.
- */
 public class CreateExecutor implements SubcommandExecutor {
     private static final XLogger logger = XLoggerFactory.getXLogger(CreateExecutor.class);
     private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
@@ -40,51 +36,51 @@ public class CreateExecutor implements SubcommandExecutor {
         this.baseDir = baseDir;
     }
 
-    public String getTestcaseFilename() {
+    String getTestcaseFilename() {
         return testcaseFilename;
     }
 
-    public void setTestcaseFilename(String testcaseFilename) {
+    void setTestcaseFilename(String testcaseFilename) {
         this.testcaseFilename = testcaseFilename;
     }
 
-    public MarcRecordProvider getRecordsProvider() {
+    MarcRecordProvider getRecordsProvider() {
         return recordsProvider;
     }
 
-    public void setRecordsProvider(MarcRecordProvider recordsProvider) {
+    void setRecordsProvider(MarcRecordProvider recordsProvider) {
         this.recordsProvider = recordsProvider;
     }
 
-    public String getTestcaseName() {
+    String getTestcaseName() {
         return testcaseName;
     }
 
-    public void setTestcaseName(String testcaseName) {
+    void setTestcaseName(String testcaseName) {
         this.testcaseName = testcaseName;
     }
 
-    public String getDescription() {
+    String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    void setDescription(String description) {
         this.description = description;
     }
 
-    public TestcaseAuthentication getAuthentication() {
+    TestcaseAuthentication getAuthentication() {
         return authentication;
     }
 
-    public void setAuthentication(TestcaseAuthentication authentication) {
+    void setAuthentication(TestcaseAuthentication authentication) {
         this.authentication = authentication;
     }
 
-    public String getTemplateName() {
+    String getTemplateName() {
         return templateName;
     }
 
-    public void setTemplateName(String templateName) {
+    void setTemplateName(String templateName) {
         this.templateName = templateName;
     }
 
@@ -98,9 +94,10 @@ public class CreateExecutor implements SubcommandExecutor {
             List<UpdateTestcase> updateTestcases = new ArrayList<>();
             int recordNo = 1;
             for (MarcRecord record : recordsProvider) {
+                MarcRecordReader reader = new MarcRecordReader(record);
                 logger.debug("Creating testcase for record [{}:{}]",
-                        MarcReader.getRecordValue(record, "001", "a"),
-                        MarcReader.getRecordValue(record, "001", "b"));
+                        reader.recordId(),
+                        reader.agencyId());
 
                 String filename = "request.marc";
                 if (hasMultibleRecords) {
@@ -128,7 +125,7 @@ public class CreateExecutor implements SubcommandExecutor {
                 tc.setRequest(request);
 
                 UpdateTestcaseExpectedResult expected = new UpdateTestcaseExpectedResult();
-                expected.setValidation(new ArrayList<Entry>());
+                expected.setValidation(new ArrayList<>());
                 expected.setUpdate(null);
                 tc.setExpected(expected);
 

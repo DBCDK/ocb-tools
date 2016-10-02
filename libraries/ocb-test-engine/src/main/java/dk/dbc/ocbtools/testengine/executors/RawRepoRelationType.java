@@ -1,13 +1,8 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.executors;
-
-//-----------------------------------------------------------------------------
 
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
 
 import java.util.List;
-
-//-----------------------------------------------------------------------------
 
 /**
  * Define types of relations.
@@ -20,19 +15,11 @@ public enum RawRepoRelationType {
     private final String expectedFormatError;
     private final String unexpectedFormatError;
 
-    //-------------------------------------------------------------------------
-    //              Constructors
-    //-------------------------------------------------------------------------
-
     RawRepoRelationType(int value, String expectedFormatError, String unexpectedFormatError) {
         this.value = value;
         this.expectedFormatError = expectedFormatError;
         this.unexpectedFormatError = unexpectedFormatError;
     }
-
-    //-------------------------------------------------------------------------
-    //              Methods
-    //-------------------------------------------------------------------------
 
     public String getExpectedFormatError() {
         return expectedFormatError;

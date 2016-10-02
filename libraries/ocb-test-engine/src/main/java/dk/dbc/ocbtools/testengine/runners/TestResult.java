@@ -1,25 +1,20 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.runners;
-
-//-----------------------------------------------------------------------------
 
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.util.ArrayList;
 
-//-----------------------------------------------------------------------------
-/**
- * Created by stp on 02/03/15.
- */
 public class TestResult extends ArrayList<TestcaseResult> {
-    public TestResult( ) {
+    private static final XLogger logger = XLoggerFactory.getXLogger(TestResult.class);
+
+    TestResult() {
         super();
     }
 
     public boolean hasError() {
-        for( TestcaseResult testcaseResult : this ) {
-            if( testcaseResult.hasError() ) {
+        for (TestcaseResult testcaseResult : this) {
+            if (testcaseResult.hasError()) {
                 return true;
             }
         }
@@ -29,7 +24,7 @@ public class TestResult extends ArrayList<TestcaseResult> {
 
     public long getTime() {
         long time = 0;
-        for( TestcaseResult testcaseResult : this ) {
+        for (TestcaseResult testcaseResult : this) {
             time += testcaseResult.getTime();
         }
 
@@ -38,7 +33,7 @@ public class TestResult extends ArrayList<TestcaseResult> {
 
     public int countErrors() {
         int errors = 0;
-        for( TestcaseResult testcaseResult : this ) {
+        for (TestcaseResult testcaseResult : this) {
             errors += testcaseResult.countErrors();
         }
 
@@ -47,7 +42,7 @@ public class TestResult extends ArrayList<TestcaseResult> {
 
     public int countTests() {
         int tests = 0;
-        for( TestcaseResult testcaseResult : this ) {
+        for (TestcaseResult testcaseResult : this) {
             tests += testcaseResult.countTests();
         }
 
@@ -59,9 +54,4 @@ public class TestResult extends ArrayList<TestcaseResult> {
         return "TestResult{} " + super.toString();
     }
 
-//-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private static final XLogger logger = XLoggerFactory.getXLogger( TestResult.class );
 }

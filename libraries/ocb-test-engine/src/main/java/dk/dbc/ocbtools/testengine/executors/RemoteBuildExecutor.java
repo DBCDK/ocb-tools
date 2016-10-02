@@ -144,7 +144,7 @@ public class RemoteBuildExecutor implements TestExecutor {
         }
     }
 
-    protected URL createServiceUrl() {
+    private URL createServiceUrl() {
         logger.entry();
         URL result = null;
         try {

@@ -1,7 +1,5 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.ocbrequests;
 
-//-----------------------------------------------------------------------------
 import dk.dbc.iscrum.records.AgencyNumber;
 import dk.dbc.iscrum.records.MarcConverter;
 import dk.dbc.iscrum.records.MarcRecord;
@@ -24,52 +22,35 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-//-----------------------------------------------------------------------------
 /**
  * Executor for the subcommand 'rawrepo-create'
  */
-public class CreateRawRepoExecutor implements SubcommandExecutor {
+class CreateRawRepoExecutor implements SubcommandExecutor {
 
-    private static final XLogger logger = XLoggerFactory.getXLogger( CreateRawRepoExecutor.class );
-    private static final XLogger output = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
+    private static final XLogger logger = XLoggerFactory.getXLogger(CreateRawRepoExecutor.class);
+    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
 
     private File baseDir;
     private Integer agencyId;
     private Integer userCount;
     private Integer requestsPeerUser;
 
-    public CreateRawRepoExecutor() {
+    CreateRawRepoExecutor() {
     }
 
-    public File getBaseDir() {
-        return baseDir;
-    }
-
-    public void setBaseDir( File baseDir ) {
+    void setBaseDir(File baseDir) {
         this.baseDir = baseDir;
     }
 
-    public Integer getAgencyId() {
-        return agencyId;
-    }
-
-    public void setAgencyId( Integer agencyId ) {
+    void setAgencyId(Integer agencyId) {
         this.agencyId = agencyId;
     }
 
-    public Integer getUserCount() {
-        return userCount;
-    }
-
-    public void setUserCount( Integer userCount ) {
+    void setUserCount(Integer userCount) {
         this.userCount = userCount;
     }
 
-    public Integer getRequestsPeerUser() {
-        return requestsPeerUser;
-    }
-
-    public void setRequestsPeerUser( Integer requestsPeerUser ) {
+    void setRequestsPeerUser(Integer requestsPeerUser) {
         this.requestsPeerUser = requestsPeerUser;
     }
 
@@ -80,19 +61,19 @@ public class CreateRawRepoExecutor implements SubcommandExecutor {
     public void actionPerformed() throws CliException {
         logger.entry();
         try {
-            if( baseDir == null ) {
-                baseDir = new File( "." ).getCanonicalFile();
+            if (baseDir == null) {
+                baseDir = new File(".").getCanonicalFile();
             }
 
-            output.info( "Base dir: {}", baseDir );
-            output.info( "Agency id: {}", agencyId );
-            output.info( "Number of users: {}", userCount );
-            output.info( "Requests peer user: {}", requestsPeerUser );
-            output.info( "" );
+            output.info("Base dir: {}", baseDir);
+            output.info("Agency id: {}", agencyId);
+            output.info("Number of users: {}", userCount);
+            output.info("Requests peer user: {}", requestsPeerUser);
+            output.info("");
 
             ExecutorService pool = Executors.newCachedThreadPool();
 
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory( "ocb-requests" );
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("ocb-requests");
 
             EntityManager em = emf.createEntityManager();
 
@@ -102,45 +83,45 @@ public class CreateRawRepoExecutor implements SubcommandExecutor {
             boolean done = false;
             int queryNextResultsIndex = 0;
             final int queryMaxResults = 100;
-            while( !done ) {
-                TypedQuery<RecordEntity> query = em.createNamedQuery( "findRecordsByAgencyId", RecordEntity.class );
-                query.setParameter( "agencyid", agencyId );
-                query.setFirstResult( queryNextResultsIndex );
-                query.setMaxResults( queryMaxResults );
+            while (!done) {
+                TypedQuery<RecordEntity> query = em.createNamedQuery("findRecordsByAgencyId", RecordEntity.class);
+                query.setParameter("agencyid", agencyId);
+                query.setFirstResult(queryNextResultsIndex);
+                query.setMaxResults(queryMaxResults);
 
                 List<RecordEntity> records = query.getResultList();
 
-                for( RecordEntity record : records ) {
-                    MarcRecord recordData = MarcConverter.convertFromMarcXChange( record.contentAsXml() );
-                    MarcRecordReader reader = new MarcRecordReader( recordData );
+                for (RecordEntity record : records) {
+                    MarcRecord recordData = MarcConverter.convertFromMarcXChange(record.contentAsXml());
+                    MarcRecordReader reader = new MarcRecordReader(recordData);
 
-                    if( reader.markedForDeletion() ) {
+                    if (reader.markedForDeletion()) {
                         continue;
                     }
-                    if( !reader.hasValue( "004", "a", "e" ) ) {
+                    if (!reader.hasValue("004", "a", "e")) {
                         continue;
                     }
 
-                    if( requestNo == 1 ) {
-                        output.info( "Creating requests for User: {}", userNo );
+                    if (requestNo == 1) {
+                        output.info("Creating requests for User: {}", userNo);
                     }
 
-                    CreateRequestTask task = new CreateRequestTask( baseDir );
-                    task.setAgencyId( new AgencyNumber( agencyId ) );
-                    task.setUserNumber( userNo );
-                    task.setRequestNumber( requestNo );
-                    task.setRecord( record );
+                    CreateRequestTask task = new CreateRequestTask(baseDir);
+                    task.setAgencyId(new AgencyNumber(agencyId));
+                    task.setUserNumber(userNo);
+                    task.setRequestNumber(requestNo);
+                    task.setRecord(record);
 
-                    pool.submit( task );
+                    pool.submit(task);
                     //output.info( "Created task for User: {}-{}", userNo, requestNo );
 
                     requestNo++;
-                    if( requestNo > requestsPeerUser ) {
+                    if (requestNo > requestsPeerUser) {
                         userNo++;
                         requestNo = 1;
                     }
 
-                    if( userNo > userCount ) {
+                    if (userNo > userCount) {
                         done = true;
                         break;
                     }
@@ -158,18 +139,15 @@ public class CreateRawRepoExecutor implements SubcommandExecutor {
                     if (!pool.awaitTermination(380, TimeUnit.SECONDS))
                         System.err.println("Pool did not terminate");
                 }
-            }
-            catch (InterruptedException ie) {
+            } catch (InterruptedException ie) {
                 // (Re-)Cancel if current thread also interrupted
                 pool.shutdownNow();
                 // Preserve interrupt status
                 Thread.currentThread().interrupt();
             }
-        }
-        catch( IOException ex ) {
-            throw new CliException( ex.getMessage(), ex );
-        }
-        finally {
+        } catch (IOException ex) {
+            throw new CliException(ex.getMessage(), ex);
+        } finally {
             logger.exit();
         }
     }

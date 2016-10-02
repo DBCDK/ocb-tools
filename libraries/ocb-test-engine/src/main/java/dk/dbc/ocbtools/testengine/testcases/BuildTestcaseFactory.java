@@ -13,17 +13,17 @@ import java.util.List;
 /**
  * Testcase factory to create Buildservice Testcase instances from json files.
  */
-public class BuildTestcaseFactory {
+class BuildTestcaseFactory {
 
-    private static final XLogger logger = XLoggerFactory.getXLogger( UpdateTestcaseRepositoryFactory.class );
+    private static final XLogger logger = XLoggerFactory.getXLogger(UpdateTestcaseRepositoryFactory.class);
 
-    public static List<BuildTestcase> newInstances( SystemTest systemTest ) throws IOException {
+    static List<BuildTestcase> newInstances(SystemTest systemTest) throws IOException {
         logger.entry(systemTest);
 
         List<BuildTestcase> result = null;
         try {
-            result = Json.decodeArray( systemTest.getFile(), BuildTestcase.class );
-            for( BuildTestcase tc : result ) {
+            result = Json.decodeArray(systemTest.getFile(), BuildTestcase.class);
+            for (BuildTestcase tc : result) {
                 tc.setDistributionName(systemTest.getDistributionName());
                 tc.setFile(systemTest.getFile());
 
@@ -36,8 +36,7 @@ public class BuildTestcaseFactory {
             }
 
             return result;
-        }
-        finally {
+        } finally {
             logger.exit(result);
         }
     }

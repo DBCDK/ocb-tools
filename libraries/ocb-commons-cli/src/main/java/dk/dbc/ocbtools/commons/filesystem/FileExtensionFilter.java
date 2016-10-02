@@ -1,17 +1,14 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.commons.filesystem;
 
-//-----------------------------------------------------------------------------
 
 import java.io.File;
 import java.io.FilenameFilter;
 
-//-----------------------------------------------------------------------------
-/**
- * Created by stp on 14/02/15.
- */
-public class FileExtensionFilter implements FilenameFilter {
-    public FileExtensionFilter( String ext ) {
+class FileExtensionFilter implements FilenameFilter {
+
+    private String ext;
+
+    FileExtensionFilter(String ext) {
         this.ext = ext;
     }
 
@@ -20,9 +17,4 @@ public class FileExtensionFilter implements FilenameFilter {
         return name.endsWith( ext );
     }
 
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private String ext;
 }

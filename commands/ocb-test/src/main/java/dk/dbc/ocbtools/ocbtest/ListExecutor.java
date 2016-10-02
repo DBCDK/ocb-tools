@@ -1,7 +1,4 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.ocbtest;
-
-//-----------------------------------------------------------------------------
 
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
@@ -24,17 +21,25 @@ import java.util.List;
 /**
  * Executor for the list subcommand.
  */
-public class ListExecutor implements SubcommandExecutor {
+class ListExecutor implements SubcommandExecutor {
     private static final XLogger logger = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
 
     private File baseDir;
     private List<String> matchExpressions;
     private ApplicationType applicationType;
 
-    public ListExecutor(File baseDir) {
+    ListExecutor(File baseDir) {
         this.baseDir = baseDir;
         this.matchExpressions = null;
         this.applicationType = null;
+    }
+
+    void setMatchExpressions(List<String> matchExpressions) {
+        this.matchExpressions = matchExpressions;
+    }
+
+    void setApplicationType(ApplicationType applicationType) {
+        this.applicationType = applicationType;
     }
 
     @Override
@@ -98,19 +103,5 @@ public class ListExecutor implements SubcommandExecutor {
         }
     }
 
-    public List<String> getMatchExpressions() {
-        return matchExpressions;
-    }
 
-    public void setMatchExpressions(List<String> matchExpressions) {
-        this.matchExpressions = matchExpressions;
-    }
-
-    public ApplicationType getApplicationType() {
-        return applicationType;
-    }
-
-    public void setApplicationType(ApplicationType applicationType) {
-        this.applicationType = applicationType;
-    }
 }

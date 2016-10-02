@@ -1,6 +1,5 @@
 package dk.dbc.ocbtools.testengine.runners;
 
-import com.sun.javafx.collections.TrackableObservableList;
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.testengine.executors.TestExecutor;
 import org.perf4j.StopWatch;
@@ -28,15 +27,15 @@ public class BuildTestRunner {
         try {
             testResult = new TestResult();
 
-            for( BuildTestRunnerItem item : items ) {
-                output.info( "Running testcase '{}'", item.getBuildTestcase().getName() );
+            for (BuildTestRunnerItem item : items) {
+                output.info("Running testcase '{}'", item.getBuildTestcase().getName());
 
-                TestcaseResult tcResult = runTestcase( item );
-                if( tcResult != null ) {
-                    testResult.add( tcResult );
+                TestcaseResult tcResult = runTestcase(item);
+                if (tcResult != null) {
+                    testResult.add(tcResult);
                 }
             }
-            output.info( "" );
+            output.info("");
             return testResult;
         } catch (Exception e) {
             output.error("Unable to run tests: {}", e.getMessage());
@@ -47,7 +46,7 @@ public class BuildTestRunner {
         }
     }
 
-    public TestcaseResult runTestcase(BuildTestRunnerItem buildTestRunnerItem) {
+    private TestcaseResult runTestcase(BuildTestRunnerItem buildTestRunnerItem) {
         output.entry(buildTestRunnerItem);
 
         TestcaseResult res = null;
@@ -57,7 +56,7 @@ public class BuildTestRunner {
                 StopWatch watch = new StopWatch();
 
                 try {
-                    if ( exec.setup() ) {
+                    if (exec.setup()) {
 
                         try {
                             exec.executeTests();

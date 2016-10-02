@@ -18,9 +18,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by stp on 11/03/15.
- */
 @Subcommand(name = "run",
         description = "Udfører en, flere eller alle testcases",
         usage = "[options] [testcase1, testcase2, ...]")

@@ -21,10 +21,6 @@ public class BuildTestcaseRequest {
         return templateName;
     }
 
-    public void setTemplateName(String templateName) {
-        this.templateName = templateName;
-    }
-
     public String getRecord() {
         return record;
     }
@@ -33,11 +29,11 @@ public class BuildTestcaseRequest {
         this.record = record;
     }
 
-    public File getRecordFile() {
+    File getRecordFile() {
         return recordFile;
     }
 
-    public void setRecordFile(File recordFile) {
+    void setRecordFile(File recordFile) {
         this.recordFile = recordFile;
     }
 

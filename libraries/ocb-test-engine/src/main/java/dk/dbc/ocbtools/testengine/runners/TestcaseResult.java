@@ -1,20 +1,14 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.runners;
 
-//-----------------------------------------------------------------------------
 import dk.dbc.ocbtools.testengine.testcases.BaseTestcase;
 
 import java.util.List;
 
-//-----------------------------------------------------------------------------
-/**
- * Created by stp on 02/03/15.
- */
 public class TestcaseResult {
     private BaseTestcase baseTestcase;
     private List<TestExecutorResult> results;
 
-    public TestcaseResult(BaseTestcase baseTestcase, List<TestExecutorResult> results) {
+    TestcaseResult(BaseTestcase baseTestcase, List<TestExecutorResult> results) {
         this.baseTestcase = baseTestcase;
         this.results = results;
     }
@@ -44,7 +38,7 @@ public class TestcaseResult {
         return time;
     }
 
-    public int countErrors() {
+    int countErrors() {
         int errors = 0;
         for (TestExecutorResult testExecutorResult : results) {
             if (testExecutorResult.getAssertionError() != null)
@@ -53,7 +47,7 @@ public class TestcaseResult {
         return errors;
     }
 
-    public int countTests() {
+    int countTests() {
         return results.size();
     }
 

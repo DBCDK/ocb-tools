@@ -43,24 +43,12 @@ public class ServiceScripter {
         this.baseDir = baseDir;
     }
 
-    public List<Distribution> getDistributions() {
-        return distributions;
-    }
-
     public void setDistributions(List<Distribution> distributions) {
         this.distributions = distributions;
     }
 
-    public String getModulesKey() {
-        return modulesKey;
-    }
-
     public void setModulesKey(String modulesKey) {
         this.modulesKey = modulesKey;
-    }
-
-    public String getServiceName() {
-        return serviceName;
     }
 
     public void setServiceName(String serviceName) {

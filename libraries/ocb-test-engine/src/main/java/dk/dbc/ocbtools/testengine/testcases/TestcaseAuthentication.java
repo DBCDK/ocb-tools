@@ -1,8 +1,5 @@
 package dk.dbc.ocbtools.testengine.testcases;
 
-/**
- * Created by stp on 19/03/15.
- */
 public class TestcaseAuthentication {
     private String group;
     private String user;

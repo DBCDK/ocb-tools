@@ -1,14 +1,8 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.testengine.executors;
 
-//-----------------------------------------------------------------------------
-
+import dk.dbc.iscrum.records.*;
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.commons.jdbc.util.JDBCUtil;
-import dk.dbc.iscrum.records.MarcConverter;
-import dk.dbc.iscrum.records.MarcReader;
-import dk.dbc.iscrum.records.MarcRecord;
-import dk.dbc.iscrum.records.MarcXchangeFactory;
 import dk.dbc.iscrum.records.marcxchange.CollectionType;
 import dk.dbc.iscrum.records.marcxchange.ObjectFactory;
 import dk.dbc.iscrum.records.marcxchange.RecordType;
@@ -33,8 +27,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
-
-//-----------------------------------------------------------------------------
 
 /**
  * Helper Class to interact with the rawrepo database.
@@ -63,7 +55,7 @@ public class RawRepo {
     private Properties settings;
     private RawRepoDAO dao;
 
-    public RawRepo(Properties settings, Connection connection) throws RawRepoException {
+    RawRepo(Properties settings, Connection connection) throws RawRepoException {
         this.settings = settings;
         this.dao = RawRepoDAO.builder(connection).build();
     }
@@ -77,7 +69,7 @@ public class RawRepo {
      * @throws RawRepoException rawrepo errors.
      * @throws JAXBException    XML errors.
      */
-    public void saveRecords(File baseDir, List<UpdateTestcaseRecord> records) throws IOException, RawRepoException, JAXBException {
+    void saveRecords(File baseDir, List<UpdateTestcaseRecord> records) throws IOException, RawRepoException, JAXBException {
         logger.entry(baseDir, records);
 
         try {
@@ -98,7 +90,7 @@ public class RawRepo {
      * @throws RawRepoException rawrepo errors.
      * @throws JAXBException    XML errors.
      */
-    public void saveRecord(File baseDir, UpdateTestcaseRecord record) throws IOException, RawRepoException, JAXBException {
+    private void saveRecord(File baseDir, UpdateTestcaseRecord record) throws IOException, RawRepoException, JAXBException {
         logger.entry(baseDir, record);
 
         try {
@@ -114,7 +106,7 @@ public class RawRepo {
                 dao.saveRecord(newRecord);
 
                 if (record.isEnqueued()) {
-                    dao.changedRecord( settings.getProperty( "rawrepo.provider.name" ), newRecord.getId(), newRecord.getMimeType());
+                    dao.changedRecord(settings.getProperty("rawrepo.provider.name"), newRecord.getId(), newRecord.getMimeType());
                 }
             }
         } finally {
@@ -122,7 +114,7 @@ public class RawRepo {
         }
     }
 
-    public void saveRelation(MarcRecord commonOrParentRecord, MarcRecord enrichmentOrChildRecord) throws RawRepoException {
+    void saveRelation(MarcRecord commonOrParentRecord, MarcRecord enrichmentOrChildRecord) throws RawRepoException {
         logger.entry(commonOrParentRecord, enrichmentOrChildRecord);
 
         try {
@@ -139,7 +131,7 @@ public class RawRepo {
         }
     }
 
-    public Record fetchRecord(String recordId, Integer agencyId) throws RawRepoException {
+    private Record fetchRecord(String recordId, Integer agencyId) throws RawRepoException {
         logger.entry(recordId, agencyId);
 
         Record result = null;
@@ -197,10 +189,12 @@ public class RawRepo {
         logger.entry();
 
         try {
-            String recId = MarcReader.getRecordValue(record, "001", "a");
-            int agencyId = Integer.valueOf(MarcReader.getRecordValue(record, "001", "b"), 10);
+            MarcRecordReader reader = new MarcRecordReader(record);
 
-            return new RecordId(recId, agencyId);
+            String recordId = reader.recordId();
+            int agencyId = reader.agencyIdAsInteger();
+
+            return new RecordId(recordId, agencyId);
         } catch (NumberFormatException ex) {
             return null;
         } finally {
@@ -208,7 +202,7 @@ public class RawRepo {
         }
     }
 
-    public static Connection getConnection(Properties settings) throws ClassNotFoundException, SQLException, IOException {
+    static Connection getConnection(Properties settings) throws ClassNotFoundException, SQLException, IOException {
         Class.forName(settings.getProperty(JDBC_DRIVER_KEY));
 
         String url = settings.getProperty(JDBC_URL_KEY);
@@ -222,7 +216,7 @@ public class RawRepo {
         return conn;
     }
 
-    public static void setupDatabase(Properties settings) throws SQLException, IOException, ClassNotFoundException {
+    static void setupDatabase(Properties settings) throws SQLException, IOException, ClassNotFoundException {
         logger.entry(settings);
         logger.info("setup RR");
 
@@ -235,9 +229,9 @@ public class RawRepo {
 
                     output.debug("Setup queue rule for worker: {}", name);
                     if (name.equals(BASIS_WORKER_NAME)) {
-                        JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, mimetype, changed, leaf) VALUES(?, ?, ?, ?, ?)", settings.getProperty( "rawrepo.provider.name" ), name, BASIS_WORKER_MIMETYPE, "Y", "A");
+                        JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, mimetype, changed, leaf) VALUES(?, ?, ?, ?, ?)", settings.getProperty("rawrepo.provider.name"), name, BASIS_WORKER_MIMETYPE, "Y", "A");
                     } else {
-                        JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, changed, leaf) VALUES(?, ?, ?, ?)", settings.getProperty( "rawrepo.provider.name" ), name, "Y", "A");
+                        JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, changed, leaf) VALUES(?, ?, ?, ?)", settings.getProperty("rawrepo.provider.name"), name, "Y", "A");
                     }
                 }
 
@@ -253,14 +247,14 @@ public class RawRepo {
         }
     }
 
-    public static void teardownDatabase(Properties settings) throws SQLException, IOException, ClassNotFoundException {
+    static void teardownDatabase(Properties settings) throws SQLException, IOException, ClassNotFoundException {
         logger.entry(settings);
 
         logger.info("teardown RR");
         Set<String> settingsStr = settings.stringPropertyNames();
         String[] ar = settingsStr.toArray(new String[0]);
-        for (int ix = 0; ix < ar.length;ix++) {
-            logger.error("Prop {} = value {}", ar[ix], settings.getProperty(ar[ix]));
+        for (String anAr : ar) {
+            logger.error("Prop {} = value {}", anAr, settings.getProperty(anAr));
         }
         try (Connection conn = getConnection(settings)) {
             try {
@@ -297,17 +291,17 @@ public class RawRepo {
      * @throws ClassNotFoundException If we can not initialize RawRepoDAO.
      * @throws RawRepoException       rawrepo errors.
      */
-    public static List<Record> loadRecords(Properties settings) throws SQLException, IOException, ClassNotFoundException, RawRepoException {
+    static List<Record> loadRecords(Properties settings) throws SQLException, IOException, ClassNotFoundException, RawRepoException {
         logger.entry(settings);
 
         Set<String> settingsStr = settings.stringPropertyNames();
         String[] ar = settingsStr.toArray(new String[0]);
-        for (int ix = 0; ix < ar.length;ix++) {
-            logger.error("Prop {} = value {}", ar[ix], settings.getProperty(ar[ix]));
+        for (String anAr : ar) {
+            logger.error("Prop {} = value {}", anAr, settings.getProperty(anAr));
         }
         List<Record> records = new ArrayList<>();
         try (Connection conn = getConnection(settings)) {
-            RawRepo rawRepo = new RawRepo( settings, conn);
+            RawRepo rawRepo = new RawRepo(settings, conn);
             for (Map<String, Object> entry : JDBCUtil.queryForRowMaps(conn, SELECT_RECORDS_SQL)) {
                 String recordId = (String) (entry.get(RECORD_ID_COL));
                 BigDecimal agencyId = (BigDecimal) (entry.get(AGENCY_ID_COL));
@@ -335,7 +329,7 @@ public class RawRepo {
      * @throws ClassNotFoundException If we can not initialize RawRepoDAO.
      * @throws RawRepoException       rawrepo errors.
      */
-    public static List<RecordId> loadQueuedRecords(Properties settings) throws RawRepoException, SQLException, IOException, ClassNotFoundException {
+    static List<RecordId> loadQueuedRecords(Properties settings) throws RawRepoException, SQLException, IOException, ClassNotFoundException {
         logger.entry();
 
         List<RecordId> result = new ArrayList<>();
@@ -350,7 +344,7 @@ public class RawRepo {
                     result.add(job.getJob());
                 }
             }
-            while (jobs != null && !jobs.isEmpty());
+            while (!jobs.isEmpty());
 
             return result;
         } finally {
@@ -370,7 +364,7 @@ public class RawRepo {
      * @throws ClassNotFoundException If we can not initialize RawRepoDAO.
      * @throws RawRepoException       rawrepo errors.
      */
-    public static Set<RecordId> loadRelations(Properties settings, RecordId recordId, RawRepoRelationType type) throws RawRepoException, SQLException, IOException, ClassNotFoundException {
+    static Set<RecordId> loadRelations(Properties settings, RecordId recordId, RawRepoRelationType type) throws RawRepoException, SQLException, IOException, ClassNotFoundException {
         logger.entry();
 
         Set<RecordId> result = null;

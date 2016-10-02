@@ -1,7 +1,4 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.ocbtest;
-
-//-----------------------------------------------------------------------------
 
 import dk.dbc.ocbtools.commons.api.Subcommand;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
@@ -15,8 +12,6 @@ import org.slf4j.ext.XLoggerFactory;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-//-----------------------------------------------------------------------------
 
 /**
  * Defines a subcommand to list testcases.

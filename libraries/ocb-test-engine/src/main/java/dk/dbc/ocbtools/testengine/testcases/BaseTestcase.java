@@ -4,14 +4,11 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 
 import java.io.File;
 
-/**
- * Created by thl on 8/10/15.
- */
 public class BaseTestcase {
     protected String name;
 
     @JsonIgnore
-    protected String distributionName;
+    String distributionName;
 
     // The file that this Testcase was created from. It may be null.
     @JsonIgnore
@@ -19,7 +16,7 @@ public class BaseTestcase {
 
     protected String description;
 
-    public BaseTestcase() {
+    BaseTestcase() {
         this.name = "";
         this.distributionName = "";
         this.file = null;
@@ -38,7 +35,7 @@ public class BaseTestcase {
         return distributionName;
     }
 
-    public void setDistributionName(String distributionName) {
+    void setDistributionName(String distributionName) {
         this.distributionName = distributionName;
     }
 

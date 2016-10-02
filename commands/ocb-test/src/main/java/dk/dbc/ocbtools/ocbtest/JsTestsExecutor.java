@@ -13,16 +13,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by stp on 09/02/15.
- */
-public class JsTestsExecutor implements SubcommandExecutor {
+class JsTestsExecutor implements SubcommandExecutor {
     private static final XLogger logger = XLoggerFactory.getXLogger(JsTestsExecutor.class);
 
     private File baseDir;
     private List<String> modules;
 
-    public JsTestsExecutor(File baseDir, List<String> modules) {
+    JsTestsExecutor(File baseDir, List<String> modules) {
         this.baseDir = baseDir;
         this.modules = modules;
     }

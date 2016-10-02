@@ -1,7 +1,4 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.commons.cli;
-
-//-----------------------------------------------------------------------------
 
 import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.Subcommand;
@@ -24,7 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-//-----------------------------------------------------------------------------
 /**
  * CliExecutor has the responsability to parse the arguments from the command
  * line executes the subcommand.
@@ -37,15 +33,11 @@ public class CliExecutor {
 
     private String commandName;
 
-    public CliExecutor(String commandName) {
+    private CliExecutor(String commandName) {
         this.commandName = commandName;
     }
 
-    //-------------------------------------------------------------------------
-    //              Execution
-    //-------------------------------------------------------------------------
-
-    public void execute(String[] args) throws IllegalAccessException, InstantiationException, IOException, CliException {
+    private void execute(String[] args) throws IllegalAccessException, InstantiationException, IOException, CliException {
         logger.entry(args);
 
         try {
@@ -132,16 +124,16 @@ public class CliExecutor {
             return 1;
         } finally {
             long elapsedTime = watch.getElapsedTime();
-            logger.debug( "Elapsed time for command '{}': {}", commandName, elapsedTime );
+            logger.debug("Elapsed time for command '{}': {}", commandName, elapsedTime);
 
             NumberFormat numberFormat = NumberFormat.getNumberInstance();
-            if( numberFormat instanceof DecimalFormat ) {
+            if (numberFormat instanceof DecimalFormat) {
                 DecimalFormat df = (DecimalFormat) numberFormat;
 
-                df.setDecimalSeparatorAlwaysShown( true );
+                df.setDecimalSeparatorAlwaysShown(true);
             }
-            output.info( "" );
-            output.info( "Command '{}' executed in {} seconds", commandName, numberFormat.format( elapsedTime / 1000.0 ) );
+            output.info("");
+            output.info("Command '{}' executed in {} seconds", commandName, numberFormat.format(elapsedTime / 1000.0));
             logger.exit();
         }
     }
@@ -150,7 +142,7 @@ public class CliExecutor {
     //              Registrations
     //-------------------------------------------------------------------------
 
-    public List<SubcommandDefinition> getSubcommandDefinitions() throws IllegalAccessException, InstantiationException {
+    private List<SubcommandDefinition> getSubcommandDefinitions() throws IllegalAccessException, InstantiationException {
         logger.entry();
 
         List<SubcommandDefinition> definitions = new ArrayList<>();
@@ -170,7 +162,7 @@ public class CliExecutor {
         }
     }
 
-    public SubcommandDefinition findSubcommandDefinition(String subCommandName) throws InstantiationException, IllegalAccessException {
+    private SubcommandDefinition findSubcommandDefinition(String subCommandName) throws InstantiationException, IllegalAccessException {
         logger.entry();
 
         try {

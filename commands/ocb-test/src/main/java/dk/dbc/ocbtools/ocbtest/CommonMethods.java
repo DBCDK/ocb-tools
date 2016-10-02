@@ -9,10 +9,10 @@ import org.slf4j.ext.XLoggerFactory;
 
 import java.util.ResourceBundle;
 
-public class CommonMethods {
+class CommonMethods {
     private static final XLogger logger = XLoggerFactory.getXLogger(CommonMethods.class);
 
-    public static ApplicationType parseApplicationType(CommandLine line) throws CliException {
+    static ApplicationType parseApplicationType(CommandLine line) throws CliException {
         logger.entry();
         ApplicationType res = null;
         try {
