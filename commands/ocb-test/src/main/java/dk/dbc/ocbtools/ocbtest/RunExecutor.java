@@ -26,7 +26,7 @@ import dk.dbc.ocbtools.testengine.testcases.BuildTestcaseRepositoryFactory;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRepository;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRepositoryFactory;
-import dk.dbc.updateservice.service.api.Entry;
+import dk.dbc.updateservice.service.api.MessageEntry;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -47,13 +47,11 @@ class RunExecutor implements SubcommandExecutor {
     private static final String SERVICE_NAME = "ocb-test";
 
     private File baseDir;
-
     private boolean useRemote;
     private String configName;
     private boolean printDemoInfo;
     private List<String> tcNames;
     private ApplicationType applicationType;
-
     private List<TestReport> reports;
 
     RunExecutor(File baseDir) {
@@ -105,6 +103,7 @@ class RunExecutor implements SubcommandExecutor {
         }
     }
 
+    @SuppressWarnings("Duplicates")
     private void checkForNonExistantTestcases(UpdateTestcaseRepository updateTestcaseRepository) throws CliException {
         output.entry(updateTestcaseRepository);
         try {
@@ -118,6 +117,7 @@ class RunExecutor implements SubcommandExecutor {
         }
     }
 
+    @SuppressWarnings("Duplicates")
     private void checkForNonExistantTestcases(BuildTestcaseRepository buildTestcaseRepository) throws CliException {
         output.entry(buildTestcaseRepository);
         try {
@@ -171,7 +171,7 @@ class RunExecutor implements SubcommandExecutor {
                         executors.add(new CheckTemplateExecutor(baseDir, tc));
                     }
                 } else {
-                    List<Entry> validation = tc.getExpected().getValidation();
+                    List<MessageEntry> validation = tc.getExpected().getValidation();
                     if (validation != null) {
                         executors.add(new RemoteValidateExecutor(tc, settings, printDemoInfo));
                     }
@@ -203,7 +203,6 @@ class RunExecutor implements SubcommandExecutor {
             output.exit();
         }
     }
-
 
     private void actionPerformedBuild() throws CliException {
         output.entry();

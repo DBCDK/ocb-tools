@@ -261,21 +261,20 @@ public class RemoteValidateExecutor implements TestExecutor {
             CatalogingUpdatePortType catalogingUpdatePortType = createPort(url);
             UpdateRecordResult response = catalogingUpdatePortType.updateRecord(request);
             watch.stop();
-            logger.debug("Receive response in {} ms: {}", watch.getElapsedTime(), Json.encodePretty(response));
+            logger.debug("Received response in " + watch.getElapsedTime() + " ms: " + Json.encodePretty(response));
             if (demoInfoPrinter != null) {
                 demoInfoPrinter.printResponse(response);
             }
 
             watch.start();
             try {
-                // TODO: Hvordan kan man teste succesfuld authentication nu?
                 UpdateAsserter.assertValidation(UpdateAsserter.VALIDATION_PREFIX_KEY, tc.getExpected().getValidation(), response.getMessages());
                 if (!tc.getExpected().hasValidationErrors()) {
                     assertEquals(UpdateStatusEnum.OK, response.getUpdateStatus());
                     if (tc.getExpected().getValidation() == null || tc.getExpected().getValidation().isEmpty()) {
                         assertTrue(response.getMessages() == null);
                     } else {
-                        assertTrue(response.getMessages().getEntry().size() > 0);
+                        assertTrue(response.getMessages().getMessageEntry().size() > 0);
                     }
                 } else {
                     assertEquals(UpdateStatusEnum.FAILED, response.getUpdateStatus());

@@ -7,7 +7,9 @@ import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.ocbrequests.rawrepo.RecordEntity;
 import dk.dbc.updateservice.client.BibliographicRecordExtraData;
 import dk.dbc.updateservice.client.BibliographicRecordFactory;
-import dk.dbc.updateservice.service.api.*;
+import dk.dbc.updateservice.service.api.Authentication;
+import dk.dbc.updateservice.service.api.UpdateRecord;
+import dk.dbc.updateservice.service.api.UpdateRecordRequest;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 import org.w3c.dom.Document;
@@ -23,13 +25,15 @@ import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 class CreateRequestTask implements Runnable {
 
 
-    private static final XLogger logger = XLoggerFactory.getXLogger( CreateRequestTask.class );
-    private static final XLogger output = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
+    private static final XLogger logger = XLoggerFactory.getXLogger(CreateRequestTask.class);
+    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
 
     private File baseDir;
     private Integer userNumber;
@@ -72,29 +76,25 @@ class CreateRequestTask implements Runnable {
     @Override
     public void run() {
         logger.entry();
-
         try {
-            File userDir = new File( baseDir.getCanonicalPath() + "/user-" + userNumber );
-            if( !userDir.exists() ) {
+            File userDir = new File(baseDir.getCanonicalPath() + "/user-" + userNumber);
+            if (!userDir.exists()) {
                 userDir.mkdirs();
             }
 
-            String filename = baseDir.getCanonicalPath() + "/" + String.format( "user-%s/request-%s.xml", userNumber, requestNumber );
-            try( FileOutputStream fos = new FileOutputStream( filename, false ) ) {
+            String filename = baseDir.getCanonicalPath() + "/" + String.format("user-%s/request-%s.xml", userNumber, requestNumber);
+            try (FileOutputStream fos = new FileOutputStream(filename, false)) {
                 SOAPMessage message = createSoapRequest();
-                message.writeTo( fos );
+                message.writeTo(fos);
+            } catch (Exception ex) {
+                output.error(ex.getMessage());
+                logger.error(ex.getMessage(), ex);
             }
-            catch( Exception ex ) {
-                output.error( ex.getMessage() );
-                logger.error( ex.getMessage(), ex );
-            }
-            logger.info( "Wrote file: {}", filename );
-        }
-        catch( IOException ex ) {
-            output.error( ex.getMessage() );
-            logger.error( ex.getMessage(), ex );
-        }
-        finally {
+            logger.info("Wrote file: {}", filename);
+        } catch (IOException ex) {
+            output.error(ex.getMessage());
+            logger.error(ex.getMessage(), ex);
+        } finally {
             logger.exit();
         }
     }
@@ -105,7 +105,7 @@ class CreateRequestTask implements Runnable {
         try {
             UpdateRecordRequest request = createRequest();
 
-            JAXBContext jc = JAXBContext.newInstance( "dk.dbc.updateservice.service.api" );
+            JAXBContext jc = JAXBContext.newInstance("dk.dbc.updateservice.service.api");
             Marshaller m = jc.createMarshaller();
 
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -114,23 +114,21 @@ class CreateRequestTask implements Runnable {
             Document doc = db.newDocument();
 
             UpdateRecord soapOperation = new UpdateRecord();
-            soapOperation.setUpdateRecordRequest( request );
-            m.marshal( soapOperation, doc );
+            soapOperation.setUpdateRecordRequest(request);
+            m.marshal(soapOperation, doc);
 
             MessageFactory myMsgFct = MessageFactory.newInstance();
             SOAPMessage message = myMsgFct.createMessage();
             SOAPBody soapBody = message.getSOAPBody();
-            soapBody.addDocument( doc );
+            soapBody.addDocument(doc);
 
             return message;
-        }
-        catch( Exception ex ) {
-            output.error( ex.getMessage() );
-            logger.error( ex.getMessage(), ex );
+        } catch (Exception ex) {
+            output.error(ex.getMessage());
+            logger.error(ex.getMessage(), ex);
 
             throw ex;
-        }
-        finally {
+        } finally {
             logger.exit();
         }
     }
@@ -139,29 +137,28 @@ class CreateRequestTask implements Runnable {
         logger.entry();
 
         try {
-            MarcRecord recordData = MarcConverter.convertFromMarcXChange( record.contentAsXml() );
+            MarcRecord recordData = MarcConverter.convertFromMarcXChange(record.contentAsXml());
 
             UpdateRecordRequest request = new UpdateRecordRequest();
 
             Authentication auth = new Authentication();
-            auth.setUserIdAut( "netpunkt" );
-            auth.setGroupIdAut( agencyId.toString() );
-            auth.setPasswordAut( "20Koster" );
+            auth.setUserIdAut("netpunkt");
+            auth.setGroupIdAut(agencyId.toString());
+            auth.setPasswordAut("20Koster");
 
             request.setAuthentication(auth);
-            request.setSchemaName( "ffu" );
-            request.setTrackingId( String.format( "User-%s:%s", userNumber, requestNumber ) );
+            request.setSchemaName("ffu");
+            request.setTrackingId(String.format("User-%s:%s", userNumber, requestNumber));
 
             request.setOptions(null);
 
             BibliographicRecordExtraData extraData = new BibliographicRecordExtraData();
-            extraData.setProviderName( "opencataloging-update" );
+            extraData.setProviderName("opencataloging-update");
 
-            request.setBibliographicRecord( BibliographicRecordFactory.newMarcRecord( recordData, extraData ) );
+            request.setBibliographicRecord(BibliographicRecordFactory.newMarcRecord(recordData, extraData));
 
             return request;
-        }
-        finally {
+        } finally {
             logger.exit();
         }
     }

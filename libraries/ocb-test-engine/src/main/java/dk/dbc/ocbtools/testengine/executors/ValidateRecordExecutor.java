@@ -6,7 +6,7 @@ import dk.dbc.ocbtools.scripter.ScripterException;
 import dk.dbc.ocbtools.scripter.ServiceScripter;
 import dk.dbc.ocbtools.testengine.asserters.UpdateAsserter;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
-import dk.dbc.updateservice.service.api.Entry;
+import dk.dbc.updateservice.service.api.MessageEntry;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -83,7 +83,7 @@ public class ValidateRecordExecutor implements TestExecutor {
             Map<String, String> settings = createSettings();
 
             Object jsResult = scripter.callMethod(SCRIPT_FILENAME, SCRIPT_FUNCTION, tc, Json.encode(record), settings);
-            List<Entry> valErrors = Json.decodeArray(jsResult.toString(), Entry.class);
+            List<MessageEntry> valErrors = Json.decodeArray(jsResult.toString(), MessageEntry.class);
             UpdateAsserter.assertValidation(UpdateAsserter.VALIDATION_PREFIX_KEY, tc.getExpected().getValidation(), valErrors);
         } catch (IOException | ScripterException ex) {
             throw new AssertionError(String.format("Fatal error when checking template for testcase %s", tc.getName()), ex);

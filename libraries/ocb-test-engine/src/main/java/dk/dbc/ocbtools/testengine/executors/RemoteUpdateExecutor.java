@@ -73,7 +73,7 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
             CatalogingUpdatePortType catalogingUpdatePortType = createPort(url);
             UpdateRecordResult response = catalogingUpdatePortType.updateRecord(request);
             watch.stop();
-            logger.debug("Receive response in {} ms: {}", watch.getElapsedTime(), response);
+            logger.debug("Received response in " + watch.getElapsedTime() + " ms: " + response);
             if (demoInfoPrinter != null) {
                 demoInfoPrinter.printResponse(response);
             }
@@ -81,34 +81,35 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
             watch.start();
             try {
                 assertNotNull("No expected results found.", tc.getExpected());
-                // TODO: Hvordan kan man teste succesfuld authentication nu?
                 if (tc.getExpected().hasValidationErrors()) {
                     UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getValidation(), response.getMessages());
                     assertEquals(UpdateStatusEnum.FAILED, response.getUpdateStatus());
                 }
-                if (tc.getExpected().getUpdate() == null) {
-                    return;
-                }
-                if (tc.getExpected().getUpdate().getErrors() == null || tc.getExpected().getUpdate().getErrors().isEmpty()) {
-                    UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, new ArrayList<>(), response.getMessages());
-                    assertEquals(UpdateStatusEnum.OK, response.getUpdateStatus());
-                } else if (tc.getExpected().getUpdate().hasErrors() || tc.getExpected().getUpdate().hasWarnings() || tc.getExpected().getUpdate().hasDoublepostKey()) {
-                    UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getErrors(), response.getMessages());
-                    assertEquals(UpdateStatusEnum.FAILED, response.getUpdateStatus());
-                } else {
-                    UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getErrors(), response.getMessages());
-                    assertEquals(UpdateStatusEnum.OK, response.getUpdateStatus());
-                }
+                if (tc.getExpected().getUpdate() != null) {
+                    if (tc.getExpected().getUpdate().hasDoubleRecords()) {
+                        UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getDoubleRecords(), response.getDoubleRecordEntries());
+                        assertEquals(UpdateStatusEnum.FAILED, response.getUpdateStatus());
+                    } else if (tc.getExpected().getUpdate().hasErrors() || tc.getExpected().getUpdate().hasWarnings()) {
+                        UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getErrors(), response.getMessages());
+                        assertEquals(UpdateStatusEnum.FAILED, response.getUpdateStatus());
+                    } else if (tc.getExpected().getUpdate().getErrors() == null || tc.getExpected().getUpdate().getErrors().isEmpty()) {
+                        UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, new ArrayList<>(), response.getMessages());
+                        assertEquals(UpdateStatusEnum.OK, response.getUpdateStatus());
+                    } else {
+                        UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getErrors(), response.getMessages());
+                        assertEquals(UpdateStatusEnum.OK, response.getUpdateStatus());
+                    }
 
-                if (tc.getExpected().getUpdate().getRawrepo() != null) {
-                    RawRepoAsserter.assertRecordListEquals(tc.getExpected().getUpdate().getRawrepo(), RawRepo.loadRecords(settings));
-                    RawRepoAsserter.assertQueueRecords(tc.getExpected().getUpdate().getRawrepo(), RawRepo.loadQueuedRecords(settings));
-                } else if (tc.getSetup() != null && tc.getSetup().getRawrepo() != null) {
-                    RawRepoAsserter.assertRecordListEquals(tc.getSetup().getRawrepo(), RawRepo.loadRecords(settings));
-                    RawRepoAsserter.assertQueueRecords(tc.getSetup().getRawrepo(), RawRepo.loadQueuedRecords(settings));
+                    if (tc.getExpected().getUpdate().getRawrepo() != null) {
+                        RawRepoAsserter.assertRecordListEquals(tc.getExpected().getUpdate().getRawrepo(), RawRepo.loadRecords(settings));
+                        RawRepoAsserter.assertQueueRecords(tc.getExpected().getUpdate().getRawrepo(), RawRepo.loadQueuedRecords(settings));
+                    } else if (tc.getSetup() != null && tc.getSetup().getRawrepo() != null) {
+                        RawRepoAsserter.assertRecordListEquals(tc.getSetup().getRawrepo(), RawRepo.loadRecords(settings));
+                        RawRepoAsserter.assertQueueRecords(tc.getSetup().getRawrepo(), RawRepo.loadQueuedRecords(settings));
+                    }
+                    checkRelations(fs, settings, RawRepoRelationType.CHILD);
+                    checkRelations(fs, settings, RawRepoRelationType.SIBLING);
                 }
-                checkRelations(fs, settings, RawRepoRelationType.CHILD);
-                checkRelations(fs, settings, RawRepoRelationType.SIBLING);
             } finally {
                 watch.stop();
                 logger.debug("Test response in {} ms", watch.getElapsedTime());
