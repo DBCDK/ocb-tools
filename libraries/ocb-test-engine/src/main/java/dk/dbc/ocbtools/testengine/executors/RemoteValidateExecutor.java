@@ -111,6 +111,7 @@ public class RemoteValidateExecutor implements TestExecutor {
                         } catch (SQLException sqlex) {
                             logger.error("Rollback failed", sqlex);
                         }
+                        throw rrex;
                     }
                     return false;
                 }

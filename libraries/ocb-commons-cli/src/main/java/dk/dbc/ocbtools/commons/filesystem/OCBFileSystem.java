@@ -129,6 +129,7 @@ public class OCBFileSystem {
             for (String filename : filenames) {
                 File file = new File(filename);
 
+                logger.debug("Checking settings from '{}'", file.getCanonicalPath());
                 if (file.exists()) {
                     return props = loadSettings(file);
                 }

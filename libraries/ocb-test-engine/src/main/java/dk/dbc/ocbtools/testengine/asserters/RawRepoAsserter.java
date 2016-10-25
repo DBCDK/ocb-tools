@@ -113,7 +113,7 @@ public class RawRepoAsserter {
                         assertEquals("Compare 001" + expectedSubField.getName(), expectedSubField.toString(), actualSubField.toString());
                     }
                 } else {
-                    assertEquals("Compare field " + expectedField.getName(), expectedField.toString(), actualField.toString());
+                    assertEquals("Compare field " + expectedField.getName() + "\ntestfile :" + expected.getRecord(), expectedField.toString(), actualField.toString());
                 }
             }
         } finally {
