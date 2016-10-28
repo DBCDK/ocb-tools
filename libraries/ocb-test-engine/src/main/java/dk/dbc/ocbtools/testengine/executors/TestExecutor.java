@@ -1,5 +1,12 @@
 package dk.dbc.ocbtools.testengine.executors;
 
+import dk.dbc.holdingsitems.HoldingsItemsException;
+import dk.dbc.rawrepo.RawRepoException;
+
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.sql.SQLException;
+
 /**
  * Defines the interface to execute a Testcase.
  */
@@ -14,7 +21,7 @@ public interface TestExecutor {
      * <p/>
      * This method is called before the tests are run.
      */
-    boolean setup();
+    boolean setup() throws IOException, JAXBException, SQLException, RawRepoException, HoldingsItemsException, ClassNotFoundException;
 
     /**
      * Tear down the testcase.

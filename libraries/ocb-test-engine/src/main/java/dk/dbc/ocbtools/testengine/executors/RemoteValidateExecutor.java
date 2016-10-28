@@ -78,7 +78,7 @@ public class RemoteValidateExecutor implements TestExecutor {
     }
 
     @Override
-    public boolean setup() {
+    public boolean setup() throws IOException, JAXBException, SQLException, RawRepoException, HoldingsItemsException, ClassNotFoundException {
         logger.entry();
         try {
             if (this.demoInfoPrinter != null) {
@@ -111,9 +111,8 @@ public class RemoteValidateExecutor implements TestExecutor {
                         } catch (SQLException sqlex) {
                             logger.error("Rollback failed", sqlex);
                         }
-                        throw rrex;
                     }
-                    return false;
+                    throw rrex;
                 }
             }
             setupHoldings(fs);
@@ -123,7 +122,7 @@ public class RemoteValidateExecutor implements TestExecutor {
             return true;
         } catch (Throwable ex) {
             logger.error("setup ERROR : ", ex);
-            return false;
+            throw ex;
         } finally {
             logger.exit();
         }
