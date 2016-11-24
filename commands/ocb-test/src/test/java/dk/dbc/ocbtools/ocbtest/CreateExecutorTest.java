@@ -1,11 +1,8 @@
-//-----------------------------------------------------------------------------
 package dk.dbc.ocbtools.ocbtest;
 
-//-----------------------------------------------------------------------------
-
-import dk.dbc.iscrum.records.MarcReader;
 import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.records.MarcRecordFactory;
+import dk.dbc.iscrum.records.MarcRecordReader;
 import dk.dbc.iscrum.utils.IOUtils;
 import dk.dbc.iscrum.utils.ResourceBundles;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
@@ -14,8 +11,17 @@ import dk.dbc.ocbtools.commons.filesystem.SystemTest;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseFactory;
-import org.apache.commons.cli.*;
-import org.junit.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -83,7 +89,7 @@ public class CreateExecutorTest {
 
             FileInputStream requestMarcStream = new FileInputStream(new File(testDir.getCanonicalPath() + "/request.marc"));
             MarcRecord record = MarcRecordFactory.readRecord(IOUtils.readAll(requestMarcStream, "UTF-8"));
-            assertThat(MarcReader.getRecordValue(record, "001", "a"), is("1 234 567 8"));
+            assertThat(new MarcRecordReader(record).getValue("001", "a"), is("1 234 567 8"));
 
             File tcFile = new File(testDir.getCanonicalPath() + "/tc_record.json");
             List<UpdateTestcase> updateTestcases = UpdateTestcaseFactory.newInstances(new SystemTest("dist", tcFile, ApplicationType.UPDATE));
@@ -139,7 +145,7 @@ public class CreateExecutorTest {
 
                 FileInputStream requestMarcStream = new FileInputStream(new File(testDir.getCanonicalPath() + "/" + recordFilename));
                 MarcRecord loadedRecord = MarcRecordFactory.readRecord(IOUtils.readAll(requestMarcStream, "UTF-8"));
-                assertThat(MarcReader.getRecordValue(loadedRecord, "001", "a"), not(""));
+                assertThat(new MarcRecordReader(loadedRecord).getValue("001", "a"), not(""));
 
                 UpdateTestcase tc = updateTestcases.get(recordNo - 1);
                 assertThat(tc, notNullValue());
