@@ -7,32 +7,40 @@ import dk.dbc.iscrum.utils.ResourceBundles;
 import dk.dbc.marc.DanMarc2Charset;
 import dk.dbc.ocbtools.commons.api.Subcommand;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
-import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.cli.CliException;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 import org.hamcrest.core.Is;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ResourceBundle;
 
-import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class CreateDefinitionTest {
+    private static ResourceBundle bundle;
+    private File testDir;
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-
-    //-------------------------------------------------------------------------
-    //              Setup
-    //-------------------------------------------------------------------------
 
     @BeforeClass
     public static void init() {
@@ -48,10 +56,6 @@ public class CreateDefinitionTest {
     public void deleteTestDir() throws FileNotFoundException {
         IOUtils.deleteDirRecursively(testDir);
     }
-
-    //-------------------------------------------------------------------------
-    //              Tests
-    //-------------------------------------------------------------------------
 
     @Test
     public void testAnnotations() {
@@ -216,10 +220,6 @@ public class CreateDefinitionTest {
         instance.createExecutor(testDir, line);
     }
 
-    //-------------------------------------------------------------------------
-    //              Helpers
-    //-------------------------------------------------------------------------
-
     private Options createOptions(SubcommandDefinition def) throws CliException {
         Options options = new Options();
         for (Option option : def.createOptions()) {
@@ -229,10 +229,4 @@ public class CreateDefinitionTest {
         return options;
     }
 
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private static ResourceBundle bundle;
-    private File testDir;
 }

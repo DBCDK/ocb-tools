@@ -41,16 +41,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-/**
- * Created by stp on 08/05/15.
- */
 public class CreateExecutorTest {
+    private static final XLogger logger = XLoggerFactory.getXLogger(CreateExecutor.class);
+
+    private static ResourceBundle bundle;
+    private File testDir;
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-
-    //-------------------------------------------------------------------------
-    //              Setup
-    //-------------------------------------------------------------------------
 
     @BeforeClass
     public static void init() {
@@ -66,10 +64,6 @@ public class CreateExecutorTest {
     public void deleteTestDir() throws FileNotFoundException {
         IOUtils.deleteDirRecursively(testDir);
     }
-
-    //-------------------------------------------------------------------------
-    //              Tests
-    //-------------------------------------------------------------------------
 
     @Test
     public void testSingleRecord() throws Exception {
@@ -177,10 +171,6 @@ public class CreateExecutorTest {
         }
     }
 
-    //-------------------------------------------------------------------------
-    //              Helpers
-    //-------------------------------------------------------------------------
-
     private CreateExecutor createInstance(String... args) throws CliException, ParseException {
         logger.entry(args);
 
@@ -215,12 +205,4 @@ public class CreateExecutorTest {
         }
     }
 
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private static final XLogger logger = XLoggerFactory.getXLogger(CreateExecutor.class);
-
-    private static ResourceBundle bundle;
-    private File testDir;
 }
