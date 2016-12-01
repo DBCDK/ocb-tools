@@ -1,24 +1,27 @@
 package dk.dbc.ocbtools.testengine.executors;
 
 import dk.dbc.buildservice.client.BibliographicRecordFactory;
-import dk.dbc.buildservice.client.BuildService;
 import dk.dbc.buildservice.service.api.BibliographicRecord;
 import dk.dbc.buildservice.service.api.BuildPortType;
 import dk.dbc.buildservice.service.api.BuildRequest;
 import dk.dbc.buildservice.service.api.BuildResult;
+import dk.dbc.buildservice.service.api.CatalogingBuildServices;
 import dk.dbc.iscrum.records.MarcConverter;
 import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.ocbtools.testengine.asserters.BuildAsserter;
 import dk.dbc.ocbtools.testengine.testcases.BuildTestcase;
 import org.perf4j.StopWatch;
+import org.perf4j.log4j.Log4JStopWatch;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.ws.BindingProvider;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -31,6 +34,8 @@ import java.util.Properties;
  */
 public class RemoteBuildExecutor implements TestExecutor {
     private static final XLogger logger = XLoggerFactory.getXLogger(RemoteValidateExecutor.class);
+    private static final long DEFAULT_CONNECT_TIMEOUT_MS = 1 * 60 * 1000;    // 1 minute
+    private static final long DEFAULT_REQUEST_TIMEOUT_MS = 3 * 60 * 1000;    // 3 minutes
     private static final String TRACKING_ID_FORMAT = "ocbtools-%s-%s-%s";
 
     private BuildTestcase buildTestcase;
@@ -66,9 +71,9 @@ public class RemoteBuildExecutor implements TestExecutor {
             if (this.demoInfoPrinter != null) {
                 demoInfoPrinter.printHeader(this.buildTestcase, this);
             }
+            return true;
         } finally {
             logger.exit();
-            return true;
         }
     }
 
@@ -89,26 +94,15 @@ public class RemoteBuildExecutor implements TestExecutor {
         logger.entry();
         try {
             URL url = createServiceUrl();
-            BuildService buildService = new BuildService(url);
-            BuildPortType buildPortType = buildService.createPort();
-
-            BuildRequest buildRequest = new BuildRequest();
-            buildRequest.setSchemaName(buildTestcase.getRequest().getTemplateName());
-            buildRequest.setTrackingId(String.format(TRACKING_ID_FORMAT, System.getProperty("user.name"), buildTestcase.getName(), getClass().getSimpleName()));
-
-            BibliographicRecord bibliographicRecord = BibliographicRecordFactory.newMarcRecord(buildTestcase.loadRequestRecord());
-            buildRequest.setBibliographicRecord(bibliographicRecord);
-
-            StopWatch watch = new StopWatch();
-
+            BuildRequest buildRequest = getBuildRequest();
             logger.debug("Sending request '{}' to {}", buildRequest.getTrackingId(), url);
             if (demoInfoPrinter != null) {
                 demoInfoPrinter.printRequest(buildRequest, buildTestcase.loadRequestRecord());
             }
-            watch.start();
+            StopWatch watch = new Log4JStopWatch("RemoteBuildExecutor.executeTests");
+            BuildPortType buildPortType = createPort(url);
             BuildResult buildResult = buildPortType.build(buildRequest);
             watch.stop();
-
 
             String assertInput = null;
             if (buildResult != null) {
@@ -144,6 +138,18 @@ public class RemoteBuildExecutor implements TestExecutor {
         }
     }
 
+    private BuildRequest getBuildRequest() throws ParserConfigurationException, SAXException, IOException, JAXBException {
+        BuildRequest buildRequest = new BuildRequest();
+        buildRequest.setSchemaName(buildTestcase.getRequest().getTemplateName());
+        buildRequest.setTrackingId(String.format(TRACKING_ID_FORMAT, System.getProperty("user.name"), buildTestcase.getName(), getClass().getSimpleName()));
+        MarcRecord marcRecord = buildTestcase.loadRequestRecord();
+        if (marcRecord != null) {
+            BibliographicRecord bibliographicRecord = BibliographicRecordFactory.newMarcRecord(marcRecord);
+            buildRequest.setBibliographicRecord(bibliographicRecord);
+        }
+        return buildRequest;
+    }
+
     private URL createServiceUrl() {
         logger.entry();
         URL result = null;
@@ -156,6 +162,27 @@ public class RemoteBuildExecutor implements TestExecutor {
             throw new AssertionError("Unable to create url to webservice: " + e.getMessage(), e);
         } finally {
             logger.exit(result);
+        }
+    }
+
+    private BuildPortType createPort(URL baseUrl) throws MalformedURLException {
+        logger.entry();
+        try {
+            final String ENDPOINT_PATH = "/CatalogingBuildServices/OpenBuild";
+            QName serviceName = new QName("http://oss.dbc.dk/ns/catalogingBuild", "CatalogingBuildServices");
+            String endpoint = baseUrl + ENDPOINT_PATH;
+            URL url = new URL(endpoint);
+            CatalogingBuildServices catalogingBuildServices = new CatalogingBuildServices(url, serviceName);
+            BuildPortType buildPortType = catalogingBuildServices.getBuildPort();
+            BindingProvider proxy = (BindingProvider) buildPortType;
+            logger.debug("Using base url: {}", baseUrl);
+            logger.debug("Using complete endpoint: {}", endpoint);
+            proxy.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint);
+            proxy.getRequestContext().put("com.sun.xml.ws.connect.timeout", DEFAULT_CONNECT_TIMEOUT_MS);
+            proxy.getRequestContext().put("com.sun.xml.ws.request.timeout", DEFAULT_REQUEST_TIMEOUT_MS);
+            return buildPortType;
+        } finally {
+            logger.exit();
         }
     }
 }

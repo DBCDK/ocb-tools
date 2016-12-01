@@ -54,11 +54,6 @@
             <version>${maven.iscrum.records.version}</version>
         </dependency>
         <dependency>
-            <groupId>dk.dbc.buildservice</groupId>
-            <artifactId>buildservice-client</artifactId>
-            <version>${maven.buildservice.client.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.perf4j</groupId>
             <artifactId>perf4j</artifactId>
             <version>${maven.perf4j.plugin.version}</version>
@@ -82,13 +77,6 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -105,10 +93,25 @@
                             <goal>wsimport</goal>
                         </goals>
                         <configuration>
+                            <wsdlUrls>
+                                <wsdlUrl>${updateservice.wsdl.url}</wsdlUrl>
+                            </wsdlUrls>
                             <packageName>dk.dbc.updateservice.service.api</packageName>
-                            <staleFile>${project.build.directory}/jaxws/stale/catalogingUpdate.stale</staleFile>
                         </configuration>
-                        <id>wsimport-generate-catalogingUpdate</id>
+                        <id>wsimport-generate-catalogingupdate</id>
+                        <phase>generate-sources</phase>
+                    </execution>
+                    <execution>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlUrls>
+                                <wsdlUrl>${buildservice.wsdl.url}</wsdlUrl>
+                            </wsdlUrls>
+                            <packageName>dk.dbc.buildservice.service.api</packageName>
+                        </configuration>
+                        <id>wsimport-generate-catalogingbuild</id>
                         <phase>generate-sources</phase>
                     </execution>
                 </executions>
@@ -134,8 +137,10 @@
                     <xnocompile>true</xnocompile>
                     <verbose>true</verbose>
                     <extension>true</extension>
-                    <target>2.0</target>
+                    <target>2.2</target>
                     <vmArgs>
+                        <vmArg>-Djavax.xml.accessExternalDTD=all</vmArg>
+                        <vmArg>-Djavax.xml.accessExternalStylesheet=all</vmArg>
                         <vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
                     </vmArgs>
                 </configuration>
