@@ -51,7 +51,6 @@ public class OCBFileSystem {
 
     List<String> findDistributions() throws IOException {
         logger.entry();
-
         ArrayList<String> result = new ArrayList<>();
         try {
             File distributionsDir = new File(baseDir.getCanonicalPath() + "/" + DISTRIBUTIONS_DIRNAME);
@@ -60,7 +59,6 @@ public class OCBFileSystem {
                     result.add(file.getName());
                 }
             }
-
             return result;
         } finally {
             logger.exit(result);
@@ -69,7 +67,6 @@ public class OCBFileSystem {
 
     public List<SystemTest> findSystemtests() throws IOException {
         logger.entry();
-
         List<SystemTest> result = new ArrayList<>();
         try {
             String applicationStr = applicationType.toString().toLowerCase();
@@ -83,7 +80,6 @@ public class OCBFileSystem {
                     }
                 }
             }
-
             return result;
         } finally {
             logger.exit(result);
@@ -95,16 +91,13 @@ public class OCBFileSystem {
      */
     public MarcRecord loadRecord(File baseDir, String filename) throws IOException {
         logger.entry();
-
         try {
             if (baseDir == null) {
                 throw new IllegalArgumentException("baseDir can not be (null)");
             }
-
             if (!baseDir.isDirectory()) {
                 return null;
             }
-
             File recordFile = new File(baseDir.getCanonicalPath() + "/" + filename);
             FileInputStream fis = new FileInputStream(recordFile);
             return MarcRecordFactory.readRecord(IOUtils.readAll(fis, "UTF-8"));
@@ -118,23 +111,19 @@ public class OCBFileSystem {
      */
     public Properties loadSettings(String name) throws IOException {
         logger.entry(name);
-
         Properties props = null;
         try {
             String[] filenames = {
                     System.getProperty("user.home") + "/.ocb-tools/" + name + ".properties",
                     baseDir.getCanonicalFile() + "/etc/" + name + ".properties"
             };
-
             for (String filename : filenames) {
                 File file = new File(filename);
-
                 logger.debug("Checking settings from '{}'", file.getCanonicalPath());
                 if (file.exists()) {
                     return props = loadSettings(file);
                 }
             }
-
             return props = null;
         } finally {
             logger.exit(props);
@@ -146,7 +135,6 @@ public class OCBFileSystem {
      */
     private Properties loadSettings(File file) throws IOException {
         logger.entry(file);
-
         Properties props = new Properties();
         try {
             logger.debug("Loads settings from '{}'", file.getCanonicalPath());
@@ -157,12 +145,7 @@ public class OCBFileSystem {
         } finally {
             logger.exit(props);
         }
-
     }
-
-    //-------------------------------------------------------------------------
-    //              Helpers
-    //-------------------------------------------------------------------------
 
     /**
      * Extracts the base directory of the Opencat-business directory.
@@ -172,28 +155,23 @@ public class OCBFileSystem {
      */
     private static File extractBaseDir(File file) throws IOException {
         logger.entry(file);
-
         try {
             if (file == null) {
                 return null;
             }
-
             if (!file.isDirectory()) {
                 return null;
             }
-
             int directoriesFound = 0;
             for (String name : file.list()) {
                 if (Arrays.binarySearch(ROOT_DIRECTORY_NAMES, name) > -1) {
                     directoriesFound++;
                 }
             }
-
             if (directoriesFound == ROOT_DIRECTORY_NAMES.length) {
                 logger.debug("Found base dir at {}", file.getCanonicalPath());
                 return file;
             }
-
             return extractBaseDir(file.getParentFile());
         } finally {
             logger.exit();
@@ -202,31 +180,21 @@ public class OCBFileSystem {
 
     private List<File> findFiles(File dir, FilenameFilter filter) throws IOException {
         logger.entry();
-
         List<File> result = new ArrayList<>();
         try {
             if (!dir.exists()) {
                 return result;
             }
-
             result.addAll(Arrays.asList(dir.listFiles(filter)));
             File[] subDirs = dir.listFiles(pathname -> {
                 return pathname.isDirectory();
             });
-
             for (File subDir : subDirs) {
                 result.addAll(findFiles(subDir, filter));
             }
-
             return result;
         } finally {
             logger.exit(result);
         }
     }
-
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-
 }
