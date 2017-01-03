@@ -239,11 +239,7 @@ public class RawRepo {
                     JDBCUtil.update(conn, "INSERT INTO queueworkers(worker) VALUES(?)", name);
 
                     output.debug("Setup queue rule for worker: {}", name);
-                    if (name.equals(BASIS_WORKER_NAME)) {
-                        JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, mimetype, changed, leaf) VALUES(?, ?, ?, ?, ?)", settings.getProperty("rawrepo.provider.name"), name, BASIS_WORKER_MIMETYPE, "Y", "A");
-                    } else {
-                        JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, changed, leaf) VALUES(?, ?, ?, ?)", settings.getProperty("rawrepo.provider.name"), name, "Y", "A");
-                    }
+                    JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, changed, leaf) VALUES(?, ?, ?, ?)", settings.getProperty("rawrepo.provider.name"), name, "Y", "A");
                 }
 
                 conn.commit();
