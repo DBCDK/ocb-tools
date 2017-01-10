@@ -107,7 +107,8 @@ public class CreateExecutorTest {
 
             assertThat(tc.getExpected(), notNullValue());
             assertThat(tc.getExpected().getValidation(), notNullValue());
-            assertThat(tc.getExpected().getValidation().isEmpty(), is(true));
+            assertThat(tc.getExpected().getValidation().getErrors(), nullValue());
+            assertThat(tc.getExpected().getValidation().getDoubleRecords(), nullValue());
             assertThat(tc.getExpected().getUpdate(), nullValue());
         } finally {
             logger.exit();
@@ -161,7 +162,8 @@ public class CreateExecutorTest {
 
                 assertThat(tc.getExpected(), notNullValue());
                 assertThat(tc.getExpected().getValidation(), notNullValue());
-                assertThat(tc.getExpected().getValidation().isEmpty(), is(true));
+                assertThat(tc.getExpected().getValidation().getErrors() , nullValue());
+                assertThat(tc.getExpected().getValidation().getDoubleRecords() , nullValue());
                 assertThat(tc.getExpected().getUpdate(), nullValue());
 
                 recordNo++;

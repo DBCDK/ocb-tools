@@ -1,25 +1,20 @@
 package dk.dbc.ocbtools.testengine.testcases;
 
-import dk.dbc.updateservice.service.api.MessageEntry;
-import dk.dbc.updateservice.service.api.Type;
-
-import java.util.List;
-
 /**
  * Defines the expected result of a update testcase in json.
  */
 public class UpdateTestcaseExpectedResult {
-    private List<MessageEntry> validation = null;
+    private UpdateTestcaseExpectedValidateResult validation = null;
     private UpdateTestcaseExpectedUpdateResult update = null;
 
     public UpdateTestcaseExpectedResult() {
     }
 
-    public List<MessageEntry> getValidation() {
+    public UpdateTestcaseExpectedValidateResult getValidation() {
         return validation;
     }
 
-    public void setValidation(List<MessageEntry> validation) {
+    public void setValidation(UpdateTestcaseExpectedValidateResult validation) {
         this.validation = validation;
     }
 
@@ -29,18 +24,6 @@ public class UpdateTestcaseExpectedResult {
 
     public void setUpdate(UpdateTestcaseExpectedUpdateResult update) {
         this.update = update;
-    }
-
-    public boolean hasValidationErrors() {
-        if (validation == null) {
-            return false;
-        }
-        for (MessageEntry valResult : validation) {
-            if (valResult.getType() == Type.ERROR) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override

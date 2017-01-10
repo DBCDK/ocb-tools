@@ -84,7 +84,7 @@ public class ValidateRecordExecutor implements TestExecutor {
 
             Object jsResult = scripter.callMethod(SCRIPT_FILENAME, SCRIPT_FUNCTION, tc, Json.encode(record), settings);
             List<MessageEntry> valErrors = Json.decodeArray(jsResult.toString(), MessageEntry.class);
-            UpdateAsserter.assertValidation(UpdateAsserter.VALIDATION_PREFIX_KEY, tc.getExpected().getValidation(), valErrors);
+            UpdateAsserter.assertValidation(UpdateAsserter.VALIDATION_PREFIX_KEY, tc.getExpected().getValidation().getErrors(), valErrors);
         } catch (IOException | ScripterException ex) {
             throw new AssertionError(String.format("Fatal error when checking template for testcase %s", tc.getName()), ex);
         } finally {

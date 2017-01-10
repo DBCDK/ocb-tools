@@ -10,6 +10,7 @@ import dk.dbc.ocbtools.commons.cli.CliException;
 import dk.dbc.ocbtools.testengine.testcases.TestcaseAuthentication;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseExpectedResult;
+import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseExpectedValidateResult;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRequest;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.ext.XLogger;
@@ -125,7 +126,8 @@ public class CreateExecutor implements SubcommandExecutor {
                 tc.setRequest(request);
 
                 UpdateTestcaseExpectedResult expected = new UpdateTestcaseExpectedResult();
-                expected.setValidation(new ArrayList<>());
+                UpdateTestcaseExpectedValidateResult validation = new UpdateTestcaseExpectedValidateResult();
+                expected.setValidation(validation);
                 expected.setUpdate(null);
                 tc.setExpected(expected);
 

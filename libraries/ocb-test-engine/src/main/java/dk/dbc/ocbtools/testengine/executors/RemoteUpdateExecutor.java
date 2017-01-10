@@ -81,9 +81,14 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
             watch.start();
             try {
                 assertNotNull("No expected results found.", tc.getExpected());
-                if (tc.getExpected().hasValidationErrors()) {
-                    UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getValidation(), response.getMessages());
+                if (tc.getExpected().getValidation().getErrors() != null || tc.getExpected().getValidation().getDoubleRecords() != null) {
                     assertEquals(UpdateStatusEnum.FAILED, response.getUpdateStatus());
+                    if (tc.getExpected().getValidation().hasErrors()) {
+                        UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getValidation().getErrors(), response.getMessages());
+                    }
+                    if (tc.getExpected().getValidation().hasDoubleRecords()) {
+                        UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getValidation().getDoubleRecords(), response.getDoubleRecordEntries());
+                    }
                 }
                 if (tc.getExpected().getUpdate() != null) {
                     if (tc.getExpected().getUpdate().hasDoubleRecords()) {

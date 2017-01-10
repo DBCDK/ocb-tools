@@ -24,6 +24,7 @@ import dk.dbc.ocbtools.testengine.testcases.BuildTestcase;
 import dk.dbc.ocbtools.testengine.testcases.BuildTestcaseRepository;
 import dk.dbc.ocbtools.testengine.testcases.BuildTestcaseRepositoryFactory;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
+import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseExpectedValidateResult;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRepository;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRepositoryFactory;
 import dk.dbc.updateservice.service.api.MessageEntry;
@@ -171,14 +172,10 @@ class RunExecutor implements SubcommandExecutor {
                         executors.add(new CheckTemplateExecutor(baseDir, tc));
                     }
                 } else {
-                    List<MessageEntry> validation = tc.getExpected().getValidation();
-                    if (validation != null) {
+                    if (tc.getExpected().getValidation() != null) {
                         executors.add(new RemoteValidateExecutor(tc, settings, printDemoInfo));
                     }
-
                     if (tc.getExpected().getUpdate() != null) {
-                        executors.add(new RemoteUpdateExecutor(tc, settings, printDemoInfo));
-                    } else if (validation != null && !validation.isEmpty()) {
                         executors.add(new RemoteUpdateExecutor(tc, settings, printDemoInfo));
                     }
                 }

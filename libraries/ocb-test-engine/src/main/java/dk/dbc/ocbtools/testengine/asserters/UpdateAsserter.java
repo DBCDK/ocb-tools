@@ -2,12 +2,12 @@ package dk.dbc.ocbtools.testengine.asserters;
 
 import dk.dbc.iscrum.utils.ResourceBundles;
 import dk.dbc.iscrum.utils.json.Json;
+import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseExpectedValidateResult;
 import dk.dbc.updateservice.service.api.DoubleRecordEntries;
 import dk.dbc.updateservice.service.api.DoubleRecordEntry;
 import dk.dbc.updateservice.service.api.MessageEntry;
 import dk.dbc.updateservice.service.api.Messages;
 import org.apache.commons.lang3.StringUtils;
-import org.mortbay.util.IO;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -185,11 +185,28 @@ public class UpdateAsserter {
         return true;
     }
 
+    public static void assertValidation(String bundleKeyPrefix, UpdateTestcaseExpectedValidateResult expected, Messages actual) throws IOException {
+        logger.entry(bundleKeyPrefix, expected, actual);
+        try {
+            List<MessageEntry> expectedEntries = new ArrayList<>();
+            if (expected != null && expected.getErrors() != null) {
+                expectedEntries.addAll(expected.getErrors());
+            }
+            List<MessageEntry> actualEntries = new ArrayList<>();
+            if (actual != null && actual.getMessageEntry() != null) {
+                actualEntries.addAll(actual.getMessageEntry());
+            }
+            assertValidation(bundleKeyPrefix, expectedEntries, actualEntries);
+        } finally {
+            logger.exit();
+        }
+    }
+
     public static void assertValidation(String bundleKeyPrefix, List<MessageEntry> expected, Messages actual) throws IOException {
         logger.entry(bundleKeyPrefix, expected, actual);
         try {
             List<MessageEntry> actualEntries = new ArrayList<>();
-            if (actual != null) {
+            if (actual != null && actual.getMessageEntry() != null) {
                 actualEntries.addAll(actual.getMessageEntry());
             }
             assertValidation(bundleKeyPrefix, expected, actualEntries);
