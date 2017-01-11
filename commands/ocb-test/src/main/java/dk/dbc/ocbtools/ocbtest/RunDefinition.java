@@ -29,9 +29,8 @@ public class RunDefinition implements SubcommandDefinition {
     public List<Option> createOptions() throws CliException {
         List<Option> options = new ArrayList<>();
         Option option;
-        option = new Option("r", "remote", false, "Udfør de enkelte testcases imod en remote installation af UpdateService");
-        options.add(option);
-        option = new Option("c", "config", true, "Navn på konfiguration som skal anvendes sammen med --remote");
+        option = new Option("c", "config", true, "Navn på konfiguration som skal anvendes.");
+        option.setRequired(true);
         options.add(option);
         option = new Option("s", "summary", false, "Udskriver en opsummering af testen efter den er udført.");
         options.add(option);
@@ -60,7 +59,6 @@ public class RunDefinition implements SubcommandDefinition {
             reports.add(junitReport);
 
             RunExecutor runExecutor = new RunExecutor(baseDir);
-            runExecutor.setUseRemote(line.hasOption("r"));
             if (line.hasOption("c")) {
                 runExecutor.setConfigName(line.getOptionValue("c"));
             }

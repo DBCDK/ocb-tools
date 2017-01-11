@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Properties;
 
 class DemoInfoPrinter {
-    private static final XLogger logger = XLoggerFactory.getXLogger(CheckTemplateExecutor.class);
+    private static final XLogger logger = XLoggerFactory.getXLogger(DemoInfoPrinter.class);
     private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
 
     private static final int WIDTH = 72;

@@ -6,7 +6,13 @@ import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.perf4j.StopWatch;
 import org.reflections.Reflections;
 import org.slf4j.ext.XLogger;
@@ -101,10 +107,6 @@ public class CliExecutor {
         }
     }
 
-    //-------------------------------------------------------------------------
-    //              Commands
-    //-------------------------------------------------------------------------
-
     public static int main(String commandName, String[] args) {
         logger.entry(commandName, args);
 
@@ -137,10 +139,6 @@ public class CliExecutor {
             logger.exit();
         }
     }
-
-    //-------------------------------------------------------------------------
-    //              Registrations
-    //-------------------------------------------------------------------------
 
     private List<SubcommandDefinition> getSubcommandDefinitions() throws IllegalAccessException, InstantiationException {
         logger.entry();
@@ -180,10 +178,6 @@ public class CliExecutor {
             logger.exit();
         }
     }
-
-    //-------------------------------------------------------------------------
-    //              Helpers
-    //-------------------------------------------------------------------------
 
     /**
      * Extracts the base directory of the Opencat-business directory.

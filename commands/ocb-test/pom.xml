@@ -29,11 +29,6 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ocb-scripter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>ocb-test-engine</artifactId>
             <version>${project.version}</version>
         </dependency>
