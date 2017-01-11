@@ -8,7 +8,6 @@ import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.scripter.Distribution;
 import dk.dbc.ocbtools.scripter.ServiceScripter;
 import dk.dbc.ocbtools.testengine.executors.BuildRecordExecutor;
-import dk.dbc.ocbtools.testengine.executors.CheckTemplateExecutor;
 import dk.dbc.ocbtools.testengine.executors.RemoteBuildExecutor;
 import dk.dbc.ocbtools.testengine.executors.RemoteUpdateExecutor;
 import dk.dbc.ocbtools.testengine.executors.RemoteValidateExecutor;
@@ -24,10 +23,8 @@ import dk.dbc.ocbtools.testengine.testcases.BuildTestcase;
 import dk.dbc.ocbtools.testengine.testcases.BuildTestcaseRepository;
 import dk.dbc.ocbtools.testengine.testcases.BuildTestcaseRepositoryFactory;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
-import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseExpectedValidateResult;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRepository;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRepositoryFactory;
-import dk.dbc.updateservice.service.api.MessageEntry;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -160,17 +157,10 @@ class RunExecutor implements SubcommandExecutor {
                 }
                 List<TestExecutor> executors = new ArrayList<>();
                 if (!useRemote) {
-                    if (tc.getExpected().getValidation() != null) {
-                        ValidateRecordExecutor validateRecordExecutor = new ValidateRecordExecutor(baseDir, tc, printDemoInfo);
-
-                        ServiceScripter scripter = getOrCreateScripter(scripterCache, tc.getDistributionName());
-                        validateRecordExecutor.setScripter(scripter);
-
-                        executors.add(validateRecordExecutor);
-                    } else {
-                        output.warn("Using CheckTemplateExecutor: {}", tc.getName());
-                        executors.add(new CheckTemplateExecutor(baseDir, tc));
-                    }
+                    ValidateRecordExecutor validateRecordExecutor = new ValidateRecordExecutor(baseDir, tc, printDemoInfo);
+                    ServiceScripter scripter = getOrCreateScripter(scripterCache, tc.getDistributionName());
+                    validateRecordExecutor.setScripter(scripter);
+                    executors.add(validateRecordExecutor);
                 } else {
                     if (tc.getExpected().getValidation() != null) {
                         executors.add(new RemoteValidateExecutor(tc, settings, printDemoInfo));
@@ -179,7 +169,6 @@ class RunExecutor implements SubcommandExecutor {
                         executors.add(new RemoteUpdateExecutor(tc, settings, printDemoInfo));
                     }
                 }
-
                 items.add(new UpdateTestRunnerItem(tc, executors));
             }
 

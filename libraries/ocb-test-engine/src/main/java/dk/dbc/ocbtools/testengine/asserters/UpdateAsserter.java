@@ -2,6 +2,7 @@ package dk.dbc.ocbtools.testengine.asserters;
 
 import dk.dbc.iscrum.utils.ResourceBundles;
 import dk.dbc.iscrum.utils.json.Json;
+import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseExpectedResult;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseExpectedValidateResult;
 import dk.dbc.updateservice.service.api.DoubleRecordEntries;
 import dk.dbc.updateservice.service.api.DoubleRecordEntry;
@@ -205,11 +206,32 @@ public class UpdateAsserter {
     public static void assertValidation(String bundleKeyPrefix, List<MessageEntry> expected, Messages actual) throws IOException {
         logger.entry(bundleKeyPrefix, expected, actual);
         try {
+            List<MessageEntry> expectedEntries = new ArrayList<>();
+            if (expected != null) {
+                expectedEntries.addAll(expected);
+            }
             List<MessageEntry> actualEntries = new ArrayList<>();
             if (actual != null && actual.getMessageEntry() != null) {
                 actualEntries.addAll(actual.getMessageEntry());
             }
-            assertValidation(bundleKeyPrefix, expected, actualEntries);
+            assertValidation(bundleKeyPrefix, expectedEntries, actualEntries);
+        } finally {
+            logger.exit();
+        }
+    }
+
+    public static void assertValidation(String bundleKeyPrefix, UpdateTestcaseExpectedResult expected, Messages actual) throws IOException {
+        logger.entry(bundleKeyPrefix, expected, actual);
+        try {
+            List<MessageEntry> expectedEntries = new ArrayList<>();
+            if (expected != null && expected.getValidation() != null && expected.getValidation().getErrors() != null) {
+                expectedEntries.addAll(expected.getValidation().getErrors());
+            }
+            List<MessageEntry> actualEntries = new ArrayList<>();
+            if (actual != null && actual.getMessageEntry() != null) {
+                actualEntries.addAll(actual.getMessageEntry());
+            }
+            assertValidation(bundleKeyPrefix, expectedEntries, actualEntries);
         } finally {
             logger.exit();
         }
@@ -218,11 +240,15 @@ public class UpdateAsserter {
     public static void assertValidation(String bundleKeyPrefix, List<DoubleRecordEntry> expected, DoubleRecordEntries actual) throws IOException {
         logger.entry(bundleKeyPrefix, expected, actual);
         try {
+            List<DoubleRecordEntry> expectedEntries = new ArrayList<>();
+            if (expected != null) {
+                expectedEntries.addAll(expected);
+            }
             List<DoubleRecordEntry> actualEntries = new ArrayList<>();
             if (actual != null) {
                 actualEntries.addAll(actual.getDoubleRecordEntry());
             }
-            assertValidationDoubleRecord(bundleKeyPrefix, expected, actualEntries);
+            assertValidationDoubleRecord(bundleKeyPrefix, expectedEntries, actualEntries);
         } finally {
             logger.exit();
         }
