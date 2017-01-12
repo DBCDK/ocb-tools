@@ -15,7 +15,6 @@ import dk.dbc.iscrum.records.MarcXchangeFactory;
 import dk.dbc.iscrum.records.marcxchange.ObjectFactory;
 import dk.dbc.iscrum.records.marcxchange.RecordType;
 import dk.dbc.iscrum.utils.json.Json;
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.cli.CliException;
 import dk.dbc.ocbtools.ocbrecord.json.MixIns;
@@ -60,7 +59,7 @@ import java.util.Properties;
 
 class NewExecutor implements SubcommandExecutor {
 
-    private static final XLogger logger = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
+    private static final XLogger logger = XLoggerFactory.getXLogger(NewExecutor.class);
 
     private OCBRecordData ocbRecordData;
 
@@ -180,7 +179,7 @@ class NewExecutor implements SubcommandExecutor {
         }
     }
 
-    // Generates logger in the request format (JSON, MARC, MarcXchange) and returns it as a string
+    // Generates output in the request format (JSON, MARC, MarcXchange) and returns it as a string
     private String generateOutput(OCBRecordData ocbRecordData, String result) throws CliException {
         logger.entry(ocbRecordData, result);
         String res = null;
@@ -473,7 +472,7 @@ class NewExecutor implements SubcommandExecutor {
         }
     }
 
-    // Validates program parameter logger is correct
+    // Validates program parameter output is correct
     private Boolean validateProgramParametersOutputFile(OCBRecordData ocbRecordData) throws CliException {
         logger.entry(ocbRecordData);
         Boolean res = true;
