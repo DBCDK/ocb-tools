@@ -171,7 +171,7 @@ class NewExecutor implements SubcommandExecutor {
                 Path path = Paths.get(ocbRecordData.getOutputFile());
                 Files.write(path, result.getBytes(Charset.forName("UTF-8")));
             } else {
-                throw new CliException("Fejl, logger filen findes allerede.");
+                throw new CliException("Fejl, logfilen findes allerede.");
             }
         } catch (IOException ex) {
             throw new CliException(ex.getMessage(), ex);
