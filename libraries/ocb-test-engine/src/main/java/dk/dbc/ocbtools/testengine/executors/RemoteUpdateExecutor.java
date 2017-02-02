@@ -56,7 +56,7 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
 
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
 
-            String key = String.format("updateservice.%s.url", tc.getDistributionName());
+            String key = String.format("updateservice.url", tc.getDistributionName());
             URL url = new URL(settings.getProperty(key));
 
             UpdateRecordRequest request = createRequest();

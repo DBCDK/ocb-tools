@@ -9,17 +9,8 @@ import dk.dbc.ocbtools.testengine.executors.RemoteUpdateExecutor;
 import dk.dbc.ocbtools.testengine.executors.RemoteValidateExecutor;
 import dk.dbc.ocbtools.testengine.executors.TestExecutor;
 import dk.dbc.ocbtools.testengine.reports.TestReport;
-import dk.dbc.ocbtools.testengine.runners.BuildTestRunner;
-import dk.dbc.ocbtools.testengine.runners.BuildTestRunnerItem;
-import dk.dbc.ocbtools.testengine.runners.TestResult;
-import dk.dbc.ocbtools.testengine.runners.UpdateTestRunner;
-import dk.dbc.ocbtools.testengine.runners.UpdateTestRunnerItem;
-import dk.dbc.ocbtools.testengine.testcases.BuildTestcase;
-import dk.dbc.ocbtools.testengine.testcases.BuildTestcaseRepository;
-import dk.dbc.ocbtools.testengine.testcases.BuildTestcaseRepositoryFactory;
-import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
-import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRepository;
-import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRepositoryFactory;
+import dk.dbc.ocbtools.testengine.runners.*;
+import dk.dbc.ocbtools.testengine.testcases.*;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -127,8 +118,7 @@ class RunExecutor implements SubcommandExecutor {
                 return;
             }
 
-            logger.info("Using dataio url: {}", settings.getProperty("updateservice.dataio.url"));
-            logger.info("Using fbs url: {}", settings.getProperty("updateservice.fbs.url"));
+            logger.info("Using updateservice url: {}", settings.getProperty("updateservice.url"));
             logger.info("Using rawrepo database: {}", settings.getProperty("rawrepo.jdbc.conn.url"));
             logger.info("Using holding items database: {}", settings.getProperty("holdings.jdbc.conn.url"));
             logger.info("");
@@ -179,8 +169,7 @@ class RunExecutor implements SubcommandExecutor {
                 return;
             }
 
-            logger.info("Using dataio url: {}", settings.getProperty("buildservice.dataio.url"));
-            logger.info("Using fbs url: {}", settings.getProperty("buildservice.fbs.url"));
+            logger.info("Using url: {}", settings.getProperty("buildservice.url"));
             logger.info("");
 
             List<BuildTestRunnerItem> items = new ArrayList<>();

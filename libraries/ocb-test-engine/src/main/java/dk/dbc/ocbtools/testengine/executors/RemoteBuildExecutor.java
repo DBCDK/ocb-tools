@@ -1,11 +1,7 @@
 package dk.dbc.ocbtools.testengine.executors;
 
 import dk.dbc.buildservice.client.BibliographicRecordFactory;
-import dk.dbc.buildservice.service.api.BibliographicRecord;
-import dk.dbc.buildservice.service.api.BuildPortType;
-import dk.dbc.buildservice.service.api.BuildRequest;
-import dk.dbc.buildservice.service.api.BuildResult;
-import dk.dbc.buildservice.service.api.CatalogingBuildServices;
+import dk.dbc.buildservice.service.api.*;
 import dk.dbc.iscrum.records.MarcConverter;
 import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.ocbtools.testengine.asserters.BuildAsserter;
@@ -154,7 +150,7 @@ public class RemoteBuildExecutor implements TestExecutor {
         logger.entry();
         URL result = null;
         try {
-            String key = "buildservice." + buildTestcase.getDistributionName() + ".url";
+            String key = "buildservice.url";
             String property = settings.getProperty(key);
             result = new URL(property);
             return result;

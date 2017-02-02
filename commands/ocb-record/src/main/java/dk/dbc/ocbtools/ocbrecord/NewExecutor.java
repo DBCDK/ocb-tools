@@ -3,12 +3,7 @@ package dk.dbc.ocbtools.ocbrecord;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.dbc.buildservice.client.BuildService;
-import dk.dbc.buildservice.service.api.BibliographicRecord;
-import dk.dbc.buildservice.service.api.BuildPortType;
-import dk.dbc.buildservice.service.api.BuildRequest;
-import dk.dbc.buildservice.service.api.BuildResult;
-import dk.dbc.buildservice.service.api.ExtraRecordData;
-import dk.dbc.buildservice.service.api.RecordData;
+import dk.dbc.buildservice.service.api.*;
 import dk.dbc.iscrum.records.MarcConverter;
 import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.records.MarcXchangeFactory;
@@ -40,13 +35,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -565,7 +554,6 @@ class NewExecutor implements SubcommandExecutor {
         try {
             properties = new Properties();
             properties.put("javascript.basedir", ocbRecordData.getBaseDir().getCanonicalPath());
-            properties.put("javascript.install.name", ocbRecordData.getDistribution());
             return properties;
         } catch (IOException e) {
             throw new CliException(e.getMessage(), e);

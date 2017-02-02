@@ -11,14 +11,7 @@ import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.updateservice.client.BibliographicRecordExtraData;
 import dk.dbc.updateservice.client.BibliographicRecordFactory;
-import dk.dbc.updateservice.service.api.Authentication;
-import dk.dbc.updateservice.service.api.CatalogingUpdatePortType;
-import dk.dbc.updateservice.service.api.Options;
-import dk.dbc.updateservice.service.api.UpdateOptionEnum;
-import dk.dbc.updateservice.service.api.UpdateRecordRequest;
-import dk.dbc.updateservice.service.api.UpdateRecordResult;
-import dk.dbc.updateservice.service.api.UpdateService;
-import dk.dbc.updateservice.service.api.UpdateStatusEnum;
+import dk.dbc.updateservice.service.api.*;
 import org.perf4j.StopWatch;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -40,9 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Executor to test a testcase against the validation operation on an external
@@ -299,7 +290,7 @@ public class RemoteValidateExecutor implements TestExecutor {
         logger.entry();
         URL result = null;
         try {
-            String key = String.format("updateservice.%s.url", tc.getDistributionName());
+            String key = String.format("updateservice.url", tc.getDistributionName());
             return result = new URL(settings.getProperty(key));
         } catch (MalformedURLException ex) {
             throw new AssertionError(String.format("Unable to create url to webservice: %s", ex.getMessage()), ex);
