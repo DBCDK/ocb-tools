@@ -290,8 +290,7 @@ public class RemoteValidateExecutor implements TestExecutor {
         logger.entry();
         URL result = null;
         try {
-            String key = String.format("updateservice.url", tc.getDistributionName());
-            return result = new URL(settings.getProperty(key));
+            return result = new URL(settings.getProperty("updateservice.url"));
         } catch (MalformedURLException ex) {
             throw new AssertionError(String.format("Unable to create url to webservice: %s", ex.getMessage()), ex);
         } finally {
