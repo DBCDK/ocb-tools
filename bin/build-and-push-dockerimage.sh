@@ -3,11 +3,6 @@ function die() {
   echo "Error:" "$@"
   exit 1
 }
-function deployPackage () {
-  cd target/dist
-  tar -czf ocb-tools-1.0.0.tar.gz ocb-tools-1.0.0 || die "failed to deploy package"
-  cd -
-}
 
 function sanityCheckInput(){
   if [ ${USER} != "isworker" ]; then
@@ -28,6 +23,5 @@ function tagAndPushToArty () {
 
 
 set -e
-#sanityCheckInput
-deployPackage
+sanityCheckInput
 tagAndPushToArty
