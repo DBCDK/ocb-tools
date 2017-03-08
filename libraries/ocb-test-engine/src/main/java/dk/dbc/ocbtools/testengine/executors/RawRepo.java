@@ -12,11 +12,7 @@ import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
-import dk.dbc.rawrepo.QueueJob;
-import dk.dbc.rawrepo.RawRepoDAO;
-import dk.dbc.rawrepo.RawRepoException;
-import dk.dbc.rawrepo.Record;
-import dk.dbc.rawrepo.RecordId;
+import dk.dbc.rawrepo.*;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -32,12 +28,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Helper Class to interact with the rawrepo database.
@@ -187,7 +178,7 @@ public class RawRepo {
             StringWriter recData = new StringWriter();
             marshaller.marshal(jAXBElement, recData);
 
-            logger.info("Marshelled record: {}", recData.toString());
+            logger.info("Marshalled record: {}", recData.toString());
             result = recData.toString().getBytes("UTF-8");
 
             return result;
@@ -239,7 +230,8 @@ public class RawRepo {
                     JDBCUtil.update(conn, "INSERT INTO queueworkers(worker) VALUES(?)", name);
 
                     output.debug("Setup queue rule for worker: {}", name);
-                    JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, changed, leaf) VALUES(?, ?, ?, ?)", settings.getProperty("rawrepo.provider.name"), name, "Y", "A");
+                    JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, changed, leaf) VALUES(?, ?, ?, ?)", settings.getProperty("rawrepo.provider.name.dbc"), name, "Y", "A");
+                    JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, changed, leaf) VALUES(?, ?, ?, ?)", settings.getProperty("rawrepo.provider.name.fbs"), name, "Y", "A");
                 }
 
                 conn.commit();
