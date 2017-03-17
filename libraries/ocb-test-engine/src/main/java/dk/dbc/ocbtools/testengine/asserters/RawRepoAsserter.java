@@ -25,10 +25,10 @@ import static org.junit.Assert.*;
  * Asserter class to check records against rawrepo.
  */
 public class RawRepoAsserter {
-    private static final XLogger logger = XLoggerFactory.getXLogger(UpdateAsserter.class);
+    private static final XLogger logger = XLoggerFactory.getXLogger(RawRepoAsserter.class);
 
-    private static final String FORMATED_RECORD = "{%s - %s:%s}";
-    private static final String FORMATED_RECORDID = "{%s:%s}";
+    private static final String FORMATTED_RECORD = "{%s - %s:%s}";
+    private static final String FORMATTED_RECORD_ID = "{%s:%s}";
 
     public static void assertRecordListEquals(List<UpdateTestcaseRecord> expected, List<Record> actual) {
         logger.entry(expected, actual);
@@ -76,10 +76,10 @@ public class RawRepoAsserter {
         logger.entry(expected, actual);
 
         try {
-            String formatedRecordId = String.format(FORMATED_RECORD, expected.getRecord(), actual.getId().getBibliographicRecordId(), actual.getId().getAgencyId());
+            String formattedRecordId = String.format(FORMATTED_RECORD, expected.getRecord(), actual.getId().getBibliographicRecordId(), actual.getId().getAgencyId());
 
-            assertEquals(String.format("Wrong mimetype of record %s", formatedRecordId), expected.getType(), TestcaseRecordType.fromValue(actual.getMimeType()));
-            assertEquals(String.format("Wrong deletion mark of record %s", formatedRecordId), expected.isDeleted(), actual.isDeleted());
+            assertEquals(String.format("Wrong mimetype of record %s", formattedRecordId), expected.getType(), TestcaseRecordType.fromValue(actual.getMimeType()));
+            assertEquals(String.format("Wrong deletion mark of record %s", formattedRecordId), expected.isDeleted(), actual.isDeleted());
 
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
 
@@ -132,7 +132,7 @@ public class RawRepoAsserter {
                 MarcRecord record = fs.loadRecord(testRecord.getRecordFile().getParentFile(), testRecord.getRecord());
                 RecordId recordId = RawRepo.getRecordId(record);
 
-                String formatedRecordId = String.format(FORMATED_RECORD, testRecord.getRecord(), recordId.getBibliographicRecordId(), recordId.getAgencyId());
+                String formatedRecordId = String.format(FORMATTED_RECORD, testRecord.getRecord(), recordId.getBibliographicRecordId(), recordId.getAgencyId());
 
                 if (testRecord.isEnqueued()) {
                     assertTrue(String.format("The record %s was expected in the queue in rawrepo", formatedRecordId), queuedRecords.contains(recordId));
@@ -154,7 +154,7 @@ public class RawRepoAsserter {
             MarcRecord record = fs.loadRecord(expected.getRecordFile().getParentFile(), expected.getRecord());
             RecordId recordId = RawRepo.getRecordId(record);
 
-            String formatedRecordId = String.format(FORMATED_RECORD, expected.getRecord(), recordId.getBibliographicRecordId(), recordId.getAgencyId());
+            String formatedRecordId = String.format(FORMATTED_RECORD, expected.getRecord(), recordId.getBibliographicRecordId(), recordId.getAgencyId());
 
             int expectedSize = 0;
             if (relationType.getExpectedRelationItems(expected) != null) {
@@ -166,7 +166,7 @@ public class RawRepoAsserter {
                     MarcRecord relatedRecord = fs.loadRecord(expected.getRecordFile().getParentFile(), name);
                     RecordId relatedRecordId = RawRepo.getRecordId(relatedRecord);
 
-                    String formatedSiblingRecordId = String.format(FORMATED_RECORD, name, relatedRecordId.getBibliographicRecordId(), relatedRecordId.getAgencyId());
+                    String formatedSiblingRecordId = String.format(FORMATTED_RECORD, name, relatedRecordId.getBibliographicRecordId(), relatedRecordId.getAgencyId());
                     String message = String.format(relationType.getExpectedFormatError(), formatedRecordId, formatedSiblingRecordId);
                     assertTrue(message, relations.contains(relatedRecordId));
                 }
@@ -177,7 +177,7 @@ public class RawRepoAsserter {
                         recordIds += ", ";
                     }
 
-                    recordIds += String.format(FORMATED_RECORDID, id.getBibliographicRecordId(), id.getAgencyId());
+                    recordIds += String.format(FORMATTED_RECORD_ID, id.getBibliographicRecordId(), id.getAgencyId());
                 }
 
                 throw new AssertionError(String.format(relationType.getUnexpectedFormatError(), formatedRecordId, recordIds));

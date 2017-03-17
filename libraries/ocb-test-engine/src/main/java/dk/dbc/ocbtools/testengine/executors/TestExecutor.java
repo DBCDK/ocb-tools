@@ -12,7 +12,7 @@ import java.sql.SQLException;
  */
 public interface TestExecutor {
     /**
-     * @return The name of this test excutor.
+     * @return The name of this test executor.
      */
     String name();
 

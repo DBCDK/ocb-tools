@@ -1,6 +1,5 @@
 package dk.dbc.ocbtools.ocbrecord;
 
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.Subcommand;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
@@ -18,7 +17,7 @@ import java.util.List;
         usage = "<parametre>")
 public class NewDefinition implements SubcommandDefinition {
 
-    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
+    private static final XLogger output = XLoggerFactory.getXLogger(NewDefinition.class);
 
     @Override
     public List<Option> createOptions() {

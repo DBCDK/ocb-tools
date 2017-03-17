@@ -64,7 +64,7 @@ public class ServiceScripter {
      * @param methodName Name of the function to call.
      * @param args       Arguments to the function.
      * @return The result of the JavaScript function.
-     * @throws ScripterException Encapsulate any exception from Rhino or is throwned
+     * @throws ScripterException Encapsulate any exception from Rhino or is thrown
      *                           in case of an error. For instance if the file can not be loaded.
      */
     public Object callMethod(String fileName, String methodName, Object... args) throws ScripterException {
@@ -134,7 +134,7 @@ public class ServiceScripter {
      *
      * @param fileName The name of the file to load into the new Environment.
      * @return The new Environment.
-     * @throws ScripterException Throwed in case of I/O errors.
+     * @throws ScripterException Thrown in case of I/O errors.
      */
     private Environment createEnvironment(String fileName) throws ScripterException {
         logger.entry(fileName);
@@ -165,7 +165,7 @@ public class ServiceScripter {
     }
 
     /**
-     * Constructs a new moduloe handler to load modules from the Opencat-Business
+     * Constructs a new module handler to load modules from the Opencat-Business
      * installation.
      *
      * @return The new ModuleHandler

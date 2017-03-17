@@ -10,7 +10,7 @@ import dk.dbc.ocbtools.commons.cli.CliException;
  */
 public interface SubcommandExecutor {
     /**
-     * Performes the actions for the subcommand.
+     * Performs the actions for the subcommand.
      */
     void actionPerformed() throws CliException;
 }

@@ -8,7 +8,6 @@ import dk.dbc.iscrum.records.MarcXchangeFactory;
 import dk.dbc.iscrum.records.marcxchange.CollectionType;
 import dk.dbc.iscrum.records.marcxchange.ObjectFactory;
 import dk.dbc.iscrum.records.marcxchange.RecordType;
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
@@ -38,7 +37,6 @@ import java.util.*;
  */
 public class RawRepo {
     private static final XLogger logger = XLoggerFactory.getXLogger(RawRepo.class);
-    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
 
     private static final String JDBC_DRIVER_KEY = "rawrepo.jdbc.driver";
     private static final String JDBC_URL_KEY = "rawrepo.jdbc.conn.url";
@@ -51,7 +49,6 @@ public class RawRepo {
 
     private static final String OCBTEST_WORKER_NAME = "ocb-test";
     private static final String BASIS_WORKER_NAME = "basis-decentral";
-    private static final String BASIS_WORKER_MIMETYPE = "text/decentral+marcxchange";
     private static final String[] WORKER_NAMES = {OCBTEST_WORKER_NAME, "fbs-sync", "solr-sync", "broend-sync", BASIS_WORKER_NAME};
 
     private Properties settings;
@@ -108,7 +105,7 @@ public class RawRepo {
                 dao.saveRecord(newRecord);
 
                 if (record.isEnqueued()) {
-                    dao.changedRecord(settings.getProperty("rawrepo.provider.name"), newRecord.getId(), newRecord.getMimeType());
+                    dao.changedRecord(settings.getProperty("rawrepo.provider.name"), newRecord.getId());
                 }
             }
         } finally {
@@ -178,7 +175,7 @@ public class RawRepo {
             StringWriter recData = new StringWriter();
             marshaller.marshal(jAXBElement, recData);
 
-            logger.info("Marshalled record: {}", recData.toString());
+            logger.debug("Marshalled record: {}", recData.toString());
             result = recData.toString().getBytes("UTF-8");
 
             return result;
@@ -210,7 +207,7 @@ public class RawRepo {
         String url = settings.getProperty(JDBC_URL_KEY);
         String user = settings.getProperty(JDBC_USER_KEY);
         String password = settings.getProperty(JDBC_PASSWORD_KEY);
-        logger.info("rr getConnection {}/{}/{}", url, user, password);
+        logger.debug("rr getConnection {}/{}/{}", url, user, password);
 
         Connection conn = DriverManager.getConnection(url, user, password);
         conn.setAutoCommit(false);
@@ -220,16 +217,16 @@ public class RawRepo {
 
     static void setupDatabase(Properties settings) throws SQLException, IOException, ClassNotFoundException {
         logger.entry(settings);
-        logger.info("setup RR");
+        logger.debug("setup RR");
 
         try (Connection conn = getConnection(settings)) {
             try {
-                output.debug("Setup rawrepo queue workers and rules");
+                logger.debug("Setup rawrepo queue workers and rules");
                 for (String name : WORKER_NAMES) {
-                    output.debug("Setup queue worker: {}", name);
+                    logger.debug("Setup queue worker: {}", name);
                     JDBCUtil.update(conn, "INSERT INTO queueworkers(worker) VALUES(?)", name);
 
-                    output.debug("Setup queue rule for worker: {}", name);
+                    logger.debug("Setup queue rule for worker: {}", name);
                     JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, changed, leaf) VALUES(?, ?, ?, ?)", settings.getProperty("rawrepo.provider.name.dbc"), name, "Y", "A");
                     JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, changed, leaf) VALUES(?, ?, ?, ?)", settings.getProperty("rawrepo.provider.name.fbs"), name, "Y", "A");
                 }
@@ -249,11 +246,11 @@ public class RawRepo {
     static void teardownDatabase(Properties settings) throws SQLException, IOException, ClassNotFoundException {
         logger.entry(settings);
 
-        logger.info("teardown RR");
+        logger.debug("teardown RR");
         Set<String> settingsStr = settings.stringPropertyNames();
         String[] ar = settingsStr.toArray(new String[0]);
         for (String anAr : ar) {
-            logger.error("Prop {} = value {}", anAr, settings.getProperty(anAr));
+            logger.debug("Prop {} => {}", anAr, settings.getProperty(anAr));
         }
         try (Connection conn = getConnection(settings)) {
             try {
@@ -296,7 +293,7 @@ public class RawRepo {
         Set<String> settingsStr = settings.stringPropertyNames();
         String[] ar = settingsStr.toArray(new String[0]);
         for (String anAr : ar) {
-            logger.error("Prop {} = value {}", anAr, settings.getProperty(anAr));
+            logger.debug("Prop {} = value {}", anAr, settings.getProperty(anAr));
         }
         List<Record> records = new ArrayList<>();
         try (Connection conn = getConnection(settings)) {

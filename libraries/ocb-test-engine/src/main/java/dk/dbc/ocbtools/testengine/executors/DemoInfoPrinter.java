@@ -5,7 +5,6 @@ import dk.dbc.buildservice.service.api.BuildResult;
 import dk.dbc.holdingsitems.HoldingsItemsException;
 import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.utils.json.Json;
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.testcases.*;
@@ -26,134 +25,133 @@ import java.util.Properties;
 
 class DemoInfoPrinter {
     private static final XLogger logger = XLoggerFactory.getXLogger(DemoInfoPrinter.class);
-    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
 
     private static final int WIDTH = 72;
     private static final String HEADER_LINE = makeString("#", WIDTH);
     private static final String SEP_LINE = makeString("-", WIDTH);
 
     void printHeader(BaseTestcase tc, TestExecutor executor) {
-        output.info("");
-        output.info(HEADER_LINE);
-        output.info("Testing {}", tc.getName());
-        output.info(SEP_LINE);
-        output.info("");
-        output.info("Executor: {}", executor.name());
-        output.info("Distribution: {}", tc.getDistributionName());
-        output.info("File: {}", tc.getFile().getAbsolutePath());
-        output.info("Description: {}", tc.getDescription());
+        logger.info("");
+        logger.info(HEADER_LINE);
+        logger.info("Testing {}", tc.getName());
+        logger.info(SEP_LINE);
+        logger.info("");
+        logger.info("Executor: {}", executor.name());
+        logger.info("Distribution: {}", tc.getDistributionName());
+        logger.info("File: {}", tc.getFile().getAbsolutePath());
+        logger.info("Description: {}", tc.getDescription());
     }
 
     void printFooter() {
-        output.info(HEADER_LINE);
-        output.info("");
+        logger.info(HEADER_LINE);
+        logger.info("");
     }
 
     void printSetup(UpdateTestcase tc) {
         try {
-            output.info(SEP_LINE);
-            output.info("");
+            logger.info(SEP_LINE);
+            logger.info("");
 
             if (tc.getSetup() == null || tc.getSetup().getHoldings() == null || tc.getSetup().getHoldings().isEmpty()) {
-                output.info("Holdings: Ingen opsætning");
+                logger.info("Holdings: Ingen opsætning");
             } else {
-                output.info("Holdings: {}", tc.getSetup().getHoldings());
+                logger.info("Holdings: {}", tc.getSetup().getHoldings());
             }
 
             if (tc.getSetup() == null || tc.getSetup().getSolr() == null || tc.getSetup().getSolr().isEmpty()) {
-                output.info("Solr: Ingen opsætning");
+                logger.info("Solr: Ingen opsætning");
             } else {
-                output.info("Solr: \n{}", Json.encodePretty(tc.getSetup().getSolr()));
+                logger.info("Solr: \n{}", Json.encodePretty(tc.getSetup().getSolr()));
             }
 
             if (tc.getSetup() == null || tc.getSetup().getRawrepo() == null || tc.getSetup().getRawrepo().isEmpty()) {
-                output.info("Rawrepo: Ingen opsætning");
+                logger.info("Rawrepo: Ingen opsætning");
             } else {
-                output.info("Rawrepo:");
-                output.info(SEP_LINE);
+                logger.info("Rawrepo:");
+                logger.info(SEP_LINE);
                 OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
                 File baseDir = tc.getFile().getParentFile();
 
                 for (UpdateTestcaseRecord testRecord : tc.getSetup().getRawrepo()) {
-                    output.info("File: {}", testRecord.getRecord());
-                    output.info("Content:\n{}", fs.loadRecord(baseDir, testRecord.getRecord()).toString());
+                    logger.info("File: {}", testRecord.getRecord());
+                    logger.info("Content:\n{}", fs.loadRecord(baseDir, testRecord.getRecord()).toString());
                 }
             }
 
-            output.info(SEP_LINE);
-            output.info("");
+            logger.info(SEP_LINE);
+            logger.info("");
         } catch (IOException ex) {
-            output.error("Failed to print setup: {}", ex.getMessage());
+            logger.error("Failed to print setup: {}", ex.getMessage());
             logger.debug("Stacktrace: ", ex);
         }
     }
 
     void printLocaleRequest(UpdateTestcase tc) {
         try {
-            output.info(SEP_LINE);
-            output.info("Validating request against JavaScript");
-            output.info(SEP_LINE);
-            output.info("");
-            output.info("Template name: {}", tc.getRequest().getTemplateName());
-            output.info("Record: {}", tc.getRequest().getRecord());
-            output.info("{}\n{}", SEP_LINE, tc.loadRecord().toString());
+            logger.info(SEP_LINE);
+            logger.info("Validating request against JavaScript");
+            logger.info(SEP_LINE);
+            logger.info("");
+            logger.info("Template name: {}", tc.getRequest().getTemplateName());
+            logger.info("Record: {}", tc.getRequest().getRecord());
+            logger.info("{}\n{}", SEP_LINE, tc.loadRecord().toString());
         } catch (Exception ex) {
-            output.error("Failed to print setup: {}", ex.getMessage());
+            logger.error("Failed to print setup: {}", ex.getMessage());
             logger.debug("Stacktrace: ", ex);
         }
     }
 
     void printLocaleRequest(BuildTestcase tc) {
         try {
-            output.info(SEP_LINE);
-            output.info("Building record with JavaScript");
-            output.info(SEP_LINE);
-            output.info("");
-            output.info("Template name: {}", tc.getRequest().getTemplateName());
-            output.info("Record: {}", tc.getRequest().getRecord());
-            output.info(SEP_LINE);
-            output.info(tc.loadRequestRecord().toString());
+            logger.info(SEP_LINE);
+            logger.info("Building record with JavaScript");
+            logger.info(SEP_LINE);
+            logger.info("");
+            logger.info("Template name: {}", tc.getRequest().getTemplateName());
+            logger.info("Record: {}", tc.getRequest().getRecord());
+            logger.info(SEP_LINE);
+            logger.info(tc.loadRequestRecord().toString());
         } catch (Exception ex) {
-            output.error("Failed to print setup: {}", ex.getMessage());
+            logger.error("Failed to print setup: {}", ex.getMessage());
             logger.debug("Stacktrace: ", ex);
         }
     }
 
     void printRemoteDatabases(UpdateTestcase tc, Properties settings) throws SQLException, ClassNotFoundException, HoldingsItemsException, RawRepoException {
         try {
-            output.info(SEP_LINE);
-            output.info("");
+            logger.info(SEP_LINE);
+            logger.info("");
 
             try (Connection conn = Holdings.getConnection(settings)) {
-                output.info("Holdings: {}", Holdings.loadHoldingsForRecord(conn, tc.loadRecord()));
+                logger.info("Holdings: {}", Holdings.loadHoldingsForRecord(conn, tc.loadRecord()));
             }
 
             List<Record> rawRepoRecords = RawRepo.loadRecords(settings);
             if (rawRepoRecords == null || rawRepoRecords.isEmpty()) {
-                output.info("Rawrepo: Empty");
+                logger.info("Rawrepo: Empty");
             } else {
-                output.info("Rawrepo:");
-                output.info(SEP_LINE);
+                logger.info("Rawrepo:");
+                logger.info(SEP_LINE);
 
                 for (Record rawRepoRecord : rawRepoRecords) {
-                    output.info("Id: [{}:{}]", rawRepoRecord.getId().getBibliographicRecordId(), rawRepoRecord.getId().getAgencyId());
-                    output.info("Mimetype: {}", TestcaseRecordType.fromValue(rawRepoRecord.getMimeType()));
-                    output.info("Deleted: {}", rawRepoRecord.isDeleted());
-                    output.info("TrackingID: {}", rawRepoRecord.getTrackingId());
-                    output.info("");
-                    output.info("Children: {}", formatRecordIds(RawRepo.loadRelations(settings, rawRepoRecord.getId(), RawRepoRelationType.CHILD)));
-                    output.info("Siblings: {}", formatRecordIds(RawRepo.loadRelations(settings, rawRepoRecord.getId(), RawRepoRelationType.SIBLING)));
-                    output.info("");
-                    output.info("Content:\n{}", RawRepo.decodeRecord(rawRepoRecord.getContent()));
+                    logger.info("Id: [{}:{}]", rawRepoRecord.getId().getBibliographicRecordId(), rawRepoRecord.getId().getAgencyId());
+                    logger.info("Mimetype: {}", TestcaseRecordType.fromValue(rawRepoRecord.getMimeType()));
+                    logger.info("Deleted: {}", rawRepoRecord.isDeleted());
+                    logger.info("TrackingID: {}", rawRepoRecord.getTrackingId());
+                    logger.info("");
+                    logger.info("Children: {}", formatRecordIds(RawRepo.loadRelations(settings, rawRepoRecord.getId(), RawRepoRelationType.CHILD)));
+                    logger.info("Siblings: {}", formatRecordIds(RawRepo.loadRelations(settings, rawRepoRecord.getId(), RawRepoRelationType.SIBLING)));
+                    logger.info("");
+                    logger.info("Content:\n{}", RawRepo.decodeRecord(rawRepoRecord.getContent()));
                 }
 
-                output.info("Queued records: {}", formatRecordIds(RawRepo.loadQueuedRecords(settings)));
+                logger.info("Queued records: {}", formatRecordIds(RawRepo.loadQueuedRecords(settings)));
             }
 
-            output.info(SEP_LINE);
-            output.info("");
+            logger.info(SEP_LINE);
+            logger.info("");
         } catch (IOException ex) {
-            output.error("Failed to print setup: {}", ex.getMessage());
+            logger.error("Failed to print setup: {}", ex.getMessage());
             logger.debug("Stacktrace: ", ex);
         }
     }
@@ -162,8 +160,8 @@ class DemoInfoPrinter {
         logger.entry();
 
         try {
-            output.info("Request record:\n{}", record);
-            output.info("Webservice Request: {}", Json.encodePretty(request));
+            logger.info("Request record:\n{}", record);
+            logger.info("Webservice Request: {}", Json.encodePretty(request));
         } finally {
             logger.exit();
         }
@@ -173,8 +171,8 @@ class DemoInfoPrinter {
         logger.entry();
 
         try {
-            output.info("Request record:\n{}", record);
-            output.info("Webservice Request: {}", Json.encodePretty(request));
+            logger.info("Request record:\n{}", record);
+            logger.info("Webservice Request: {}", Json.encodePretty(request));
         } finally {
             logger.exit();
         }
@@ -184,7 +182,7 @@ class DemoInfoPrinter {
         logger.entry();
 
         try {
-            output.info("Response: {}", Json.encodePretty(response));
+            logger.info("Response: {}", Json.encodePretty(response));
         } finally {
             logger.exit();
         }
@@ -194,7 +192,7 @@ class DemoInfoPrinter {
         logger.entry();
 
         try {
-            output.info("Response: {}", Json.encodePretty(response));
+            logger.info("Response: {}", Json.encodePretty(response));
         } finally {
             logger.exit();
         }

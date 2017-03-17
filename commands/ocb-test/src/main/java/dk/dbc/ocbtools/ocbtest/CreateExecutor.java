@@ -4,7 +4,6 @@ import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.records.MarcRecordReader;
 import dk.dbc.iscrum.records.providers.MarcRecordProvider;
 import dk.dbc.iscrum.utils.json.Json;
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.cli.CliException;
 import dk.dbc.ocbtools.testengine.testcases.TestcaseAuthentication;
@@ -23,7 +22,6 @@ import java.util.List;
 
 public class CreateExecutor implements SubcommandExecutor {
     private static final XLogger logger = XLoggerFactory.getXLogger(CreateExecutor.class);
-    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
 
     private File baseDir;
     private String testcaseFilename = null;

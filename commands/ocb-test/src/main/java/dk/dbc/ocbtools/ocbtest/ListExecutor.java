@@ -1,6 +1,5 @@
 package dk.dbc.ocbtools.ocbtest;
 
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.cli.CliException;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
@@ -22,7 +21,7 @@ import java.util.List;
  * Executor for the list subcommand.
  */
 class ListExecutor implements SubcommandExecutor {
-    private static final XLogger logger = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
+    private static final XLogger logger = XLoggerFactory.getXLogger(ListExecutor.class);
 
     private File baseDir;
     private List<String> matchExpressions;

@@ -1,6 +1,5 @@
 package dk.dbc.ocbtools.testengine.reports;
 
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.testengine.runners.TestExecutorResult;
 import dk.dbc.ocbtools.testengine.runners.TestResult;
 import dk.dbc.ocbtools.testengine.runners.TestcaseResult;
@@ -24,7 +23,6 @@ import java.util.Enumeration;
 
 public class JUnitReport implements TestReport {
     private static final XLogger logger = XLoggerFactory.getXLogger(JUnitReport.class);
-    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
 
     private File reportDir;
 
@@ -58,7 +56,7 @@ public class JUnitReport implements TestReport {
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
             transformer.transform(domSource, streamResult);
         } catch (IOException | ParserConfigurationException | TransformerException ex) {
-            output.error("Unable to generate JUnit report.", ex);
+            logger.error("Unable to generate JUnit report.", ex);
         } finally {
             logger.exit();
         }

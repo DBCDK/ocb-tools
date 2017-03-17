@@ -15,7 +15,7 @@ import java.util.List;
  */
 class BuildTestcaseFactory {
 
-    private static final XLogger logger = XLoggerFactory.getXLogger(UpdateTestcaseRepositoryFactory.class);
+    private static final XLogger logger = XLoggerFactory.getXLogger(BuildTestcaseFactory.class);
 
     static List<BuildTestcase> newInstances(SystemTest systemTest) throws IOException {
         logger.entry(systemTest);

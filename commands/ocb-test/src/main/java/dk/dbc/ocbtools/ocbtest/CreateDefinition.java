@@ -3,7 +3,6 @@ package dk.dbc.ocbtools.ocbtest;
 import dk.dbc.iscrum.records.providers.ISO2709Provider;
 import dk.dbc.iscrum.records.providers.MarcXChangeProvider;
 import dk.dbc.iscrum.utils.ResourceBundles;
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.marc.DanMarc2Charset;
 import dk.dbc.ocbtools.commons.api.Subcommand;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
@@ -30,7 +29,6 @@ import java.util.ResourceBundle;
 public class CreateDefinition implements SubcommandDefinition {
 
     private static final XLogger logger = XLoggerFactory.getXLogger(CreateDefinition.class);
-    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
 
     public CreateDefinition() {
     }

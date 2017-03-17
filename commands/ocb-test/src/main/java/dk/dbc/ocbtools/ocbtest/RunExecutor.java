@@ -14,7 +14,6 @@ import dk.dbc.ocbtools.testengine.testcases.*;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,17 +24,14 @@ import java.util.Properties;
  */
 class RunExecutor implements SubcommandExecutor {
     private static final XLogger logger = XLoggerFactory.getXLogger(RunExecutor.class);
-    private static final String SERVICE_NAME = "ocb-test";
 
-    private File baseDir;
     private String configName;
     private boolean printDemoInfo;
     private List<String> tcNames;
     private ApplicationType applicationType;
     private List<TestReport> reports;
 
-    RunExecutor(File baseDir) {
-        this.baseDir = baseDir;
+    RunExecutor() {
         this.configName = "servers";
         this.printDemoInfo = false;
         this.tcNames = null;

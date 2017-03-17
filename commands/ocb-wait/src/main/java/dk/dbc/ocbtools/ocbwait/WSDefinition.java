@@ -25,6 +25,9 @@ import java.util.List;
         description = "Waits for a webservice to return ok.",
         usage = "[options] url" )
 public class WSDefinition implements SubcommandDefinition {
+
+    private static final XLogger logger = XLoggerFactory.getXLogger( WSDefinition.class );
+
     /**
      * Must return a list of extra options to the subcommand that this implementation represents.
      *
@@ -50,7 +53,7 @@ public class WSDefinition implements SubcommandDefinition {
     /**
      * Factory method to create a CommandExecutor from the arguments parsed on the command line.
      * <p/>
-     * This method is called after the arguments to the sub command has been succesfully parsed.
+     * This method is called after the arguments to the sub command has been successfully parsed.
      *
      * @param baseDir
      * @param line    The parsed values from the command line.
@@ -74,7 +77,7 @@ public class WSDefinition implements SubcommandDefinition {
             return executor;
         }
         catch( NumberFormatException ex ) {
-            throw new CliException( "Timeout must be a hole number: " + ex.getMessage(), ex );
+            throw new CliException( "Timeout must be a whole number: " + ex.getMessage(), ex );
         }
         catch( MalformedURLException ex ) {
             throw new CliException( "Error with url: " + ex.getMessage(), ex );
@@ -84,9 +87,4 @@ public class WSDefinition implements SubcommandDefinition {
         }
     }
 
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private static final XLogger logger = XLoggerFactory.getXLogger( WSDefinition.class );
 }

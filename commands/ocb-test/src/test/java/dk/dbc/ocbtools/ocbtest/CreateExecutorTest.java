@@ -42,7 +42,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class CreateExecutorTest {
-    private static final XLogger logger = XLoggerFactory.getXLogger(CreateExecutor.class);
+    private static final XLogger logger = XLoggerFactory.getXLogger(CreateExecutorTest.class);
 
     private static ResourceBundle bundle;
     private File testDir;

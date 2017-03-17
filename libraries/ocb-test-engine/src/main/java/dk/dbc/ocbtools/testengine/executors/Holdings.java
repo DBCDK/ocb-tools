@@ -47,7 +47,8 @@ class Holdings {
      * @throws ClassNotFoundException Thrown from HoldingsItemsDAO
      * @throws HoldingsItemsException Thrown from HoldingsItemsDAO
      */
-    static void saveHoldings(Connection conn, MarcRecord record, List<Integer> agencies) {
+    static void saveHoldings(Connection conn, MarcRecord record, List<Integer> agencies) throws
+            SQLException, IOException, ClassNotFoundException, HoldingsItemsException {
         logger.entry(conn, record, agencies);
 
         try {
@@ -88,7 +89,7 @@ class Holdings {
             HoldingsItemsDAO dao = HoldingsItemsDAO.newInstance(conn);
             RecordId recordId = RawRepo.getRecordId(record);
 
-            logger.debug("searcher id {}:{} on collection", recordId.getBibliographicRecordId());
+            logger.debug("searcher id {}:{} on collection", recordId != null ? recordId.getBibliographicRecordId() : "null");
             if (recordId != null) {
                 return result = dao.getAgenciesThatHasHoldingsFor(recordId.getBibliographicRecordId());
             }

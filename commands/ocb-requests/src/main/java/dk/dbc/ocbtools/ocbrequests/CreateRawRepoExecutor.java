@@ -4,7 +4,6 @@ import dk.dbc.iscrum.records.AgencyNumber;
 import dk.dbc.iscrum.records.MarcConverter;
 import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.records.MarcRecordReader;
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.cli.CliException;
 import dk.dbc.ocbtools.ocbrequests.rawrepo.RecordEntity;
@@ -28,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 class CreateRawRepoExecutor implements SubcommandExecutor {
 
     private static final XLogger logger = XLoggerFactory.getXLogger(CreateRawRepoExecutor.class);
-    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
 
     private File baseDir;
     private Integer agencyId;
@@ -65,11 +63,11 @@ class CreateRawRepoExecutor implements SubcommandExecutor {
                 baseDir = new File(".").getCanonicalFile();
             }
 
-            output.info("Base dir: {}", baseDir);
-            output.info("Agency id: {}", agencyId);
-            output.info("Number of users: {}", userCount);
-            output.info("Requests peer user: {}", requestsPeerUser);
-            output.info("");
+            logger.info("Base dir: {}", baseDir);
+            logger.info("Agency id: {}", agencyId);
+            logger.info("Number of users: {}", userCount);
+            logger.info("Requests peer user: {}", requestsPeerUser);
+            logger.info("");
 
             ExecutorService pool = Executors.newCachedThreadPool();
 
@@ -103,7 +101,7 @@ class CreateRawRepoExecutor implements SubcommandExecutor {
                     }
 
                     if (requestNo == 1) {
-                        output.info("Creating requests for User: {}", userNo);
+                        logger.info("Creating requests for User: {}", userNo);
                     }
 
                     CreateRequestTask task = new CreateRequestTask(baseDir);
@@ -113,7 +111,7 @@ class CreateRawRepoExecutor implements SubcommandExecutor {
                     task.setRecord(record);
 
                     pool.submit(task);
-                    //output.info( "Created task for User: {}-{}", userNo, requestNo );
+                    //logger.info( "Created task for User: {}-{}", userNo, requestNo );
 
                     requestNo++;
                     if (requestNo > requestsPeerUser) {

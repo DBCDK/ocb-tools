@@ -2,7 +2,6 @@
 package dk.dbc.ocbtools.ocbwait;
 
 //-----------------------------------------------------------------------------
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.cli.CliException;
 import org.perf4j.StopWatch;
@@ -15,11 +14,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 
-//-----------------------------------------------------------------------------
-/**
- * Created by stp on 25/04/16.
- */
 public class WSExecutor implements SubcommandExecutor {
+
+    private static final XLogger logger = XLoggerFactory.getXLogger( WSExecutor.class );
+
+    private URL url;
+    private String text;
+
+    private Integer timeout;
     public URL getUrl() {
         return url;
     }
@@ -52,10 +54,10 @@ public class WSExecutor implements SubcommandExecutor {
         logger.entry();
 
         try {
-            output.info( "URL: {}", url );
-            output.info( "Success text: {}", text );
-            output.info( "Timeout: {} ms", timeout );
-            output.info( "" );
+            logger.info( "URL: {}", url );
+            logger.info( "Success text: {}", text );
+            logger.info( "Timeout: {} ms", timeout );
+            logger.info( "" );
 
             StopWatch watchTimeout = new StopWatch();
             while( watchTimeout.getElapsedTime() < timeout ) {
@@ -64,7 +66,7 @@ public class WSExecutor implements SubcommandExecutor {
                     webServiceResponse = callService();
                 }
                 catch( IOException ex ) {
-                    output.info( "Web service error: {}", ex.getMessage() );
+                    logger.info( "Web service error: {}", ex.getMessage() );
                     Thread.sleep( 5000 );
                     continue;
                 }
@@ -76,17 +78,17 @@ public class WSExecutor implements SubcommandExecutor {
 
                 if( webServiceResponse.getResponseCode() != 200 ) {
                     Thread.sleep( 5000 );
-                    output.info( "Web service response code: {}", webServiceResponse.getResponseCode() );
+                    logger.info( "Web service response code: {}", webServiceResponse.getResponseCode() );
                     continue;
                 }
 
                 if( webServiceResponse.getResponse().equals( text ) ) {
-                    output.info( "Web service returned acceptance text: {}", webServiceResponse.getResponse() );
+                    logger.info( "Web service returned acceptance text: {}", webServiceResponse.getResponse() );
                     return;
                 }
 
                 Thread.sleep( 500 );
-                output.info( "Web service returned non-acceptance text: {}", webServiceResponse.getResponse() );
+                logger.info( "Web service returned non-acceptance text: {}", webServiceResponse.getResponse() );
             }
 
             throw new CliException( "Timeout has reached for web service: " + url.toString() );
@@ -138,14 +140,4 @@ public class WSExecutor implements SubcommandExecutor {
         }
     }
 
-    //-------------------------------------------------------------------------
-    //              Members
-    //-------------------------------------------------------------------------
-
-    private static final XLogger logger = XLoggerFactory.getXLogger( WSExecutor.class );
-    private static final XLogger output = XLoggerFactory.getXLogger( BusinessLoggerFilter.LOGGER_NAME );
-
-    private URL url;
-    private String text;
-    private Integer timeout;
 }

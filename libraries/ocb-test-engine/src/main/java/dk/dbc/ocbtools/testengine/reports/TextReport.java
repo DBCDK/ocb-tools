@@ -1,6 +1,5 @@
 package dk.dbc.ocbtools.testengine.reports;
 
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.testengine.runners.TestExecutorResult;
 import dk.dbc.ocbtools.testengine.runners.TestResult;
 import dk.dbc.ocbtools.testengine.runners.TestcaseResult;
@@ -15,7 +14,7 @@ import java.text.NumberFormat;
  * Class to produce a test report based on TestResult.
  */
 public class TextReport implements TestReport {
-    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
+    private static final XLogger logger = XLoggerFactory.getXLogger(TextReport.class);
     private boolean printSummary;
 
     public TextReport() {
@@ -28,12 +27,12 @@ public class TextReport implements TestReport {
 
     @Override
     public void produce(TestResult testResult) {
-        output.entry();
+        logger.entry();
 
         try {
             if (!testResult.hasError()) {
-                output.info("");
-                output.info("No errors found.");
+                logger.info("");
+                logger.info("No errors found.");
             } else {
                 for (TestcaseResult testcaseResult : testResult) {
                     if (!testcaseResult.hasError()) {
@@ -42,11 +41,11 @@ public class TextReport implements TestReport {
 
                     for (TestExecutorResult testExecutorResult : testcaseResult.getResults()) {
                         if (testExecutorResult.hasError()) {
-                            output.error("Testcase '{}' has an error with this executor: {}", testcaseResult.getBaseTestcase().getName(), testExecutorResult.getExecutor().name());
-                            output.error("The testcase is found in file: {}", testcaseResult.getBaseTestcase().getFile().getCanonicalPath());
-                            output.error("Error message: {}", testExecutorResult.getAssertionError().getMessage());
-                            output.debug("\tStacktrace: ", testExecutorResult.getAssertionError());
-                            output.error("");
+                            logger.error("Testcase '{}' has an error with this executor: {}", testcaseResult.getBaseTestcase().getName(), testExecutorResult.getExecutor().name());
+                            logger.error("The testcase is found in file: {}", testcaseResult.getBaseTestcase().getFile().getCanonicalPath());
+                            logger.error("Error message: {}", testExecutorResult.getAssertionError().getMessage());
+                            logger.debug("\tStacktrace: ", testExecutorResult.getAssertionError());
+                            logger.error("");
                         }
                     }
                 }
@@ -56,15 +55,15 @@ public class TextReport implements TestReport {
                 produceSummary(testResult);
             }
         } catch (IOException ex) {
-            output.error("Generating text report error: {}", ex.getMessage());
-            output.debug("Stacktrace", ex);
+            logger.error("Generating text report error: {}", ex.getMessage());
+            logger.debug("Stacktrace", ex);
         } finally {
-            output.exit();
+            logger.exit();
         }
     }
 
     private void produceSummary(TestResult testResult) {
-        output.entry();
+        logger.entry();
         try {
             final int width = 80;
             NumberFormat numberFormat = NumberFormat.getNumberInstance();
@@ -74,7 +73,7 @@ public class TextReport implements TestReport {
                 df.setDecimalSeparatorAlwaysShown(true);
             }
 
-            output.info(makeDots("-", width));
+            logger.info(makeDots("-", width));
             for (TestcaseResult testcaseResult : testResult) {
                 String resultStr = testcaseResult.hasError() ? "FAILED" : "SUCCESS";
 
@@ -87,18 +86,18 @@ public class TextReport implements TestReport {
                 otherTextLengths += timeFormatted.length();
                 dots = makeDots(".", width - otherTextLengths);
 
-                output.info("{} {} {} [ {} s]", testcaseResult.getBaseTestcase().getName(), dots, resultStr, timeFormatted);
+                logger.info("{} {} {} [ {} s]", testcaseResult.getBaseTestcase().getName(), dots, resultStr, timeFormatted);
             }
 
-            output.info(makeDots("-", width));
+            logger.info(makeDots("-", width));
             if (testResult.hasError()) {
-                output.info("TEST FAILED");
+                logger.info("TEST FAILED");
             } else {
-                output.info("TEST SUCCESS");
+                logger.info("TEST SUCCESS");
             }
-            output.info(makeDots("-", width));
+            logger.info(makeDots("-", width));
         } finally {
-            output.exit();
+            logger.exit();
         }
     }
 

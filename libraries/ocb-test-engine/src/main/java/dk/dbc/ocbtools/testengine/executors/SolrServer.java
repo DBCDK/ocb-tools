@@ -72,7 +72,7 @@ class SolrServer {
                 solrServer = new WireMockServer(wireMockConfiguration);
                 solrServer.start();
 
-                logger.info("Starting WireMock Solr server in {} ms", watch.getElapsedTime());
+                logger.debug("Starting WireMock Solr server in {} ms", watch.getElapsedTime());
             } else {
                 logger.debug("Starting fake wiremock for solr");
                 MappingBuilder mbAnalyse = new MappingBuilder(RequestMethod.ANY, urlMatching(ANALYSIS_REQUEST_MASK));
@@ -98,7 +98,7 @@ class SolrServer {
             if (solrServer != null) {
                 StopWatch watch = new StopWatch();
                 solrServer.stop();
-                logger.info("Stopping WireMock Solr server in {} ms", watch.getElapsedTime());
+                logger.debug("Stopping WireMock Solr server in {} ms", watch.getElapsedTime());
             }
         } finally {
             logger.exit();

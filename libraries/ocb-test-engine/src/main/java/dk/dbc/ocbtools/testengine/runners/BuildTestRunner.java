@@ -1,6 +1,5 @@
 package dk.dbc.ocbtools.testengine.runners;
 
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.testengine.executors.TestExecutor;
 import org.perf4j.StopWatch;
 import org.slf4j.ext.XLogger;
@@ -13,7 +12,7 @@ import java.util.List;
  * Class to run tests for a number of Buildservice testcases.
  */
 public class BuildTestRunner {
-    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
+    private static final XLogger output = XLoggerFactory.getXLogger(BuildTestRunner.class);
     private List<BuildTestRunnerItem> items;
 
     public BuildTestRunner(List<BuildTestRunnerItem> items) {

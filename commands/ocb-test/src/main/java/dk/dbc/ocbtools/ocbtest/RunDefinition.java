@@ -1,6 +1,5 @@
 package dk.dbc.ocbtools.ocbtest;
 
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.commons.api.Subcommand;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
@@ -23,7 +22,6 @@ import java.util.List;
         usage = "[options] [testcase1, testcase2, ...]")
 public class RunDefinition implements SubcommandDefinition {
     private static final XLogger logger = XLoggerFactory.getXLogger(RunDefinition.class);
-    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
 
     @Override
     public List<Option> createOptions() throws CliException {
@@ -58,7 +56,7 @@ public class RunDefinition implements SubcommandDefinition {
             JUnitReport junitReport = new JUnitReport(new File(baseDir.getCanonicalPath() + "/target/surefire-reports"));
             reports.add(junitReport);
 
-            RunExecutor runExecutor = new RunExecutor(baseDir);
+            RunExecutor runExecutor = new RunExecutor();
             if (line.hasOption("c")) {
                 runExecutor.setConfigName(line.getOptionValue("c"));
             }
@@ -68,7 +66,7 @@ public class RunDefinition implements SubcommandDefinition {
             runExecutor.setApplicationType(CommonMethods.parseApplicationType(line));
             return runExecutor;
         } catch (IOException ex) {
-            output.error("Unable to execute command 'run': " + ex.getMessage(), ex);
+            logger.error("Unable to execute command 'run': " + ex.getMessage(), ex);
             return null;
         } finally {
             logger.exit();

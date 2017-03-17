@@ -29,7 +29,7 @@ import java.util.Properties;
  * installation of Buildservice.
  */
 public class RemoteBuildExecutor implements TestExecutor {
-    private static final XLogger logger = XLoggerFactory.getXLogger(RemoteValidateExecutor.class);
+    private static final XLogger logger = XLoggerFactory.getXLogger(RemoteBuildExecutor.class);
     private static final long DEFAULT_CONNECT_TIMEOUT_MS = 1 * 60 * 1000;    // 1 minute
     private static final long DEFAULT_REQUEST_TIMEOUT_MS = 3 * 60 * 1000;    // 3 minutes
     private static final String TRACKING_ID_FORMAT = "ocbtools-%s-%s-%s";

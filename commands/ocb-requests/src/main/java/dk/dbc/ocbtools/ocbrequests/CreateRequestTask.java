@@ -3,7 +3,6 @@ package dk.dbc.ocbtools.ocbrequests;
 import dk.dbc.iscrum.records.AgencyNumber;
 import dk.dbc.iscrum.records.MarcConverter;
 import dk.dbc.iscrum.records.MarcRecord;
-import dk.dbc.iscrum.utils.logback.filters.BusinessLoggerFilter;
 import dk.dbc.ocbtools.ocbrequests.rawrepo.RecordEntity;
 import dk.dbc.updateservice.client.BibliographicRecordExtraData;
 import dk.dbc.updateservice.client.BibliographicRecordFactory;
@@ -33,7 +32,6 @@ class CreateRequestTask implements Runnable {
 
 
     private static final XLogger logger = XLoggerFactory.getXLogger(CreateRequestTask.class);
-    private static final XLogger output = XLoggerFactory.getXLogger(BusinessLoggerFilter.LOGGER_NAME);
 
     private File baseDir;
     private Integer userNumber;
@@ -87,12 +85,12 @@ class CreateRequestTask implements Runnable {
                 SOAPMessage message = createSoapRequest();
                 message.writeTo(fos);
             } catch (Exception ex) {
-                output.error(ex.getMessage());
+                logger.error(ex.getMessage());
                 logger.error(ex.getMessage(), ex);
             }
             logger.info("Wrote file: {}", filename);
         } catch (IOException ex) {
-            output.error(ex.getMessage());
+            logger.error(ex.getMessage());
             logger.error(ex.getMessage(), ex);
         } finally {
             logger.exit();
@@ -124,7 +122,7 @@ class CreateRequestTask implements Runnable {
 
             return message;
         } catch (Exception ex) {
-            output.error(ex.getMessage());
+            logger.error(ex.getMessage());
             logger.error(ex.getMessage(), ex);
 
             throw ex;
