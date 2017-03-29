@@ -49,14 +49,14 @@ public class RemoteValidateExecutor implements TestExecutor {
     protected UpdateTestcase tc;
     protected Properties settings;
     DemoInfoPrinter demoInfoPrinter;
-    private SolrServer solrServer;
+    private OcbWireMockServer wireMockServer;
 
     public RemoteValidateExecutor(UpdateTestcase tc, Properties settings, boolean printDemoInfo) {
         logger = XLoggerFactory.getXLogger(RemoteValidateExecutor.class);
         this.tc = tc;
         this.settings = settings;
         this.demoInfoPrinter = null;
-        this.solrServer = null;
+        this.wireMockServer = null;
 
         if (printDemoInfo) {
             this.demoInfoPrinter = new DemoInfoPrinter();
@@ -82,7 +82,7 @@ public class RemoteValidateExecutor implements TestExecutor {
 
             RawRepo.setupDatabase(settings);
             Holdings.setupDatabase(settings);
-            solrServer = new SolrServer(tc, settings);
+            wireMockServer = new OcbWireMockServer(tc, settings);
 
             if (!hasRawRepoSetup(tc)) {
                 return true;
@@ -211,8 +211,8 @@ public class RemoteValidateExecutor implements TestExecutor {
     public void teardown() {
         logger.entry();
         try {
-            if (solrServer != null) {
-                solrServer.stop();
+            if (wireMockServer != null) {
+                wireMockServer.stop();
             }
             if (this.demoInfoPrinter != null) {
                 demoInfoPrinter.printRemoteDatabases(this.tc, settings);
