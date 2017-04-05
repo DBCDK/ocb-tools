@@ -151,7 +151,13 @@ class CreateRequestTask implements Runnable {
             request.setOptions(null);
 
             BibliographicRecordExtraData extraData = new BibliographicRecordExtraData();
-            extraData.setProviderName("opencataloging-update");
+            if ("870970".equals(agencyId.toString())) {
+                extraData.setProviderName("dataio-update");
+            } else {
+                extraData.setProviderName("fbs-update");
+            }
+
+
 
             request.setBibliographicRecord(BibliographicRecordFactory.newMarcRecord(recordData, extraData));
 
