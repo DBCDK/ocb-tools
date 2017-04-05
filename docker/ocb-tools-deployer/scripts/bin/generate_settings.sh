@@ -21,6 +21,5 @@ solr.port = 8080
 request.headers.x.forwarded.for = ${REQUEST_IP_ADDR}
 
 rawrepo.provider.name.dbc = dataio-update
-rawrepo.provider.name.fbs = fbs-update
-rawrepo.provider.name.fbs = fbs-ph-update
+rawrepo.provider.name.fbs = opencataloging-update
 EOF
