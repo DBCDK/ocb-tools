@@ -229,6 +229,7 @@ public class RawRepo {
                     logger.debug("Setup queue rule for worker: {}", name);
                     JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, changed, leaf) VALUES(?, ?, ?, ?)", settings.getProperty("rawrepo.provider.name.dbc"), name, "Y", "A");
                     JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, changed, leaf) VALUES(?, ?, ?, ?)", settings.getProperty("rawrepo.provider.name.fbs"), name, "Y", "A");
+                    JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, changed, leaf) VALUES(?, ?, ?, ?)", settings.getProperty("rawrepo.provider.name.ph"), name, "Y", "A");
                 }
 
                 conn.commit();
