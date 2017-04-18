@@ -23,4 +23,5 @@ request.headers.x.forwarded.for = ${REQUEST_IP_ADDR}
 rawrepo.provider.name.dbc = dataio-update
 rawrepo.provider.name.fbs = opencataloging-update
 rawrepo.provider.name.ph = fbs-ph-update
+rawrepo.provider.name.ph.holdings = dataio-ph-holding-update
 EOF
