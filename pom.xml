@@ -65,7 +65,7 @@
         <postgres.plugin.version>9.3-1101-jdbc41</postgres.plugin.version>
         <log4j.slf4j.plugin.version>1.7.7</log4j.slf4j.plugin.version>
         <updateservice.wsdl.url>https://svn.dbc.dk/repos/updateservice/trunk/src/wsdl/update/catalogingUpdate.wsdl</updateservice.wsdl.url>
-        <buildservice.wsdl.url>https://svn.dbc.dk/repos/buildservice/trunk/service/src/wsdl/build/catalogingBuild.wsdl</buildservice.wsdl.url>
+        <buildservice.wsdl.url>https://svn.dbc.dk/repos/updateservice/trunk/src/wsdl/build/catalogingBuild.wsdl</buildservice.wsdl.url>
     </properties>
 
     <pluginRepositories>
