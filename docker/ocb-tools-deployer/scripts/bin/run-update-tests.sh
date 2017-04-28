@@ -3,7 +3,7 @@
 cd ${OCB_USER_HOME}/opencat-business
 generate_settings.sh
 
-ocb-test.sh run --application Update --summary --config settings
+ocb-test.sh run --summary --config settings
 cd -
 
 echo $USER
