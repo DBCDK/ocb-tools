@@ -25,10 +25,6 @@ public class ListDefinition implements SubcommandDefinition {
     @Override
     public List<Option> createOptions() {
         List<Option> options = new ArrayList<>();
-        Option option;
-        option = new Option("a", "application", true, "Hvilken applikation der skal kaldes, U/Update for Updateservice eller B/Build for Buildservice.");
-        option.setRequired(true);
-        options.add(option);
         return options;
     }
 

@@ -7,7 +7,6 @@ import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.ocbtools.testengine.asserters.BuildAsserter;
 import dk.dbc.ocbtools.testengine.testcases.BuildTestcase;
 import org.perf4j.StopWatch;
-import org.perf4j.log4j.Log4JStopWatch;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 import org.w3c.dom.Node;
@@ -95,7 +94,8 @@ public class RemoteBuildExecutor implements TestExecutor {
             if (demoInfoPrinter != null) {
                 demoInfoPrinter.printRequest(buildRequest, buildTestcase.loadRequestRecord());
             }
-            StopWatch watch = new Log4JStopWatch("RemoteBuildExecutor.executeTests");
+            //StopWatch watch = new Log4JStopWatch("RemoteBuildExecutor.executeTests");
+            StopWatch watch = new StopWatch();
             BuildPortType buildPortType = createPort(url);
             BuildResult buildResult = buildPortType.build(buildRequest);
             watch.stop();

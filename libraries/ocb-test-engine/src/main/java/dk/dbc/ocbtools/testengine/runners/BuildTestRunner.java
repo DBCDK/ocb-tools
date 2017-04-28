@@ -12,7 +12,7 @@ import java.util.List;
  * Class to run tests for a number of Buildservice testcases.
  */
 public class BuildTestRunner {
-    private static final XLogger output = XLoggerFactory.getXLogger(BuildTestRunner.class);
+    private static final XLogger logger = XLoggerFactory.getXLogger(BuildTestRunner.class);
     private List<BuildTestRunnerItem> items;
 
     public BuildTestRunner(List<BuildTestRunnerItem> items) {
@@ -20,33 +20,30 @@ public class BuildTestRunner {
     }
 
     public TestResult run() {
-        output.entry();
-
-        TestResult testResult = null;
+        logger.entry();
         try {
-            testResult = new TestResult();
-
+            TestResult testResult = new TestResult();
             for (BuildTestRunnerItem item : items) {
-                output.info("Running testcase '{}'", item.getBuildTestcase().getName());
+                logger.info("Running testcase '{}'", item.getBuildTestcase().getName());
 
                 TestcaseResult tcResult = runTestcase(item);
                 if (tcResult != null) {
                     testResult.add(tcResult);
                 }
             }
-            output.info("");
+            logger.info("");
             return testResult;
-        } catch (Exception e) {
-            output.error("Unable to run tests: {}", e.getMessage());
-            output.debug("Exception stacktrace.", e);
-            return null;
+        } catch (Exception ex) {
+            logger.error("Unable to run tests: {}", ex.getMessage());
+            logger.debug("Exception stacktrace.", ex);
         } finally {
-            output.exit(testResult);
+            logger.exit();
         }
+        return null;
     }
 
     private TestcaseResult runTestcase(BuildTestRunnerItem buildTestRunnerItem) {
-        output.entry(buildTestRunnerItem);
+        logger.entry(buildTestRunnerItem);
 
         TestcaseResult res = null;
         try {
@@ -64,23 +61,28 @@ public class BuildTestRunner {
                             TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, null);
                             testExecutorResult.setTime(watch.getElapsedTime());
                             testExecutorResults.add(testExecutorResult);
-                        } catch (AssertionError e) {
+                        } catch (AssertionError ex) {
                             watch.stop();
-                            TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, e);
+                            logger.error("Got assertion error runTestcase build {}", ex);
+                            TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, ex);
                             testExecutorResult.setTime(watch.getElapsedTime());
                             testExecutorResults.add(testExecutorResult);
-                        } catch (Throwable e) {
+                        } catch (Throwable ex) {
+                            logger.error("runTestcase build execute ERROR : {}", ex);
                             watch.stop();
-                            TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(e.getMessage(), e));
+                            TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(ex.getMessage(), ex));
                             testExecutorResult.setTime(watch.getElapsedTime());
                             testExecutorResults.add(testExecutorResult);
-                            throw new IllegalStateException("Unexpected error", e);
+                            throw new IllegalStateException("Unexpected error", ex);
                         }
                     } else {
+                        logger.error("setup runTestcase build fails");
+                        exec.teardown();
                         return res;
                     }
                     exec.teardown();
                 } catch (Throwable ex) {
+                    logger.error("runTestcase build ERROR : ", ex);
                     watch.stop();
                     TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(ex.getMessage(), ex));
                     testExecutorResult.setTime(watch.getElapsedTime());
@@ -91,7 +93,7 @@ public class BuildTestRunner {
             res = new TestcaseResult(buildTestRunnerItem.getBuildTestcase(), testExecutorResults);
             return res;
         } finally {
-            output.exit(res);
+            logger.exit();
         }
     }
 }

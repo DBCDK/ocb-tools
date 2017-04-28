@@ -28,7 +28,6 @@ class RunExecutor implements SubcommandExecutor {
     private String configName;
     private boolean printDemoInfo;
     private List<String> tcNames;
-    private ApplicationType applicationType;
     private List<TestReport> reports;
 
     RunExecutor() {
@@ -36,7 +35,6 @@ class RunExecutor implements SubcommandExecutor {
         this.printDemoInfo = false;
         this.tcNames = null;
         this.reports = null;
-        this.applicationType = null;
     }
 
     void setConfigName(String configName) {
@@ -55,20 +53,14 @@ class RunExecutor implements SubcommandExecutor {
         this.reports = reports;
     }
 
-    void setApplicationType(ApplicationType applicationType) {
-        this.applicationType = applicationType;
-    }
 
     @Override
     public void actionPerformed() throws CliException {
         logger.entry();
-        logger.info("Service tested: {}", applicationType);
+        //logger.info("Service tested: {}", applicationType);
         try {
-            if (applicationType == ApplicationType.UPDATE) {
-                actionPerformedUpdate();
-            } else {
-                actionPerformedBuild();
-            }
+            actionPerformedUpdate();
+            actionPerformedBuild();
         } finally {
             logger.exit();
         }

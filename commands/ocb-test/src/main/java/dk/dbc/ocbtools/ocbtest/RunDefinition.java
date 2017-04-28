@@ -34,9 +34,6 @@ public class RunDefinition implements SubcommandDefinition {
         options.add(option);
         option = new Option("dm", "demo", false, "Udskriver ekstra oplysninger om råpostrepo før/efter testcasen.");
         options.add(option);
-        option = new Option("a", "application", true, "Hvilken applikation der skal kaldes, U/Update for Updateservice eller B/Build for Buildservice.");
-        option.setRequired(true);
-        options.add(option);
         return options;
     }
 
@@ -63,7 +60,7 @@ public class RunDefinition implements SubcommandDefinition {
             runExecutor.setPrintDemoInfo(line.hasOption("dm"));
             runExecutor.setTcNames(line.getArgList());
             runExecutor.setReports(reports);
-            runExecutor.setApplicationType(CommonMethods.parseApplicationType(line));
+            //runExecutor.setApplicationType(CommonMethods.parseApplicationType(line));
             return runExecutor;
         } catch (IOException ex) {
             logger.error("Unable to execute command 'run': " + ex.getMessage(), ex);
