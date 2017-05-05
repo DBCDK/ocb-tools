@@ -1,5 +1,6 @@
-OCB-Tools
-======================
+<img src="http://www.dbc.dk/logo.png" alt="DBC" title="DBC" align="right">
+
+# OCB-Tools
 
 OCB-Tools er et sæt tools og libraries som har til formål at effektivisere arbejdet med Opencat-business modulet.
 
@@ -20,8 +21,8 @@ JavaScript:
 
 - Eksekvering af JavaScript's unittests.
 
-OCB Kommandoer
-======================
+## OCB Kommandoer
+
 
 OCB-Tools består af en række kommandolinjeværktøjer som kan anvendes til det daglige arbejde med Opencat-business.
 
@@ -42,8 +43,8 @@ Webservices:
 - **ocb-forsrights**: Kommando til at kalde Forsrights.
 - **ocb-fbs**: Kommando til at kalde Build eller Update.
 
-OCB Libraries
-======================
+## OCB Libraries
+
 
 OCB Libraries har til formål at sikre at kode som anvendes op tværs af OCB kommandoer eller Opencat-services (Update og
 Build) anvendes på samme måde.
