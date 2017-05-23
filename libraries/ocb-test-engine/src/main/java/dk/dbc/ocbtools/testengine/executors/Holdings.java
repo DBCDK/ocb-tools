@@ -11,9 +11,10 @@ import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.*;
-import java.util.Date;
 
 /**
  * Class to setup holdings in the holdingsitems database.
@@ -112,6 +113,7 @@ class Holdings {
                     JDBCUtil.update(conn, "INSERT INTO queueworkers(worker) VALUES(?)", name);
                     JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker) VALUES(?, ?)", PROVIDER_NAME, name);
                 }
+                JDBCUtil.update(conn, "INSERT INTO messagequeuerules(worker, queuename) VALUES('solr-sync', 'holdingsItemsSolrFast')");
 
                 conn.commit();
             } catch (SQLException ex) {
@@ -136,6 +138,7 @@ class Holdings {
                 JDBCUtil.update(conn, "DELETE FROM jobdiag");
 
                 JDBCUtil.update(conn, "DELETE FROM queuerules");
+                JDBCUtil.update(conn, "DELETE FROM messagequeuerules");
                 JDBCUtil.update(conn, "DELETE FROM queueworkers");
 
                 conn.commit();
