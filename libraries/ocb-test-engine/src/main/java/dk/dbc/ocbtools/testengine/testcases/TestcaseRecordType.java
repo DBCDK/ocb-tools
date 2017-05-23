@@ -7,7 +7,8 @@ import dk.dbc.marcxmerge.MarcXChangeMimeType;
  */
 public enum TestcaseRecordType {
     MARCXCHANGE(MarcXChangeMimeType.MARCXCHANGE),
-    ENRICHMENT(MarcXChangeMimeType.ENRICHMENT);
+    ENRICHMENT(MarcXChangeMimeType.ENRICHMENT),
+    ARTICLE(MarcXChangeMimeType.ARTICLE);
 
     private final String value;
 
