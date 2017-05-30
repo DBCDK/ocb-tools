@@ -48,8 +48,6 @@ public class RawRepo {
     private static final String SELECT_RECORDS_SQL = "SELECT bibliographicrecordid, agencyid FROM records";
 
     private static final String OCBTEST_WORKER_NAME = "ocb-test";
-    private static final String BASIS_WORKER_NAME = "basis-decentral";
-    private static final String[] WORKER_NAMES = {OCBTEST_WORKER_NAME, "fbs-sync", "solr-sync", "broend-sync", BASIS_WORKER_NAME};
 
     private Properties settings;
     private RawRepoDAO dao;
@@ -222,14 +220,11 @@ public class RawRepo {
         try (Connection conn = getConnection(settings)) {
             try {
                 logger.debug("Setup rawrepo queue workers and rules");
-                for (String name : WORKER_NAMES) {
-                    logger.debug("Setup queue worker: {}", name);
-                    JDBCUtil.update(conn, "INSERT INTO queueworkers(worker) VALUES(?)", name);
 
-                    logger.debug("Setup queue rule for worker: {}", name);
-                    JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, changed, leaf) VALUES(?, ?, ?, ?)", settings.getProperty("rawrepo.provider.name.dbc"), name, "Y", "A");
-                    JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, changed, leaf) VALUES(?, ?, ?, ?)", settings.getProperty("rawrepo.provider.name.fbs"), name, "Y", "A");
-                    JDBCUtil.update(conn, "INSERT INTO queuerules(provider, worker, changed, leaf) VALUES(?, ?, ?, ?)", settings.getProperty("rawrepo.provider.name.ph"), name, "Y", "A");
+                QueueSetup queueSetup = new QueueSetup();
+                List<String> queueInserts = queueSetup.getQueueRulesInserts();
+                for (String ins : queueInserts) {
+                    JDBCUtil.update(conn, ins);
                 }
 
                 conn.commit();
