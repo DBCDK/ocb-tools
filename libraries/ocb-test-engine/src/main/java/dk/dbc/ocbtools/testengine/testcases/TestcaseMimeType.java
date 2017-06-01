@@ -5,14 +5,14 @@ import dk.dbc.marcxmerge.MarcXChangeMimeType;
 /**
  * Represents a record type in json testcases.
  */
-public enum TestcaseRecordType {
+public enum TestcaseMimeType {
     MARCXCHANGE(MarcXChangeMimeType.MARCXCHANGE),
     ENRICHMENT(MarcXChangeMimeType.ENRICHMENT),
     ARTICLE(MarcXChangeMimeType.ARTICLE);
 
     private final String value;
 
-    TestcaseRecordType(String v) {
+    TestcaseMimeType(String v) {
         value = v;
     }
 
@@ -20,8 +20,8 @@ public enum TestcaseRecordType {
         return value;
     }
 
-    public static TestcaseRecordType fromValue(String v) {
-        for (TestcaseRecordType c : TestcaseRecordType.values()) {
+    public static TestcaseMimeType fromValue(String v) {
+        for (TestcaseMimeType c : TestcaseMimeType.values()) {
             if (c.value.equals(v)) {
                 return c;
             }

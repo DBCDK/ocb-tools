@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -135,7 +136,7 @@ class DemoInfoPrinter {
 
                 for (Record rawRepoRecord : rawRepoRecords) {
                     logger.info("Id: [{}:{}]", rawRepoRecord.getId().getBibliographicRecordId(), rawRepoRecord.getId().getAgencyId());
-                    logger.info("Mimetype: {}", TestcaseRecordType.fromValue(rawRepoRecord.getMimeType()));
+                    logger.info("Mimetype: {}", TestcaseMimeType.fromValue(rawRepoRecord.getMimeType()));
                     logger.info("Deleted: {}", rawRepoRecord.isDeleted());
                     logger.info("TrackingID: {}", rawRepoRecord.getTrackingId());
                     logger.info("");
@@ -145,7 +146,7 @@ class DemoInfoPrinter {
                     logger.info("Content:\n{}", RawRepo.decodeRecord(rawRepoRecord.getContent()));
                 }
 
-                logger.info("Queued records: {}", formatRecordIds(RawRepo.loadQueuedRecords(settings)));
+                logger.info("Queued records: {}", formatQueuedJobs(RawRepo.loadQueuedRecords(settings)));
             }
 
             logger.info(SEP_LINE);
@@ -195,6 +196,21 @@ class DemoInfoPrinter {
             logger.info("Response: {}", Json.encodePretty(response));
         } finally {
             logger.exit();
+        }
+    }
+
+    private String formatQueuedJobs(Iterable<QueuedJob> jobs) {
+        logger.entry();
+
+        String result = "";
+        try {
+            List<RecordId> recordIds = new ArrayList<>();
+            for (QueuedJob job : jobs) {
+                recordIds.add(job.getRecordId());
+            }
+            return formatRecordIds(recordIds);
+        } finally {
+            logger.exit(result);
         }
     }
 

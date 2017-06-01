@@ -6,16 +6,19 @@ import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.records.MarcSubField;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
+import dk.dbc.ocbtools.testengine.executors.QueuedJob;
 import dk.dbc.ocbtools.testengine.executors.RawRepo;
 import dk.dbc.ocbtools.testengine.executors.RawRepoRelationType;
+import dk.dbc.ocbtools.testengine.testcases.TestcaseMimeType;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
-import dk.dbc.ocbtools.testengine.testcases.TestcaseRecordType;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.RecordId;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -78,7 +81,7 @@ public class RawRepoAsserter {
         try {
             String formattedRecordId = String.format(FORMATTED_RECORD, expected.getRecord(), actual.getId().getBibliographicRecordId(), actual.getId().getAgencyId());
 
-            assertEquals(String.format("Wrong mimetype of record %s", formattedRecordId), expected.getType(), TestcaseRecordType.fromValue(actual.getMimeType()));
+            assertEquals(String.format("Wrong mimetype of record %s", formattedRecordId), expected.getType(), TestcaseMimeType.fromValue(actual.getMimeType()));
             assertEquals(String.format("Wrong deletion mark of record %s", formattedRecordId), expected.isDeleted(), actual.isDeleted());
 
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
@@ -122,8 +125,8 @@ public class RawRepoAsserter {
 
     }
 
-    public static void assertQueueRecords(List<UpdateTestcaseRecord> expected, List<RecordId> queuedRecords) throws IOException {
-        logger.entry(expected, queuedRecords);
+    public static void assertQueueRecords(List<UpdateTestcaseRecord> expected, List<QueuedJob> QueuedJobs) throws IOException {
+        logger.entry(expected, QueuedJobs);
 
         try {
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
@@ -132,12 +135,40 @@ public class RawRepoAsserter {
                 MarcRecord record = fs.loadRecord(testRecord.getRecordFile().getParentFile(), testRecord.getRecord());
                 RecordId recordId = RawRepo.getRecordId(record);
 
+                List<String> expectedQueuedJobs = testRecord.getQueueWorkers();
+
                 String formatedRecordId = String.format(FORMATTED_RECORD, testRecord.getRecord(), recordId.getBibliographicRecordId(), recordId.getAgencyId());
 
-                if (testRecord.isEnqueued()) {
-                    assertTrue(String.format("The record %s was expected in the queue in rawrepo", formatedRecordId), queuedRecords.contains(recordId));
+                if (testRecord.getQueueWorkers() == null) {
+                    // This handles the cases where the testcase doesn't define which workers the queue jobs should be for
+                    // TODO: Remove once all testcases use queueWorkers
+                    boolean isEnqueued = false;
+                    for (QueuedJob job : QueuedJobs) {
+                        if (job.getRecordId().equals(recordId)) {
+                            isEnqueued = true;
+                            break;
+                        }
+                    }
+
+                    if (testRecord.isEnqueued()) {
+                        assertTrue(String.format("The record %s was expected in the queue in rawrepo", formatedRecordId), isEnqueued);
+                    } else {
+                        assertFalse(String.format("The record %s was not expected in the queue in rawrepo", formatedRecordId), isEnqueued);
+                    }
                 } else {
-                    assertFalse(String.format("The record %s was not expected in the queue in rawrepo", formatedRecordId), queuedRecords.contains(recordId));
+                    List<String> actualQueuedJobs = new ArrayList<>();
+
+                    for (QueuedJob job : QueuedJobs) {
+                        if (job.getRecordId().equals(recordId)) {
+                            actualQueuedJobs.add(job.getWorker());
+                        }
+                    }
+
+                    Collections.sort(expectedQueuedJobs);
+                    Collections.sort(actualQueuedJobs);
+
+                    assertEquals("The amount of expected and actual queued jobs is not the same - ", expectedQueuedJobs.size(), actualQueuedJobs.size());
+                    assertEquals("Unexpected difference between expected and actual queued jobs", expectedQueuedJobs, actualQueuedJobs);
                 }
             }
         } finally {

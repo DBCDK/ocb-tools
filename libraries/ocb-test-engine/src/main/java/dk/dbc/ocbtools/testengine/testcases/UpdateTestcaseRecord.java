@@ -16,11 +16,13 @@ public class UpdateTestcaseRecord {
     @JsonIgnore
     private File recordFile;
 
-    private TestcaseRecordType type;
+    private TestcaseMimeType type;
     private boolean deleted;
     private List<String> children;
     private List<String> enrichments;
     private Boolean enqueued;
+    private List<String> queueWorkers;
+    private boolean virtual;
 
     public UpdateTestcaseRecord() {
         this.record = "";
@@ -31,6 +33,8 @@ public class UpdateTestcaseRecord {
         this.children = new ArrayList<>();
         this.enrichments = new ArrayList<>();
         this.enqueued = false;
+        this.queueWorkers = null; // Can't initialize it to empty as an empty queue is a valid assertion while null value means "don't use"
+        this.virtual = false;
     }
 
     public String getRecord() {
@@ -57,11 +61,11 @@ public class UpdateTestcaseRecord {
         this.recordFile = recordFile;
     }
 
-    public TestcaseRecordType getType() {
+    public TestcaseMimeType getType() {
         return type;
     }
 
-    public void setType(TestcaseRecordType type) {
+    public void setType(TestcaseMimeType type) {
         this.type = type;
     }
 
@@ -97,16 +101,37 @@ public class UpdateTestcaseRecord {
         this.enqueued = enqueued;
     }
 
+
+    public boolean isVirtual() {
+        return virtual;
+    }
+
+    public void setVirtual(boolean virtual) {
+        this.virtual = virtual;
+    }
+
+
+    public List<String> getQueueWorkers() {
+        return queueWorkers;
+    }
+
+    public void setQueueWorkers(List<String> queueWorkers) {
+        this.queueWorkers = queueWorkers;
+    }
+
     @Override
     public String toString() {
-        return "TestcaseRecord{" +
+        return "UpdateTestcaseRecord{" +
                 "record='" + record + '\'' +
+                ", holdings=" + holdings +
                 ", recordFile=" + recordFile +
                 ", type=" + type +
                 ", deleted=" + deleted +
                 ", children=" + children +
                 ", enrichments=" + enrichments +
                 ", enqueued=" + enqueued +
+                ", queueWorkers=" + queueWorkers +
+                ", virtual=" + virtual +
                 '}';
     }
 }

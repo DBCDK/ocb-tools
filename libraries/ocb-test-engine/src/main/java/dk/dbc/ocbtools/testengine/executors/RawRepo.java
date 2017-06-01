@@ -11,7 +11,10 @@ import dk.dbc.iscrum.records.marcxchange.RecordType;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
-import dk.dbc.rawrepo.*;
+import dk.dbc.rawrepo.RawRepoDAO;
+import dk.dbc.rawrepo.RawRepoException;
+import dk.dbc.rawrepo.Record;
+import dk.dbc.rawrepo.RecordId;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -46,6 +49,7 @@ public class RawRepo {
     private static final String RECORD_ID_COL = "bibliographicrecordid";
     private static final String AGENCY_ID_COL = "agencyid";
     private static final String SELECT_RECORDS_SQL = "SELECT bibliographicrecordid, agencyid FROM records";
+    private static final String SELECT_QUEUE_JOBS_SQL = "SELECT bibliographicrecordid, agencyid, worker FROM queue";
 
     private static final String OCBTEST_WORKER_NAME = "ocb-test";
 
@@ -321,22 +325,15 @@ public class RawRepo {
      * @throws ClassNotFoundException If we can not initialize RawRepoDAO.
      * @throws RawRepoException       rawrepo errors.
      */
-    static List<RecordId> loadQueuedRecords(Properties settings) throws RawRepoException, SQLException, IOException, ClassNotFoundException {
+    static List<QueuedJob> loadQueuedRecords(Properties settings) throws RawRepoException, SQLException, IOException, ClassNotFoundException {
         logger.entry();
 
-        List<RecordId> result = new ArrayList<>();
+        List<QueuedJob> result = new ArrayList<>();
         try (Connection conn = getConnection(settings)) {
-            RawRepoDAO dao = RawRepoDAO.builder(conn).build();
 
-            final int COUNT_SIZE = 10;
-            List<QueueJob> jobs;
-            do {
-                jobs = dao.dequeue(OCBTEST_WORKER_NAME, COUNT_SIZE);
-                for (QueueJob job : jobs) {
-                    result.add(job.getJob());
-                }
+            for (Map<String, Object> entry : JDBCUtil.queryForRowMaps(conn, SELECT_QUEUE_JOBS_SQL)) {
+               result.add(QueuedJob.fromMap(entry));
             }
-            while (!jobs.isEmpty());
 
             return result;
         } finally {
