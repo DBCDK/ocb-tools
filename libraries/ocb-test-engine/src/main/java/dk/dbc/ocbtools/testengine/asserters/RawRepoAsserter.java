@@ -39,21 +39,22 @@ public class RawRepoAsserter {
         try {
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
             if (expected.size() != actual.size()) {
-                String message = "Number of records with RawRepo differ\n";
+                StringBuilder message = new StringBuilder();
+                message.append("Number of records with RawRepo differ\n");
 
-                message += "Expected: [";
+                message.append("Expected: [");
                 for (UpdateTestcaseRecord expectedRecord : expected) {
-                    message += "\n";
-                    message += fs.loadRecord(expectedRecord.getRecordFile().getParentFile(), expectedRecord.getRecord()).toString();
+                    message.append("\n");
+                    message.append(fs.loadRecord(expectedRecord.getRecordFile().getParentFile(), expectedRecord.getRecord()).toString());
                 }
-                message += "],\n";
+                message.append("],\n");
 
-                message += "Actual: [";
+                message.append("Actual: [");
                 for (Record actualRecord : actual) {
-                    message += "\n";
-                    message += RawRepo.decodeRecord(actualRecord.getContent()).toString();
+                    message.append("\n");
+                    message.append(RawRepo.decodeRecord(actualRecord.getContent()).toString());
                 }
-                message += "]";
+                message.append("]");
 
                 throw new AssertionError(message);
             }
