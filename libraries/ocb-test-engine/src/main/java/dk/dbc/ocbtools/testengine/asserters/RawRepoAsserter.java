@@ -142,18 +142,18 @@ public class RawRepoAsserter {
                 if (testRecord.getQueueWorkers() == null) {
                     // This handles the cases where the testcase doesn't define which workers the queue jobs should be for
                     // TODO: Remove once all testcases use queueWorkers
-                    boolean isEnqueued = false;
+                    boolean actuallyEnqueued = false;
                     for (QueuedJob job : QueuedJobs) {
                         if (job.getRecordId().equals(recordId)) {
-                            isEnqueued = true;
+                            actuallyEnqueued = true;
                             break;
                         }
                     }
 
                     if (testRecord.isEnqueued()) {
-                        assertTrue(String.format("The record %s was expected in the queue in rawrepo", formatedRecordId), isEnqueued);
+                        assertTrue(String.format("The record %s was expected in the queue in rawrepo", formatedRecordId), actuallyEnqueued);
                     } else {
-                        assertFalse(String.format("The record %s was not expected in the queue in rawrepo", formatedRecordId), isEnqueued);
+                        assertFalse(String.format("The record %s was not expected in the queue in rawrepo", formatedRecordId), actuallyEnqueued);
                     }
                 } else {
                     List<String> actualQueuedJobs = new ArrayList<>();
@@ -164,6 +164,7 @@ public class RawRepoAsserter {
                         }
                     }
 
+                    // We have to sort the lists first, as the objects won't be equal if the order is different.
                     Collections.sort(expectedQueuedJobs);
                     Collections.sort(actualQueuedJobs);
 
@@ -202,16 +203,16 @@ public class RawRepoAsserter {
                     assertTrue(message, relations.contains(relatedRecordId));
                 }
             } else {
-                String recordIds = "";
+                StringBuilder recordIds = new StringBuilder();
                 for (RecordId id : relations) {
-                    if (!recordIds.isEmpty()) {
-                        recordIds += ", ";
+                    if (recordIds.length() > 0) {
+                        recordIds.append(", ");
                     }
 
-                    recordIds += String.format(FORMATTED_RECORD_ID, id.getBibliographicRecordId(), id.getAgencyId());
+                    recordIds.append(String.format(FORMATTED_RECORD_ID, id.getBibliographicRecordId(), id.getAgencyId()));
                 }
 
-                throw new AssertionError(String.format(relationType.getUnexpectedFormatError(), formatedRecordId, recordIds));
+                throw new AssertionError(String.format(relationType.getUnexpectedFormatError(), formatedRecordId, recordIds.toString()));
             }
         } finally {
             logger.exit();
