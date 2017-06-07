@@ -33,7 +33,7 @@ public class RawRepoAsserter {
     private static final String FORMATTED_RECORD = "{%s - %s:%s}";
     private static final String FORMATTED_RECORD_ID = "{%s:%s}";
 
-    public static void assertRecordListEquals(List<UpdateTestcaseRecord> expected, List<Record> actual) {
+    public static void assertRecordListEquals(List<UpdateTestcaseRecord> expected, List<Record> actual, boolean check001cd) {
         logger.entry(expected, actual);
 
         try {
@@ -66,8 +66,7 @@ public class RawRepoAsserter {
                 if (actualRecord == null) {
                     throw new AssertionError(String.format("assertRecordListEquals: Record %s does not exist in rawrepo", RawRepo.getRecordId(marcExpected)));
                 }
-
-                assertRecordEqual(testRecord, actualRecord);
+                assertRecordEqual(testRecord, actualRecord, check001cd);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -76,7 +75,7 @@ public class RawRepoAsserter {
         }
     }
 
-    private static void assertRecordEqual(UpdateTestcaseRecord expected, Record actual) throws IOException {
+    private static void assertRecordEqual(UpdateTestcaseRecord expected, Record actual, boolean check001cd) throws IOException {
         logger.entry(expected, actual);
 
         try {
@@ -106,10 +105,10 @@ public class RawRepoAsserter {
                     for (int k = 0; k < expectedField.getSubfields().size(); k++) {
                         MarcSubField expectedSubField = expectedField.getSubfields().get(k);
 
-                        if (expectedSubField.getName().equals("c")) {
+                        if (expectedSubField.getName().equals("c") && !check001cd) {
                             continue;
                         }
-                        if (expectedSubField.getName().equals("d")) {
+                        if (expectedSubField.getName().equals("d") && !check001cd) {
                             continue;
                         }
 

@@ -48,6 +48,8 @@ public class CreateDefinition implements SubcommandDefinition {
         options.add(option);
         option = new Option("c", "charset", true, "Tegnsæt til en iso2709-fil.");
         options.add(option);
+        option = new Option("cd", "check001cd", true, "Bool der angiver om 001c og 001d skal checkes for ændringer");
+        options.add(option);
 
         return options;
     }
@@ -74,7 +76,6 @@ public class CreateDefinition implements SubcommandDefinition {
                 if (authArgs.length != 3) {
                     throw new CliException(bundle.getString("auth.arg.error"));
                 }
-
                 TestcaseAuthentication auth = new TestcaseAuthentication();
                 auth.setGroup(authArgs[0]);
                 auth.setUser(authArgs[1]);
@@ -84,6 +85,9 @@ public class CreateDefinition implements SubcommandDefinition {
 
             if (line.hasOption("t")) {
                 executor.setTemplateName(line.getOptionValue("t"));
+            }
+            if (line.hasOption("cd")) {
+                executor.setCheck001cd( Boolean.parseBoolean( line.getOptionValue("da")));
             }
 
             Charset charset = StandardCharsets.UTF_8;

@@ -29,7 +29,6 @@ public class UpdateTestcaseFactory {
                         updateTestcaseRecord.setRecordFile(new File(tc.getFile().getParent() + "/" + updateTestcaseRecord.getRecord()));
                     }
                 }
-
                 if (tc.getExpected() != null && tc.getExpected().getUpdate() != null && tc.getExpected().getUpdate().getRawrepo() != null) {
                     for (UpdateTestcaseRecord updateTestcaseRecord : tc.getExpected().getUpdate().getRawrepo()) {
                         updateTestcaseRecord.setRecordFile(new File(tc.getFile().getParent() + "/" + updateTestcaseRecord.getRecord()));

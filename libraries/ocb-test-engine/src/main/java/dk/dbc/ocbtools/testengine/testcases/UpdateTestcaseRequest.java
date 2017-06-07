@@ -7,6 +7,7 @@ public class UpdateTestcaseRequest {
     private TestcaseAuthentication authentication = new TestcaseAuthentication();
     private Map<String, Object> headers = null;
     private String record = null;
+    private Boolean check001cd = false;
 
     public UpdateTestcaseRequest() {
     }
@@ -31,10 +32,6 @@ public class UpdateTestcaseRequest {
         return headers;
     }
 
-    public void setHeaders(Map<String, Object> headers) {
-        this.headers = headers;
-    }
-
     public String getRecord() {
         return record;
     }
@@ -43,13 +40,22 @@ public class UpdateTestcaseRequest {
         this.record = record;
     }
 
+    public boolean isCheck001cd() {
+        return check001cd;
+    }
+
+    public void setCheck001cd(boolean check001cd) {
+        this.check001cd = check001cd;
+    }
+
     @Override
     public String toString() {
-        return "TestcaseRequest{" +
+        return "UpdateTestcaseRequest{" +
                 "templateName='" + templateName + '\'' +
                 ", authentication=" + authentication +
                 ", headers=" + headers +
                 ", record='" + record + '\'' +
+                ", check001cd=" + check001cd +
                 '}';
     }
 }

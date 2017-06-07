@@ -75,6 +75,7 @@ public class CreateExecutorTest {
                     "-d", "description",
                     "-a", "netpunkt/700400/20Koster",
                     "-t", "bog",
+                    "-cd", "false",
                     "../../src/test/resources/record.xml", "tc_record.json");
             executor.actionPerformed();
 
@@ -125,6 +126,7 @@ public class CreateExecutorTest {
                     "-d", "description",
                     "-a", "netpunkt/700400/20Koster",
                     "-t", "bog",
+                    "-cd", "false",
                     "../../src/test/resources/records.xml", "tc_record.json");
             executor.actionPerformed();
 

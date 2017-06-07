@@ -30,6 +30,12 @@ public class CreateExecutor implements SubcommandExecutor {
     private String description = null;
     private TestcaseAuthentication authentication = null;
     private String templateName = null;
+    private Boolean check001cd = false;
+
+
+    public void setCheck001cd(Boolean check001cd) {
+        this.check001cd = check001cd;
+    }
 
     public CreateExecutor(File baseDir) {
         this.baseDir = baseDir;
@@ -121,6 +127,7 @@ public class CreateExecutor implements SubcommandExecutor {
                 request.setRecord(filename);
                 request.setAuthentication(authentication);
                 request.setTemplateName(templateName);
+                request.setCheck001cd(check001cd);
                 tc.setRequest(request);
 
                 UpdateTestcaseExpectedResult expected = new UpdateTestcaseExpectedResult();

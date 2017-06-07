@@ -50,9 +50,11 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
         try {
             assertNotNull("Property'en 'request' er obligatorisk.", tc.getRequest());
             assertNotNull("Property'en 'request.authentication' er obligatorisk.", tc.getRequest().getAuthentication());
+            assertNotNull("Property'en 'request.check001cd' er obligatorisk.", tc.getRequest().isCheck001cd());
             assertNotNull("Property'en 'request.authentication.group' er obligatorisk.", tc.getRequest().getAuthentication().getGroup());
             assertNotNull("Property'en 'request.authentication.user' er obligatorisk.", tc.getRequest().getAuthentication().getUser());
             assertNotNull("Property'en 'request.authentication.password' er obligatorisk.", tc.getRequest().getAuthentication().getPassword());
+
 
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
 
@@ -106,10 +108,10 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
                     }
 
                     if (tc.getExpected().getUpdate().getRawrepo() != null) {
-                        RawRepoAsserter.assertRecordListEquals(tc.getExpected().getUpdate().getRawrepo(), RawRepo.loadRecords(settings));
+                        RawRepoAsserter.assertRecordListEquals(tc.getExpected().getUpdate().getRawrepo(), RawRepo.loadRecords(settings), tc.getRequest().isCheck001cd());
                         RawRepoAsserter.assertQueueRecords(tc.getExpected().getUpdate().getRawrepo(), RawRepo.loadQueuedRecords(settings));
                     } else if (tc.getSetup() != null && tc.getSetup().getRawrepo() != null) {
-                        RawRepoAsserter.assertRecordListEquals(tc.getSetup().getRawrepo(), RawRepo.loadRecords(settings));
+                        RawRepoAsserter.assertRecordListEquals(tc.getSetup().getRawrepo(), RawRepo.loadRecords(settings), tc.getRequest().isCheck001cd());
                         RawRepoAsserter.assertQueueRecords(tc.getSetup().getRawrepo(), RawRepo.loadQueuedRecords(settings));
                     }
                     checkRelations(fs, settings, RawRepoRelationType.CHILD);
