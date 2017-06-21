@@ -4,13 +4,8 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-
 import dk.dbc.iscrum.utils.IOUtils;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
-
 import org.perf4j.StopWatch;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -19,6 +14,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
 import java.util.Properties;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 
 /**
@@ -29,11 +27,16 @@ class OcbWireMockServer {
 
     private static final String SOLR_PORT_KEY = "solr.port";
     private static final String SELECT_REQUEST_MASK = "([^?]*)select(.*)";
-    private static final String SELECT_RESPONSE = "{\"response\":{\"numFound\":0,\"start\":0,\"docs\":[]}}";
     private static final String ANALYSIS_REQUEST_MASK = "([^?]*)analysis(.*)";
+
+    private static final String SELECT_RESPONSE = "{\"response\":{\"numFound\":0,\"start\":0,\"docs\":[]}}";
+
     private static final String ANALYSIS_RESPONSE_MOCK_FILE = "/distributions/common/WireMocks/Solr/analysisResponse.json";
 
     private static final String OPENAGENCY_RESPONSE_MOCK_DIR = "/distributions/common/WireMocks/Openagency";
+
+    private static final String SOAP_ACTION_LIBRARYRULES = "LibraryRules";
+    private static final String SOAP_ACTION_SHOWORDER = "ShowOrder";
 
     private WireMockServer wiremockServer;
 
@@ -52,20 +55,19 @@ class OcbWireMockServer {
 
     }
 
-    private void setResponse(File workDir, String file, String matcher) {
+    private void setResponse(File workDir, String file, String matcher, String soapAction) {
         try {
             FileInputStream fis = new FileInputStream(workDir.getAbsolutePath() + "/" + file);
             String response = IOUtils.readAll(fis, "UTF-8");
             wiremockServer.stubFor(
                     any(urlMatching("(.*)")).
-                            withHeader("SOAPAction", containing("LibraryRules")).
+                            withHeader("SOAPAction", containing(soapAction)).
                             withRequestBody(containing(matcher)).
                             willReturn(new ResponseDefinitionBuilder().withStatus(200).withBody(response)));
         } catch (Throwable ex) {
             logger.error("wiremockServer setOpenagencyResponses ERROR : ", ex);
             throw new IllegalStateException("OcbWireMock mocking error", ex);
         }
-
     }
 
     private void setOpenagencyResponses() {
@@ -79,11 +81,15 @@ class OcbWireMockServer {
             if (splitted.length == 3) {
                 if ("agencyId".equals(splitted[0])) {
                     selector = "<ns1:agencyId>" + splitted[1] + "</ns1:agencyId>";
-                    setResponse(workDir, file, selector);
+                    setResponse(workDir, file, selector, SOAP_ACTION_LIBRARYRULES);
                 }
                 if ("cataloging_template_set".equals(splitted[0])) {
                     selector = "<ns1:name>" + splitted[0] + "</ns1:name><ns1:string>" + splitted[1] + "</ns1:string>";
-                    setResponse(workDir, file, selector);
+                    setResponse(workDir, file, selector, SOAP_ACTION_LIBRARYRULES);
+                }
+                if ("showOrder".equals(splitted[0])) {
+                    selector = "<ns1:agencyId>" + splitted[1] + "</ns1:agencyId>";
+                    setResponse(workDir, file, selector, SOAP_ACTION_SHOWORDER);
                 }
             }
         }

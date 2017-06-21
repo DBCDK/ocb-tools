@@ -122,7 +122,7 @@ public class RawRepo {
             RecordId recordId = getRecordId(enrichmentOrChildRecord);
 
             if (recordId != null) {
-                final HashSet<RecordId> references = new HashSet<>();
+                final Set<RecordId> references = dao.getRelationsFrom(recordId);
                 references.add(getRecordId(commonOrParentRecord));
 
                 dao.setRelationsFrom(recordId, references);
