@@ -190,7 +190,7 @@ public class RawRepo {
         try {
             MarcRecordReader reader = new MarcRecordReader(record);
 
-            String recordId = reader.recordId();
+            String recordId = reader.getRecordId();
             int agencyId = reader.getAgencyIdAsInteger();
 
             return new RecordId(recordId, agencyId);
