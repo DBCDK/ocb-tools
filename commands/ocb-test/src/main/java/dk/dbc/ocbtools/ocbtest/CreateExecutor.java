@@ -102,7 +102,7 @@ public class CreateExecutor implements SubcommandExecutor {
                 MarcRecordReader reader = new MarcRecordReader(record);
                 logger.debug("Creating testcase for record [{}:{}]",
                         reader.recordId(),
-                        reader.agencyId());
+                        reader.getAgencyId());
 
                 String filename = "request.marc";
                 if (hasMultibleRecords) {
