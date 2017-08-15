@@ -51,8 +51,6 @@ public class RawRepo {
     private static final String SELECT_RECORDS_SQL = "SELECT bibliographicrecordid, agencyid FROM records";
     private static final String SELECT_QUEUE_JOBS_SQL = "SELECT bibliographicrecordid, agencyid, worker FROM queue";
 
-    private static final String OCBTEST_WORKER_NAME = "ocb-test";
-
     private Properties settings;
     private RawRepoDAO dao;
 
@@ -193,7 +191,7 @@ public class RawRepo {
             MarcRecordReader reader = new MarcRecordReader(record);
 
             String recordId = reader.recordId();
-            int agencyId = reader.agencyIdAsInteger();
+            int agencyId = reader.getAgencyIdAsInteger();
 
             return new RecordId(recordId, agencyId);
         } catch (NumberFormatException ex) {
