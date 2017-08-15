@@ -101,7 +101,7 @@ public class CreateExecutor implements SubcommandExecutor {
             for (MarcRecord record : recordsProvider) {
                 MarcRecordReader reader = new MarcRecordReader(record);
                 logger.debug("Creating testcase for record [{}:{}]",
-                        reader.recordId(),
+                        reader.getRecordId(),
                         reader.getAgencyId());
 
                 String filename = "request.marc";
