@@ -1,7 +1,7 @@
 package dk.dbc.ocbtools.ocbtest;
 
-import dk.dbc.common.records.providers.ISO2709Provider;
 import dk.dbc.common.records.providers.MarcXChangeProvider;
+import dk.dbc.iscrum.records.providers.ISO2709Provider;
 import dk.dbc.iscrum.utils.IOUtils;
 import dk.dbc.iscrum.utils.ResourceBundles;
 import dk.dbc.marc.DanMarc2Charset;

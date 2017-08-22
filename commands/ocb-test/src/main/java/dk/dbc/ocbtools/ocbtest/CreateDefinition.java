@@ -1,7 +1,7 @@
 package dk.dbc.ocbtools.ocbtest;
 
-import dk.dbc.common.records.providers.ISO2709Provider;
 import dk.dbc.common.records.providers.MarcXChangeProvider;
+import dk.dbc.iscrum.records.providers.ISO2709Provider;
 import dk.dbc.iscrum.utils.ResourceBundles;
 import dk.dbc.marc.DanMarc2Charset;
 import dk.dbc.ocbtools.commons.api.Subcommand;
@@ -87,7 +87,7 @@ public class CreateDefinition implements SubcommandDefinition {
                 executor.setTemplateName(line.getOptionValue("t"));
             }
             if (line.hasOption("cd")) {
-                executor.setCheck001cd( Boolean.parseBoolean( line.getOptionValue("da")));
+                executor.setCheck001cd(Boolean.parseBoolean(line.getOptionValue("da")));
             }
 
             Charset charset = StandardCharsets.UTF_8;

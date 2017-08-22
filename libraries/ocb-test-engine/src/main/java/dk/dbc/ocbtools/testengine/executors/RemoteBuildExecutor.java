@@ -1,10 +1,10 @@
 package dk.dbc.ocbtools.testengine.executors;
 
+import dk.dbc.buildservice.client.BibliographicRecordFactory;
 import dk.dbc.buildservice.service.api.*;
 import dk.dbc.common.records.MarcConverter;
 import dk.dbc.common.records.MarcRecord;
 import dk.dbc.ocbtools.testengine.asserters.BuildAsserter;
-import dk.dbc.ocbtools.testengine.client.BibliographicRecordFactory;
 import dk.dbc.ocbtools.testengine.testcases.BuildTestcase;
 import org.perf4j.StopWatch;
 import org.slf4j.ext.XLogger;
