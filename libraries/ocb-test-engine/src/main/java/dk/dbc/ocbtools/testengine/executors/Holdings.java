@@ -1,11 +1,11 @@
 package dk.dbc.ocbtools.testengine.executors;
 
+import dk.dbc.common.records.MarcRecord;
 import dk.dbc.commons.jdbc.util.JDBCUtil;
 import dk.dbc.holdingsitems.HoldingsItemsDAO;
 import dk.dbc.holdingsitems.HoldingsItemsException;
 import dk.dbc.holdingsitems.Record;
 import dk.dbc.holdingsitems.RecordCollection;
-import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.rawrepo.RecordId;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;

@@ -1,6 +1,6 @@
 package dk.dbc.ocbtools.testengine.executors;
 
-import dk.dbc.iscrum.records.MarcRecord;
+import dk.dbc.common.records.MarcRecord;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.asserters.RawRepoAsserter;

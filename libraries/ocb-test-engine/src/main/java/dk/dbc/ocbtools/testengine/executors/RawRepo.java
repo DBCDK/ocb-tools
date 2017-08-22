@@ -1,13 +1,13 @@
 package dk.dbc.ocbtools.testengine.executors;
 
+import dk.dbc.common.records.MarcConverter;
+import dk.dbc.common.records.MarcRecord;
+import dk.dbc.common.records.MarcRecordReader;
+import dk.dbc.common.records.MarcXchangeFactory;
+import dk.dbc.common.records.marcxchange.CollectionType;
+import dk.dbc.common.records.marcxchange.ObjectFactory;
+import dk.dbc.common.records.marcxchange.RecordType;
 import dk.dbc.commons.jdbc.util.JDBCUtil;
-import dk.dbc.iscrum.records.MarcConverter;
-import dk.dbc.iscrum.records.MarcRecord;
-import dk.dbc.iscrum.records.MarcRecordReader;
-import dk.dbc.iscrum.records.MarcXchangeFactory;
-import dk.dbc.iscrum.records.marcxchange.CollectionType;
-import dk.dbc.iscrum.records.marcxchange.ObjectFactory;
-import dk.dbc.iscrum.records.marcxchange.RecordType;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
@@ -163,7 +163,7 @@ public class RawRepo {
                 return null;
             }
 
-            dk.dbc.iscrum.records.marcxchange.RecordType marcXchangeType = MarcXchangeFactory.createMarcXchangeFromMarc(record);
+            RecordType marcXchangeType = MarcXchangeFactory.createMarcXchangeFromMarc(record);
 
             ObjectFactory objectFactory = new ObjectFactory();
             JAXBElement<RecordType> jAXBElement = objectFactory.createRecord(marcXchangeType);

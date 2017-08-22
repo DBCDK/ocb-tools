@@ -2,8 +2,8 @@ package dk.dbc.ocbtools.testengine.executors;
 
 import dk.dbc.buildservice.service.api.BuildRequest;
 import dk.dbc.buildservice.service.api.BuildResult;
+import dk.dbc.common.records.MarcRecord;
 import dk.dbc.holdingsitems.HoldingsItemsException;
-import dk.dbc.iscrum.records.MarcRecord;
 import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;

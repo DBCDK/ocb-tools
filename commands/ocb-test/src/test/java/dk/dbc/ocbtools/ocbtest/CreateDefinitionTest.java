@@ -1,24 +1,16 @@
 package dk.dbc.ocbtools.ocbtest;
 
-import dk.dbc.iscrum.records.providers.ISO2709Provider;
-import dk.dbc.iscrum.records.providers.MarcXChangeProvider;
+import dk.dbc.common.records.providers.ISO2709Provider;
+import dk.dbc.common.records.providers.MarcXChangeProvider;
 import dk.dbc.iscrum.utils.IOUtils;
 import dk.dbc.iscrum.utils.ResourceBundles;
 import dk.dbc.marc.DanMarc2Charset;
 import dk.dbc.ocbtools.commons.api.Subcommand;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
 import dk.dbc.ocbtools.commons.cli.CliException;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
+import org.apache.commons.cli.*;
 import org.hamcrest.core.Is;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 
 import java.io.File;
@@ -29,11 +21,7 @@ import java.util.ResourceBundle;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class CreateDefinitionTest {
     private static ResourceBundle bundle;

@@ -1,8 +1,8 @@
 package dk.dbc.ocbtools.ocbtest;
 
-import dk.dbc.iscrum.records.MarcRecord;
-import dk.dbc.iscrum.records.MarcRecordFactory;
-import dk.dbc.iscrum.records.MarcRecordReader;
+import dk.dbc.common.records.MarcRecord;
+import dk.dbc.common.records.MarcRecordFactory;
+import dk.dbc.common.records.MarcRecordReader;
 import dk.dbc.iscrum.utils.IOUtils;
 import dk.dbc.iscrum.utils.ResourceBundles;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
@@ -11,17 +11,8 @@ import dk.dbc.ocbtools.commons.filesystem.SystemTest;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseFactory;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.apache.commons.cli.*;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -37,9 +28,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class CreateExecutorTest {
     private static final XLogger logger = XLoggerFactory.getXLogger(CreateExecutorTest.class);

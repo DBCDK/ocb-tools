@@ -1,8 +1,8 @@
 package dk.dbc.ocbtools.ocbrequests;
 
-import dk.dbc.iscrum.records.AgencyNumber;
-import dk.dbc.iscrum.records.MarcConverter;
-import dk.dbc.iscrum.records.MarcRecord;
+import dk.dbc.common.records.AgencyNumber;
+import dk.dbc.common.records.MarcConverter;
+import dk.dbc.common.records.MarcRecord;
 import dk.dbc.ocbtools.ocbrequests.rawrepo.RecordEntity;
 import dk.dbc.updateservice.client.BibliographicRecordExtraData;
 import dk.dbc.updateservice.client.BibliographicRecordFactory;

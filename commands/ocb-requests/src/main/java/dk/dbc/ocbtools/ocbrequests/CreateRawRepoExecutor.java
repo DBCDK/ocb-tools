@@ -1,9 +1,9 @@
 package dk.dbc.ocbtools.ocbrequests;
 
-import dk.dbc.iscrum.records.AgencyNumber;
-import dk.dbc.iscrum.records.MarcConverter;
-import dk.dbc.iscrum.records.MarcRecord;
-import dk.dbc.iscrum.records.MarcRecordReader;
+import dk.dbc.common.records.AgencyNumber;
+import dk.dbc.common.records.MarcConverter;
+import dk.dbc.common.records.MarcRecord;
+import dk.dbc.common.records.MarcRecordReader;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.cli.CliException;
 import dk.dbc.ocbtools.ocbrequests.rawrepo.RecordEntity;

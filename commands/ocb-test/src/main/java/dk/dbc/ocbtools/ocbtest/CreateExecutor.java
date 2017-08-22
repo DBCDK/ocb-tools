@@ -1,16 +1,12 @@
 package dk.dbc.ocbtools.ocbtest;
 
-import dk.dbc.iscrum.records.MarcRecord;
-import dk.dbc.iscrum.records.MarcRecordReader;
-import dk.dbc.iscrum.records.providers.MarcRecordProvider;
+import dk.dbc.common.records.MarcRecord;
+import dk.dbc.common.records.MarcRecordReader;
+import dk.dbc.common.records.providers.MarcRecordProvider;
 import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.cli.CliException;
-import dk.dbc.ocbtools.testengine.testcases.TestcaseAuthentication;
-import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
-import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseExpectedResult;
-import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseExpectedValidateResult;
-import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRequest;
+import dk.dbc.ocbtools.testengine.testcases.*;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;

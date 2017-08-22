@@ -1,7 +1,7 @@
 package dk.dbc.ocbtools.testengine.testcases;
 
-import dk.dbc.iscrum.records.MarcRecord;
-import dk.dbc.iscrum.records.MarcRecordFactory;
+import dk.dbc.common.records.MarcRecord;
+import dk.dbc.common.records.MarcRecordFactory;
 import dk.dbc.iscrum.utils.IOUtils;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;

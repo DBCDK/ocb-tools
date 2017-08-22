@@ -1,8 +1,8 @@
 package dk.dbc.ocbtools.ocbrecord.json;
 
-import dk.dbc.iscrum.records.MarcField;
-import dk.dbc.iscrum.records.MarcRecord;
-import dk.dbc.iscrum.records.MarcSubField;
+import dk.dbc.common.records.MarcField;
+import dk.dbc.common.records.MarcRecord;
+import dk.dbc.common.records.MarcSubField;
 
 import java.util.HashMap;
 import java.util.Map;

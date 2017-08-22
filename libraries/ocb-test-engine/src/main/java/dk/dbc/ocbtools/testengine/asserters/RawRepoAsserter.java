@@ -1,9 +1,9 @@
 package dk.dbc.ocbtools.testengine.asserters;
 
-import dk.dbc.iscrum.records.MarcConverter;
-import dk.dbc.iscrum.records.MarcField;
-import dk.dbc.iscrum.records.MarcRecord;
-import dk.dbc.iscrum.records.MarcSubField;
+import dk.dbc.common.records.MarcConverter;
+import dk.dbc.common.records.MarcField;
+import dk.dbc.common.records.MarcRecord;
+import dk.dbc.common.records.MarcSubField;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.executors.QueuedJob;

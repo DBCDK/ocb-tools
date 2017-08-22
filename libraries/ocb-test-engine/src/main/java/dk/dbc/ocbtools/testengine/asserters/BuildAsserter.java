@@ -1,6 +1,6 @@
 package dk.dbc.ocbtools.testengine.asserters;
 
-import dk.dbc.iscrum.records.MarcRecord;
+import dk.dbc.common.records.MarcRecord;
 import dk.dbc.iscrum.utils.ResourceBundles;
 import dk.dbc.ocbtools.testengine.testcases.BuildTestcase;
 import org.apache.commons.lang3.StringUtils;
