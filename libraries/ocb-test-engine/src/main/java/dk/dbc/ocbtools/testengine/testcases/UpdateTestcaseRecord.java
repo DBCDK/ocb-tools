@@ -16,6 +16,9 @@ public class UpdateTestcaseRecord {
     @JsonIgnore
     private File recordFile;
 
+    @JsonIgnore
+    private String comment;
+
     private TestcaseMimeType type;
     private boolean deleted;
     private List<String> children;
@@ -35,6 +38,15 @@ public class UpdateTestcaseRecord {
         this.enqueued = false;
         this.queueWorkers = null; // Can't initialize it to empty as an empty queue is a valid assertion while null value means "don't use"
         this.virtual = false;
+        this.comment = "";
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     public String getRecord() {
@@ -132,6 +144,7 @@ public class UpdateTestcaseRecord {
                 ", enqueued=" + enqueued +
                 ", queueWorkers=" + queueWorkers +
                 ", virtual=" + virtual +
+                ", comment=" + comment +
                 '}';
     }
 }
