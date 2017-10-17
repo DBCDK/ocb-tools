@@ -136,6 +136,7 @@ class Holdings {
                 JDBCUtil.update(conn, "DELETE FROM queue");
                 JDBCUtil.update(conn, "DELETE FROM jobdiag");
 
+                JDBCUtil.update(conn, "DELETE FROM messagequeuerules");
                 JDBCUtil.update(conn, "DELETE FROM queuerules");
                 JDBCUtil.update(conn, "DELETE FROM queueworkers");
 
