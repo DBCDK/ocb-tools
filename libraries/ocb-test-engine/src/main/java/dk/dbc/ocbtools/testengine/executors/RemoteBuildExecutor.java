@@ -29,7 +29,7 @@ import java.util.Properties;
  */
 public class RemoteBuildExecutor implements TestExecutor {
     private static final XLogger logger = XLoggerFactory.getXLogger(RemoteBuildExecutor.class);
-    private static final long DEFAULT_CONNECT_TIMEOUT_MS = 1 * 60 * 1000;    // 1 minute
+    private static final long DEFAULT_CONNECT_TIMEOUT_MS =     60 * 1000;    // 1 minute
     private static final long DEFAULT_REQUEST_TIMEOUT_MS = 3 * 60 * 1000;    // 3 minutes
     private static final String TRACKING_ID_FORMAT = "ocbtools-%s-%s-%s";
 
@@ -90,7 +90,7 @@ public class RemoteBuildExecutor implements TestExecutor {
         try {
             URL url = createServiceUrl();
             BuildRequest buildRequest = getBuildRequest();
-            logger.debug("Sending request '{}' to {}", buildRequest.getTrackingId(), url);
+            logger.debug("Sending BUILD request '{}' to {}", buildRequest.getTrackingId(), url);
             if (demoInfoPrinter != null) {
                 demoInfoPrinter.printRequest(buildRequest, buildTestcase.loadRequestRecord());
             }
@@ -123,7 +123,7 @@ public class RemoteBuildExecutor implements TestExecutor {
             }
             BuildAsserter.assertValidation(buildTestcase, assertInput);
 
-            logger.debug("Receive response in {} ms: {}", watch.getElapsedTime(), buildResult);
+            logger.debug("Receive BUILD response in {} ms: {}", watch.getElapsedTime(), buildResult);
             if (demoInfoPrinter != null) {
                 demoInfoPrinter.printResponse(buildResult);
             }

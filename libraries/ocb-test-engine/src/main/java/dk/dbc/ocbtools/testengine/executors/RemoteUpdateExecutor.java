@@ -50,7 +50,6 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
         try {
             assertNotNull("Property'en 'request' er obligatorisk.", tc.getRequest());
             assertNotNull("Property'en 'request.authentication' er obligatorisk.", tc.getRequest().getAuthentication());
-            assertNotNull("Property'en 'request.check001cd' er obligatorisk.", tc.getRequest().isCheck001cd());
             assertNotNull("Property'en 'request.authentication.group' er obligatorisk.", tc.getRequest().getAuthentication().getGroup());
             assertNotNull("Property'en 'request.authentication.user' er obligatorisk.", tc.getRequest().getAuthentication().getUser());
             assertNotNull("Property'en 'request.authentication.password' er obligatorisk.", tc.getRequest().getAuthentication().getPassword());
@@ -58,7 +57,7 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
 
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
 
-            String key = String.format("updateservice.url");
+            String key = "updateservice.url";
             URL url = new URL(settings.getProperty(key));
 
             UpdateRecordRequest request = createRequest();
@@ -66,7 +65,7 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
 
             StopWatch watch = new StopWatch();
 
-            logger.debug("Sending request '{}' to {}", request.getTrackingId(), url);
+            logger.debug("Sending UPDATE request '{}' to {}", request.getTrackingId(), url);
             logger.debug("Request:\n" + request);
             if (demoInfoPrinter != null) {
                 demoInfoPrinter.printRequest(request, tc.loadRecord());
@@ -75,7 +74,7 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
             CatalogingUpdatePortType catalogingUpdatePortType = createPort(url);
             UpdateRecordResult response = catalogingUpdatePortType.updateRecord(request);
             watch.stop();
-            logger.debug("Received response in " + watch.getElapsedTime() + " ms: " + response);
+            logger.debug("Received UPDATE response in " + watch.getElapsedTime() + " ms: " + response);
             if (demoInfoPrinter != null) {
                 demoInfoPrinter.printResponse(response);
             }

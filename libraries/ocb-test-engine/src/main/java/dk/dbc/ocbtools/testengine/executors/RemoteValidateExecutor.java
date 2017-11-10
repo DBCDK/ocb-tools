@@ -41,13 +41,13 @@ import static org.junit.Assert.*;
  */
 public class RemoteValidateExecutor implements TestExecutor {
     private static final String ENDPOINT_PATH = "/UpdateService/2.0";
-    private static final long DEFAULT_CONNECT_TIMEOUT_MS = 1 * 60 * 1000;    // 1 minute
+    private static final long DEFAULT_CONNECT_TIMEOUT_MS =     60 * 1000;    // 1 minute
     private static final long DEFAULT_REQUEST_TIMEOUT_MS = 3 * 60 * 1000;    // 3 minutes
     private static final String TRACKING_ID_FORMAT = "ocbtools-%s-%s-%s";
 
     protected XLogger logger;
     protected UpdateTestcase tc;
-    protected Properties settings;
+    Properties settings;
     DemoInfoPrinter demoInfoPrinter;
     private OcbWireMockServer wireMockServer;
 
@@ -244,7 +244,7 @@ public class RemoteValidateExecutor implements TestExecutor {
 
             StopWatch watch = new StopWatch();
 
-            logger.debug("Sending request '{}' to {}", request.getTrackingId(), url);
+            logger.debug("Sending VALIDATION request '{}' to {}", request.getTrackingId(), url);
             if (demoInfoPrinter != null) {
                 demoInfoPrinter.printRequest(request, tc.loadRecord());
             }
@@ -252,7 +252,7 @@ public class RemoteValidateExecutor implements TestExecutor {
             CatalogingUpdatePortType catalogingUpdatePortType = createPort(url);
             UpdateRecordResult response = catalogingUpdatePortType.updateRecord(request);
             watch.stop();
-            logger.debug("Received response in " + watch.getElapsedTime() + " ms: " + Json.encodePretty(response));
+            logger.debug("Received VALIDATION response in " + watch.getElapsedTime() + " ms: " + Json.encodePretty(response));
             if (demoInfoPrinter != null) {
                 demoInfoPrinter.printResponse(response);
             }
