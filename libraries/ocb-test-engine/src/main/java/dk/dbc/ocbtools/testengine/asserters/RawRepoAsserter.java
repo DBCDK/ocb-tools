@@ -125,8 +125,8 @@ public class RawRepoAsserter {
 
     }
 
-    public static void assertQueueRecords(List<UpdateTestcaseRecord> expected, List<QueuedJob> QueuedJobs) throws IOException {
-        logger.entry(expected, QueuedJobs);
+    public static void assertQueueRecords(List<UpdateTestcaseRecord> expected, List<QueuedJob> queuedJobs) throws IOException {
+        logger.entry(expected, queuedJobs);
 
         try {
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
@@ -143,8 +143,8 @@ public class RawRepoAsserter {
                     // This handles the cases where the testcase doesn't define which workers the queue jobs should be for
                     // TODO: Remove once all testcases use queueWorkers
                     boolean actuallyEnqueued = false;
-                    for (QueuedJob job : QueuedJobs) {
-                        if (job.getRecordId().equals(recordId)) {
+                    for (QueuedJob queuedJob : queuedJobs) {
+                        if (queuedJob.getRecordId().equals(recordId)) {
                             actuallyEnqueued = true;
                             break;
                         }
@@ -157,10 +157,9 @@ public class RawRepoAsserter {
                     }
                 } else {
                     List<String> actualQueuedJobs = new ArrayList<>();
-
-                    for (QueuedJob job : QueuedJobs) {
-                        if (job.getRecordId().equals(recordId)) {
-                            actualQueuedJobs.add(job.getWorker());
+                    for (QueuedJob queuedJob : queuedJobs) {
+                        if (queuedJob.getRecordId().equals(recordId)) {
+                            actualQueuedJobs.add(queuedJob.getWorker());
                         }
                     }
 
@@ -168,7 +167,7 @@ public class RawRepoAsserter {
                     Collections.sort(expectedQueuedJobs);
                     Collections.sort(actualQueuedJobs);
 
-                    assertEquals("The amount of expected and actual queued jobs is not the same - ", expectedQueuedJobs.size(), actualQueuedJobs.size());
+                    assertEquals("The amount of expected and actual queued jobs is not the same for " + formatedRecordId + " -", expectedQueuedJobs.size(), actualQueuedJobs.size());
                     assertEquals("Unexpected difference between expected and actual queued jobs", expectedQueuedJobs, actualQueuedJobs);
                 }
             }
