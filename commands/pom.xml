@@ -14,10 +14,7 @@
 
     <name>OCB-Commands</name>
     <modules>
-        <module>ocb-record</module>
         <module>ocb-test</module>
-        <module>ocb-requests</module>
-        <module>ocb-wait</module>
     </modules>
 
     <dependencies>
