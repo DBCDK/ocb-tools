@@ -18,7 +18,7 @@ ADD https://is.dbc.dk/job/updateservice/job/opencat-business-head/lastSuccessful
 ADD scripts/bin/*.sh $OCB_USER_HOME/bin/
 
 RUN cd $OCB_USER_HOME/bin && \
-    ln -s ../ocb-tools-1.0.0/bin/ocb-record.sh . && \
+    ln -s ../ocb-tools-1.0.0/bin/ocb-test.sh . && \
     chmod +x $OCB_USER_HOME/bin/*.sh && \
     chown -R $OCB_USER:$OCB_USER $OCB_USER_HOME && \
     chown -R $OCB_USER:$OCB_USER $LOG_DIR
