@@ -40,8 +40,6 @@ pipeline {
         stage("Maven build") {
             steps {
                 sh "mvn clean verify pmd:pmd -Dmaven.test.failure.ignore=false"
-                junit "target/surefire-reports/TEST-*.xml,target/failsafe-reports/TEST-*.xml"
-
             }
         }
 
@@ -53,8 +51,7 @@ pipeline {
 
         stage("Package") {
             steps {
-                sh "cd target/dist"
-                sh "tar -czf ocb-tools-1.0.0.tar.gz ocb-tools-1.0.0"
+                sh "tar -czf target/dist/ocb-tools-1.0.0.tar.gz target/dist/ocb-tools-1.0.0"
             }
         }
 
