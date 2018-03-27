@@ -61,6 +61,15 @@ pipeline {
             }
         }
 
+        stage("Build and deploy docker") {
+            when {
+                expression { env.BRANCH_NAME == 'master' }
+            }
+            steps {
+                sh './bin/build-and-push-dockerimage.sh'
+            }
+        }
+
     }
 
     post {
