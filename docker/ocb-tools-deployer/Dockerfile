@@ -14,7 +14,7 @@ RUN mkdir -p /opencat-business/target/surefire-reports
 ENV PATH $PATH:$OCB_USER_HOME/bin
 
 ADD https://is.dbc.dk/job/updateservice/job/ocb-tools/job/master/lastSuccessfulBuild/artifact/target/dist/ocb-tools-1.0.0.tar.gz $OCB_USER_HOME/
-ADD https://is.dbc.dk/job/updateservice/job/opencat-business-head/lastSuccessfulBuild/artifact/deploy/opencat-business.tar.gz $OCB_USER_HOME/
+ADD https://is.dbc.dk/job/updateservice/job/opencat-business/job/master/lastSuccessfulBuild/artifact/deploy/opencat-business.tar.gz $OCB_USER_HOME/
 ADD scripts/bin/*.sh $OCB_USER_HOME/bin/
 
 RUN cd $OCB_USER_HOME/bin && \
