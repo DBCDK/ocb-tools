@@ -17,8 +17,10 @@ ADD https://is.dbc.dk/job/updateservice/job/ocb-tools/job/master/lastSuccessfulB
 ADD https://is.dbc.dk/job/updateservice/job/opencat-business-head/lastSuccessfulBuild/artifact/deploy/opencat-business.tar.gz $OCB_USER_HOME/
 ADD scripts/bin/*.sh $OCB_USER_HOME/bin/
 
+RUN cd $OCB_USER_HOME && tar zxvf ocb-tools-1.0.0.tar.gz && tar zxvf opencat-business.tar.gz
+
 RUN cd $OCB_USER_HOME/bin && \
-    ln -s ../ocb-tools-1.0.0/bin/ocb-test.sh . && \
+    ln -s ../target/dist/ocb-tools-1.0.0/bin/ocb-test.sh . && \
     chmod +x $OCB_USER_HOME/bin/*.sh && \
     chown -R $OCB_USER:$OCB_USER $OCB_USER_HOME && \
     chown -R $OCB_USER:$OCB_USER $LOG_DIR
