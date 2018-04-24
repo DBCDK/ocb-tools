@@ -30,10 +30,10 @@
         <url>http://is.dbc.dk/job/ocb-tools-head-guesstimate</url>
     </ciManagement>
     <scm>
-        <connection>scm:svn:https://svn.dbc.dk/repos/ocb-tools/</connection>
-        <developerConnection>scm:svn:https://svn.dbc.dk/repos/ocb-tools/</developerConnection>
+        <connection>scm:git:https://github.com/DBCDK/ocb-tools</connection>
+        <developerConnection>scm:git:https://github.com/DBCDK/ocb-tools</developerConnection>
         <tag>trunk</tag>
-        <url>https://svn.dbc.dk/repos/ocb-tools/</url>
+        <url>https://github.com/DBCDK/ocb-tools</url>
     </scm>
     <issueManagement>
         <system>Bugzilla</system>
@@ -64,8 +64,8 @@
         <solr.core.plugin.version>1.3.0</solr.core.plugin.version>
         <postgres.plugin.version>9.3-1101-jdbc41</postgres.plugin.version>
         <log4j.slf4j.plugin.version>1.7.7</log4j.slf4j.plugin.version>
-        <updateservice.wsdl.url>https://svn.dbc.dk/repos/updateservice/trunk/src/wsdl/update/catalogingUpdate.wsdl</updateservice.wsdl.url>
-        <buildservice.wsdl.url>https://svn.dbc.dk/repos/updateservice/trunk/src/wsdl/build/catalogingBuild.wsdl</buildservice.wsdl.url>
+        <updateservice.wsdl.url>https://raw.githubusercontent.com/DBCDK/updateservice/master/src/wsdl/update/catalogingUpdate.wsdl</updateservice.wsdl.url>
+        <buildservice.wsdl.url>https://raw.githubusercontent.com/DBCDK/updateservice/master/src/wsdl/build/catalogingBuild.wsdl</buildservice.wsdl.url>
     </properties>
 
     <pluginRepositories>
