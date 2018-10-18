@@ -19,11 +19,6 @@
             <version>${postgres.plugin.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-core</artifactId>
-            <version>${solr.core.plugin.version}</version>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ocb-commons-cli</artifactId>
             <version>${project.version}</version>
