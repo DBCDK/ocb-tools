@@ -1,5 +1,4 @@
 FROM docker-i.dbc.dk/dbc-java8:latest
-MAINTAINER Team Iscrum, iscrum@dbc.dk
 
 ENV OCB_USER ocbtools
 ENV OCB_USER_HOME /home/$OCB_USER
@@ -13,8 +12,18 @@ RUN mkdir -p $OCB_USER_HOME/results
 RUN mkdir -p /opencat-business/target/surefire-reports
 ENV PATH $PATH:$OCB_USER_HOME/bin
 
-ADD https://is.dbc.dk/job/updateservice/job/ocb-tools/job/master/lastSuccessfulBuild/artifact/target/dist/ocb-tools-1.0.0.tar.gz $OCB_USER_HOME/
-ADD https://is.dbc.dk/job/updateservice/job/opencat-business/job/master/lastSuccessfulBuild/artifact/deploy/opencat-business.tar.gz $OCB_USER_HOME/
+RUN  apt-get update \
+  && apt-get install -y wget \
+  && apt-get clean
+
+RUN cd $OCB_USER_HOME && \
+    wget https://is.dbc.dk/job/updateservice/job/ocb-tools/job/master/lastSuccessfulBuild/artifact/target/dist/ocb-tools-1.0.0.tar.gz && \
+    tar zxvf ocb-tools-1.0.0.tar.gz && \
+    rm ocb-tools-1.0.0.tar.gz && \
+    wget https://is.dbc.dk/job/updateservice/job/opencat-business/job/master/lastSuccessfulBuild/artifact/deploy/opencat-business.tar.gz && \
+    tar zxvf opencat-business.tar.gz && \
+    rm opencat-business.tar.gz
+
 ADD scripts/bin/*.sh $OCB_USER_HOME/bin/
 
 RUN cd $OCB_USER_HOME/bin && \
@@ -25,3 +34,5 @@ RUN cd $OCB_USER_HOME/bin && \
 
 USER $OCB_USER
 EXPOSE 8080
+
+LABEL MAINTAINER="meta-scrum@dbc.dk"
