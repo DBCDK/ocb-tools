@@ -33,7 +33,7 @@ public class RawRepoAsserter {
     private static final String FORMATTED_RECORD = "{%s - %s:%s}";
     private static final String FORMATTED_RECORD_ID = "{%s:%s}";
 
-    public static void assertRecordListEquals(List<UpdateTestcaseRecord> expected, List<Record> actual, boolean check001cd) {
+    public static void assertRecordListEquals(List<UpdateTestcaseRecord> expected, List<Record> actual, boolean check001cd, boolean matchd09) {
         logger.entry(expected, actual);
 
         try {
@@ -66,7 +66,7 @@ public class RawRepoAsserter {
                 if (actualRecord == null) {
                     throw new AssertionError(String.format("assertRecordListEquals: Record %s does not exist in rawrepo", RawRepo.getRecordId(marcExpected)));
                 }
-                assertRecordEqual(testRecord, actualRecord, check001cd);
+                assertRecordEqual(testRecord, actualRecord, check001cd, matchd09);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -75,7 +75,7 @@ public class RawRepoAsserter {
         }
     }
 
-    private static void assertRecordEqual(UpdateTestcaseRecord expected, Record actual, boolean check001cd) throws IOException {
+    private static void assertRecordEqual(UpdateTestcaseRecord expected, Record actual, boolean check001cd, boolean matchd09) throws IOException {
         logger.entry(expected, actual);
 
         try {
@@ -116,6 +116,9 @@ public class RawRepoAsserter {
                         assertEquals("Compare 001" + expectedSubField.getName(), expectedSubField.toString(), actualSubField.toString());
                     }
                 } else {
+                    if (expectedField.getName().equals("d09") && !matchd09) {
+                        continue;
+                    }
                     assertEquals("Compare field " + expectedField.getName() + "\ntestfile :" + expected.getRecord(), expectedField.toString(), actualField.toString());
                 }
             }

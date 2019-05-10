@@ -3,6 +3,7 @@ package dk.dbc.ocbtools.testengine.executors;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import dk.dbc.iscrum.utils.IOUtils;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
@@ -37,8 +38,52 @@ class OcbWireMockServer {
 
     private static final String SOAP_ACTION_LIBRARYRULES = "LibraryRules";
     private static final String SOAP_ACTION_SHOWORDER = "ShowOrder";
+    private static final String NUMBERROLL_ID_FILE = "id_numbers";
+    private static final String NUMBERROLL_RESPONSE = "{\"numberRollResponse\":{\"rollNumber\":\"%s\"}}";
+
 
     private WireMockServer wiremockServer;
+
+    private void setNumberRollResponse(UpdateTestcase utc) {
+
+        try {
+            File rootFile = utc.getWireMockRootDirectory();
+            if (rootFile != null) {
+                String rootDir = utc.getWireMockRootDirectory().getAbsolutePath();
+                if (rootDir != null) {
+                    File numberFile = new File(rootDir + "/" + NUMBERROLL_ID_FILE);
+                    if (numberFile.exists() && !numberFile.isDirectory()) {
+                        FileInputStream fis = new FileInputStream(rootDir + "/" + NUMBERROLL_ID_FILE);
+                        String response = IOUtils.readAll(fis, "UTF-8");
+                        String[] lines = response.split("\n");
+                        String prevLine = "";
+                        for (String line : lines) {
+                            if ("".equals(prevLine)) {
+                                wiremockServer.stubFor(get(urlMatching("(.*[^?]*)action=numberRoll(.*)")).
+                                        inScenario("idNumbers").
+                                        whenScenarioStateIs(Scenario.STARTED).
+                                        willReturn(new ResponseDefinitionBuilder().withStatus(200).
+                                                withHeader("Content-Type", "application/json").withBody(String.format(NUMBERROLL_RESPONSE, line))).
+                                        willSetStateTo(line));
+                            } else {
+                                wiremockServer.stubFor(get(urlMatching("(.*[^?]*)action=numberRoll(.*)")).
+                                        inScenario("idNumbers").
+                                        whenScenarioStateIs(prevLine).
+                                        willReturn(new ResponseDefinitionBuilder().withStatus(200).
+                                                withHeader("Content-Type", "application/json").withBody(String.format(NUMBERROLL_RESPONSE, line))).
+                                        willSetStateTo(line));
+
+                            }
+                            prevLine = line;
+                        }
+                    }
+                }
+            }
+        } catch (Throwable ex) {
+            logger.error("OcbWireMock ERROR : ", ex);
+            throw new IllegalStateException("OcbWireMock error", ex);
+        }
+    }
 
     private void setAnalysisResponse() {
         String analysisResponse;
@@ -74,6 +119,7 @@ class OcbWireMockServer {
         File workDir = new File("");
         workDir = new File(workDir.getAbsolutePath() + OPENAGENCY_RESPONSE_MOCK_DIR);
         String[] files = workDir.list();
+        if (files == null) return;
         String selector;
         for (String file : files) {
             logger.debug("Setting wiremock {}", file);
@@ -111,6 +157,7 @@ class OcbWireMockServer {
                 WireMockConfiguration wireMockConfiguration = wireMockConfig().port(port).withRootDirectory(rootDir);
 
                 wiremockServer = new WireMockServer(wireMockConfiguration);
+                setNumberRollResponse(utc);
                 setOpenagencyResponses();
                 wiremockServer.start();
 
@@ -118,6 +165,7 @@ class OcbWireMockServer {
             } else {
                 logger.debug("Starting fake wiremock for solr");
                 wiremockServer = new WireMockServer(wireMockConfig().port(port));
+                setNumberRollResponse(utc);
                 setAnalysisResponse();
                 setOpenagencyResponses();
                 wiremockServer.start();

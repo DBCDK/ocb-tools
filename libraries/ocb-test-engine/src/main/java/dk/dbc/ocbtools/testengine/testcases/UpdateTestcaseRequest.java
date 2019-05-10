@@ -8,6 +8,7 @@ public class UpdateTestcaseRequest {
     private Map<String, Object> headers = null;
     private String record = null;
     private Boolean check001cd = false;
+    private Boolean matchd09 = true;
 
     public UpdateTestcaseRequest() {
     }
@@ -44,6 +45,10 @@ public class UpdateTestcaseRequest {
         return check001cd;
     }
 
+    public boolean isMatchd09() {
+        return matchd09;
+    }
+
     public void setCheck001cd(boolean check001cd) {
         this.check001cd = check001cd;
     }
@@ -56,6 +61,7 @@ public class UpdateTestcaseRequest {
                 ", headers=" + headers +
                 ", record='" + record + '\'' +
                 ", check001cd=" + check001cd +
+                ", matchd09=" + matchd09 +
                 '}';
     }
 }
