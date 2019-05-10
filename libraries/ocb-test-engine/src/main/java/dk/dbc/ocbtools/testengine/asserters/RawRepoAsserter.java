@@ -10,6 +10,7 @@ import dk.dbc.ocbtools.testengine.executors.QueuedJob;
 import dk.dbc.ocbtools.testengine.executors.RawRepo;
 import dk.dbc.ocbtools.testengine.executors.RawRepoRelationType;
 import dk.dbc.ocbtools.testengine.testcases.TestcaseMimeType;
+import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.RecordId;
@@ -33,7 +34,7 @@ public class RawRepoAsserter {
     private static final String FORMATTED_RECORD = "{%s - %s:%s}";
     private static final String FORMATTED_RECORD_ID = "{%s:%s}";
 
-    public static void assertRecordListEquals(List<UpdateTestcaseRecord> expected, List<Record> actual, boolean check001cd, boolean matchd09) {
+    public static void assertRecordListEquals(List<UpdateTestcaseRecord> expected, List<Record> actual, UpdateTestcase tc) {
         logger.entry(expected, actual);
 
         try {
@@ -66,7 +67,7 @@ public class RawRepoAsserter {
                 if (actualRecord == null) {
                     throw new AssertionError(String.format("assertRecordListEquals: Record %s does not exist in rawrepo", RawRepo.getRecordId(marcExpected)));
                 }
-                assertRecordEqual(testRecord, actualRecord, check001cd, matchd09);
+                assertRecordEqual(testRecord, actualRecord, tc);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -75,7 +76,7 @@ public class RawRepoAsserter {
         }
     }
 
-    private static void assertRecordEqual(UpdateTestcaseRecord expected, Record actual, boolean check001cd, boolean matchd09) throws IOException {
+    private static void assertRecordEqual(UpdateTestcaseRecord expected, Record actual, UpdateTestcase tc) throws IOException {
         logger.entry(expected, actual);
 
         try {
@@ -105,10 +106,10 @@ public class RawRepoAsserter {
                     for (int k = 0; k < expectedField.getSubfields().size(); k++) {
                         MarcSubField expectedSubField = expectedField.getSubfields().get(k);
 
-                        if (expectedSubField.getName().equals("c") && !check001cd) {
+                        if (expectedSubField.getName().equals("c") && !tc.getRequest().isCheck001cd()) {
                             continue;
                         }
-                        if (expectedSubField.getName().equals("d") && !check001cd) {
+                        if (expectedSubField.getName().equals("d") && !tc.getRequest().isCheck001cd()) {
                             continue;
                         }
 
@@ -116,7 +117,8 @@ public class RawRepoAsserter {
                         assertEquals("Compare 001" + expectedSubField.getName(), expectedSubField.toString(), actualSubField.toString());
                     }
                 } else {
-                    if (expectedField.getName().equals("d09") && !matchd09) {
+                    // This is a bit messy. It is done because subject records from metakompas requests has a weekcode in field d09 - could be useful in other cases
+                    if (tc.getRequest().getIgnoreFieldsInMatch().contains(expectedField.getName())) {
                         continue;
                     }
                     assertEquals("Compare field " + expectedField.getName() + "\ntestfile :" + expected.getRecord(), expectedField.toString(), actualField.toString());
