@@ -44,6 +44,18 @@
         <level value="INFO"/>
         <appender-ref ref="FILE"/>
     </logger>
+    <logger name="org.flywaydb">
+        <level value="WARN"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    <logger name="dk.dbc.holdingsitems">
+        <level value="WARN"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    <logger name="dk.dbc.pgqueue.DatabaseMigrator">
+        <level value="WARN"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
     <root level="DEBUG">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
