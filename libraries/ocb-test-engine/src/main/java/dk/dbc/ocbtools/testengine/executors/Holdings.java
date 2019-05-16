@@ -113,8 +113,6 @@ class Holdings {
 
         try (Connection conn = getConnection(settings)) {
             try {
-                DatabaseMigrator.migrate(getDataSource(settings));
-
                 conn.commit();
             } catch (SQLException ex) {
                 conn.rollback();
@@ -130,6 +128,8 @@ class Holdings {
     static void teardownDatabase(Properties settings) throws SQLException, ClassNotFoundException {
         logger.entry(settings);
         try (Connection conn = getConnection(settings)) {
+            DatabaseMigrator.migrate(getDataSource(settings));
+
             try {
                 JDBCUtil.update(conn, "DELETE FROM holdingsitemsitem");
                 JDBCUtil.update(conn, "DELETE FROM holdingsitemscollection");
