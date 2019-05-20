@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import dk.dbc.iscrum.utils.IOUtils;
+import dk.dbc.ocbtools.testengine.testcases.BuildTestcase;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
 import org.perf4j.StopWatch;
 import org.slf4j.ext.XLogger;
@@ -39,17 +40,16 @@ class OcbWireMockServer {
     private static final String SOAP_ACTION_LIBRARYRULES = "LibraryRules";
     private static final String SOAP_ACTION_SHOWORDER = "ShowOrder";
     private static final String NUMBERROLL_ID_FILE = "id_numbers";
-    private static final String NUMBERROLL_RESPONSE = "{\"numberRollResponse\":{\"rollNumber\":\"%s\"}}";
+    private static final String NUMBERROLL_RESPONSE = "{\"numberRollResponse\":{\"rollNumber\":{\"$\":\"%s\"}},\"@namespaces\":null}";
 
 
     private WireMockServer wiremockServer;
 
-    private void setNumberRollResponse(UpdateTestcase utc) {
+    private void setNumberRollResponse(File rootFile) {
 
         try {
-            File rootFile = utc.getWireMockRootDirectory();
             if (rootFile != null) {
-                String rootDir = utc.getWireMockRootDirectory().getAbsolutePath();
+                String rootDir = rootFile.getAbsolutePath();
                 if (rootDir != null) {
                     File numberFile = new File(rootDir + "/" + NUMBERROLL_ID_FILE);
                     if (numberFile.exists() && !numberFile.isDirectory()) {
@@ -141,23 +141,35 @@ class OcbWireMockServer {
         }
     }
 
+    OcbWireMockServer(BuildTestcase utc, Properties settings) {
+        File rootFile = utc.getWireMockRootDirectory();
+        OcbWireMockServerActivate(false, "", rootFile, settings);
+    }
+
     OcbWireMockServer(UpdateTestcase utc, Properties settings) {
+        File rootFile = utc.getWireMockRootDirectory();
+        File file = utc.getSolrRootDirectory();
+        String rootDir = "";
+        if (file != null) rootDir = utc.getSolrRootDirectory().getAbsolutePath();
+        boolean hasSolrMock = utc.hasSolrMocking();
+        OcbWireMockServerActivate(hasSolrMock, rootDir, rootFile, settings);
+    }
+
+    void OcbWireMockServerActivate(boolean hasSolrMock, String rootDir, File rootFile, Properties settings) {
         logger.entry();
 
         try {
             this.wiremockServer = null;
 
             Integer port = Integer.valueOf(settings.getProperty(SOLR_PORT_KEY), 10);
-            if (utc.hasSolrMocking()) {
+            if (hasSolrMock) {
                 StopWatch watch = new StopWatch();
-
-                String rootDir = utc.getSolrRootDirectory().getAbsolutePath();
 
                 logger.debug("Starting WireMock on port {} with root directory: {}", port, rootDir);
                 WireMockConfiguration wireMockConfiguration = wireMockConfig().port(port).withRootDirectory(rootDir);
 
                 wiremockServer = new WireMockServer(wireMockConfiguration);
-                setNumberRollResponse(utc);
+                setNumberRollResponse(rootFile);
                 setOpenagencyResponses();
                 wiremockServer.start();
 
@@ -165,7 +177,7 @@ class OcbWireMockServer {
             } else {
                 logger.debug("Starting fake wiremock for solr");
                 wiremockServer = new WireMockServer(wireMockConfig().port(port));
-                setNumberRollResponse(utc);
+                setNumberRollResponse(rootFile);
                 setAnalysisResponse();
                 setOpenagencyResponses();
                 wiremockServer.start();
