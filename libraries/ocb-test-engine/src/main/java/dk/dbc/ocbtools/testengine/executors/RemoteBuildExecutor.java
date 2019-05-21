@@ -36,6 +36,7 @@ public class RemoteBuildExecutor implements TestExecutor {
     private BuildTestcase buildTestcase;
     private Properties settings;
     private DemoInfoPrinter demoInfoPrinter;
+    private OcbWireMockServer wireMockServer;
 
 
     public RemoteBuildExecutor(BuildTestcase buildTestcase, Properties settings, boolean printDemoInfo) {
@@ -45,6 +46,7 @@ public class RemoteBuildExecutor implements TestExecutor {
         if (printDemoInfo) {
             this.demoInfoPrinter = new DemoInfoPrinter();
         }
+        this.wireMockServer = null;
     }
 
     @Override
@@ -66,6 +68,7 @@ public class RemoteBuildExecutor implements TestExecutor {
             if (this.demoInfoPrinter != null) {
                 demoInfoPrinter.printHeader(this.buildTestcase, this);
             }
+            wireMockServer = new OcbWireMockServer(buildTestcase, settings);
             return true;
         } finally {
             logger.exit();
@@ -76,6 +79,9 @@ public class RemoteBuildExecutor implements TestExecutor {
     public void teardown() {
         logger.entry();
         try {
+            if (this.wireMockServer != null) {
+                this.wireMockServer.stop();
+            }
             if (this.demoInfoPrinter != null) {
                 demoInfoPrinter.printFooter();
             }

@@ -73,6 +73,24 @@ public class UpdateTestcase extends BaseTestcase {
     }
 
     @JsonIgnore
+    public File getWireMockRootDirectory() {
+        logger.entry();
+
+        File result = null;
+        try {
+            File WireMockRootDir = new File(file.getParent() + "/" + WIREMOCK_ROOT_DIR);
+
+            if (WireMockRootDir.exists() && WireMockRootDir.isDirectory()) {
+                result = WireMockRootDir;
+            }
+
+            return result;
+        } finally {
+            logger.exit(result);
+        }
+    }
+
+    @JsonIgnore
     public File getSolrRootDirectory() {
         logger.entry();
 

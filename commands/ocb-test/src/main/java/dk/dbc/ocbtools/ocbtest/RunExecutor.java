@@ -59,7 +59,11 @@ class RunExecutor implements SubcommandExecutor {
         logger.entry();
         //logger.info("Service tested: {}", applicationType);
         try {
-            actionPerformedUpdate();
+            try {
+                actionPerformedUpdate();
+            } catch (CliException e) {
+                logger.info("Fail {}", e.getMessage());
+            }
             actionPerformedBuild();
         } finally {
             logger.exit();
@@ -67,7 +71,7 @@ class RunExecutor implements SubcommandExecutor {
     }
 
     @SuppressWarnings("Duplicates")
-    private void checkForNonExistantTestcases(UpdateTestcaseRepository updateTestcaseRepository) throws CliException {
+    private void checkForNonExistentTestcases(UpdateTestcaseRepository updateTestcaseRepository) throws CliException {
         logger.entry(updateTestcaseRepository);
         try {
             for (String testName : tcNames) {
@@ -81,7 +85,7 @@ class RunExecutor implements SubcommandExecutor {
     }
 
     @SuppressWarnings("Duplicates")
-    private void checkForNonExistantTestcases(BuildTestcaseRepository buildTestcaseRepository) throws CliException {
+    private void checkForNonExistentTestcases(BuildTestcaseRepository buildTestcaseRepository) throws CliException {
         logger.entry(buildTestcaseRepository);
         try {
             for (String testName : tcNames) {
@@ -112,7 +116,7 @@ class RunExecutor implements SubcommandExecutor {
             logger.info("");
 
             List<UpdateTestRunnerItem> items = new ArrayList<>();
-            checkForNonExistantTestcases(repo);
+            checkForNonExistentTestcases(repo);
             for (UpdateTestcase tc : repo.findAllTestcases()) {
                 if (!matchAnyNames(tc, tcNames)) {
                     continue;
@@ -161,7 +165,7 @@ class RunExecutor implements SubcommandExecutor {
             logger.info("");
 
             List<BuildTestRunnerItem> items = new ArrayList<>();
-            checkForNonExistantTestcases(repo);
+            checkForNonExistentTestcases(repo);
             for (BuildTestcase buildTestcase : repo.findAllTestcases()) {
                 if (!matchAnyNames(buildTestcase, tcNames)) {
                     continue;

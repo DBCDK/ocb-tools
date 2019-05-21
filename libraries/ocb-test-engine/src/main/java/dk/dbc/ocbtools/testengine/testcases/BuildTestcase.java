@@ -3,9 +3,11 @@ package dk.dbc.ocbtools.testengine.testcases;
 import dk.dbc.common.records.MarcRecord;
 import dk.dbc.common.records.MarcRecordFactory;
 import dk.dbc.iscrum.utils.IOUtils;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
@@ -14,10 +16,48 @@ public class BuildTestcase extends BaseTestcase {
 
     private BuildTestcaseRequest request;
     private BuildTestcaseExpectedResult expected;
+    static final String WIREMOCK_ROOT_DIR = "__wiremock";
+    private static final String SOLR_ROOT_DIR = WIREMOCK_ROOT_DIR + "/solr";
 
     public BuildTestcase() {
         this.request = null;
         this.expected = null;
+    }
+
+    @JsonIgnore
+    public File getWireMockRootDirectory() {
+        logger.entry();
+
+        File result = null;
+        try {
+            File WireMockRootDir = new File(file.getParent() + "/" + WIREMOCK_ROOT_DIR);
+
+            if (WireMockRootDir.exists() && WireMockRootDir.isDirectory()) {
+                result = WireMockRootDir;
+            }
+
+            return result;
+        } finally {
+            logger.exit(result);
+        }
+    }
+
+    @JsonIgnore
+    public File getSolrRootDirectory() {
+        logger.entry();
+
+        File result = null;
+        try {
+            File solrRootDir = new File(file.getParent() + "/" + SOLR_ROOT_DIR);
+
+            if (solrRootDir.exists() && solrRootDir.isDirectory()) {
+                result = solrRootDir;
+            }
+
+            return result;
+        } finally {
+            logger.exit(result);
+        }
     }
 
     public MarcRecord loadRequestRecord() throws IOException {

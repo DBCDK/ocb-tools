@@ -107,10 +107,10 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
                     }
 
                     if (tc.getExpected().getUpdate().getRawrepo() != null) {
-                        RawRepoAsserter.assertRecordListEquals(tc.getExpected().getUpdate().getRawrepo(), RawRepo.loadRecords(settings), tc.getRequest().isCheck001cd());
+                        RawRepoAsserter.assertRecordListEquals(tc.getExpected().getUpdate().getRawrepo(), RawRepo.loadRecords(settings), tc);
                         RawRepoAsserter.assertQueueRecords(tc.getExpected().getUpdate().getRawrepo(), RawRepo.loadQueuedRecords(settings));
                     } else if (tc.getSetup() != null && tc.getSetup().getRawrepo() != null) {
-                        RawRepoAsserter.assertRecordListEquals(tc.getSetup().getRawrepo(), RawRepo.loadRecords(settings), tc.getRequest().isCheck001cd());
+                        RawRepoAsserter.assertRecordListEquals(tc.getSetup().getRawrepo(), RawRepo.loadRecords(settings), tc);
                         RawRepoAsserter.assertQueueRecords(tc.getSetup().getRawrepo(), RawRepo.loadQueuedRecords(settings));
                     }
                     checkRelations(fs, settings, RawRepoRelationType.CHILD);
