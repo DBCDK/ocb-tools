@@ -106,7 +106,7 @@ public class RawRepoAsserter {
                     for (int k = 0; k < expectedField.getSubfields().size(); k++) {
                         MarcSubField expectedSubField = expectedField.getSubfields().get(k);
 
-                        if (expectedSubField.getName().equals("c") && !tc.getRequest().getCheck001c()) {
+                        if (expectedSubField.getName().equals("c") && !tc.getRequest().isCheck001c()) {
                             continue;
                         }
                         if (expectedSubField.getName().equals("d") && !tc.getRequest().isCheck001d()) {

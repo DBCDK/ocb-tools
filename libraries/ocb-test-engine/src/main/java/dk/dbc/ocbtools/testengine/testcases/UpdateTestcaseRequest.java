@@ -42,7 +42,7 @@ public class UpdateTestcaseRequest {
         this.record = record;
     }
 
-    public boolean getCheck001c() {
+    public boolean isCheck001c() {
         return check001c;
     }
     public void setCheck001c(boolean check001c) {
