@@ -7,7 +7,8 @@ public class UpdateTestcaseRequest {
     private TestcaseAuthentication authentication = new TestcaseAuthentication();
     private Map<String, Object> headers = null;
     private String record = null;
-    private Boolean check001cd = false;
+    private Boolean check001c = false;
+    private Boolean check001d = false;
     private String ignoreFieldsInMatch = "";
 
     public UpdateTestcaseRequest() {
@@ -41,16 +42,22 @@ public class UpdateTestcaseRequest {
         this.record = record;
     }
 
-    public boolean isCheck001cd() {
-        return check001cd;
+    public boolean isCheck001c() {
+        return check001c;
+    }
+    public void setCheck001c(boolean check001c) {
+        this.check001c = check001c;
     }
 
+    public boolean isCheck001d() {
+        return check001d;
+    }
+
+    public void setCheck001d(boolean check001d) {
+        this.check001d = check001d;
+    }
     public String getIgnoreFieldsInMatch() {
         return ignoreFieldsInMatch;
-    }
-
-    public void setCheck001cd(boolean check001cd) {
-        this.check001cd = check001cd;
     }
 
     @Override
@@ -60,8 +67,9 @@ public class UpdateTestcaseRequest {
                 ", authentication=" + authentication +
                 ", headers=" + headers +
                 ", record='" + record + '\'' +
-                ", check001cd=" + check001cd +
-                ", ignoreFieldsInMatch=" + ignoreFieldsInMatch +
+                ", check001c=" + check001c +
+                ", check001d=" + check001d +
+                ", ignoreFieldsInMatch='" + ignoreFieldsInMatch + '\'' +
                 '}';
     }
 }
