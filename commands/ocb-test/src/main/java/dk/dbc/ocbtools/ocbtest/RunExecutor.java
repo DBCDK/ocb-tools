@@ -59,11 +59,7 @@ class RunExecutor implements SubcommandExecutor {
         logger.entry();
         //logger.info("Service tested: {}", applicationType);
         try {
-            try {
-                actionPerformedUpdate();
-            } catch (CliException e) {
-                logger.info("Fail {}", e.getMessage());
-            }
+            actionPerformedUpdate();
             actionPerformedBuild();
         } finally {
             logger.exit();
