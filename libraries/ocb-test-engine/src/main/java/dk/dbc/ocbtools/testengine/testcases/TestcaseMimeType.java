@@ -9,7 +9,8 @@ public enum TestcaseMimeType {
     MARCXCHANGE(MarcXChangeMimeType.MARCXCHANGE),
     ENRICHMENT(MarcXChangeMimeType.ENRICHMENT),
     ARTICLE(MarcXChangeMimeType.ARTICLE),
-    AUTHORITY(MarcXChangeMimeType.AUTHORITY);
+    AUTHORITY(MarcXChangeMimeType.AUTHORITY),
+    LITANALYSIS(MarcXChangeMimeType.LITANALYSIS);
 
     private final String value;
 
