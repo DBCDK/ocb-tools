@@ -41,7 +41,7 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
 
     @Override
     public String name() {
-        return String.format("Update record against remote UpdateService: %s", createServiceUrl());
+        return String.format("Update record against remote UpdateService: %s", createServiceUrl("updateservice.url"));
     }
 
     @Override
@@ -57,8 +57,7 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
 
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
 
-            String key = "updateservice.url";
-            URL url = new URL(settings.getProperty(key));
+            URL url = createServiceUrl("updateservice.url");
 
             UpdateRecordRequest request = createRequest();
             logger.debug("Tracking id: {}", request.getTrackingId());
