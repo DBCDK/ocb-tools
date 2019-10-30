@@ -65,7 +65,7 @@ public class RemoteValidateExecutor implements TestExecutor {
 
     @Override
     public String name() {
-        return String.format("Validate record against remote UpdateService: %s", createServiceUrl());
+        return String.format("Validate record against remote UpdateService: %s", createServiceUrl("updateservice.url"));
     }
 
     @Override
@@ -238,9 +238,10 @@ public class RemoteValidateExecutor implements TestExecutor {
             assertNotNull("Property'en 'request.authentication.user' er obligatorisk.", tc.getRequest().getAuthentication().getUser());
             assertNotNull("Property'en 'request.authentication.password' er obligatorisk.", tc.getRequest().getAuthentication().getPassword());
 
-            URL url = createServiceUrl();
+            URL url = createServiceUrl("updateservice.url");
 
             UpdateRecordRequest request = createRequest();
+            logger.debug("Tracking id: {}", request.getTrackingId());
 
             StopWatch watch = new StopWatch();
 
@@ -286,11 +287,11 @@ public class RemoteValidateExecutor implements TestExecutor {
         }
     }
 
-    URL createServiceUrl() {
+    URL createServiceUrl(String settingsValue) {
         logger.entry();
         URL result = null;
         try {
-            return result = new URL(settings.getProperty("updateservice.url"));
+            return result = new URL(settings.getProperty(settingsValue));
         } catch (MalformedURLException ex) {
             throw new AssertionError(String.format("Unable to create url to webservice: %s", ex.getMessage()), ex);
         } finally {

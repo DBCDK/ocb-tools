@@ -29,6 +29,10 @@ class RunExecutor implements SubcommandExecutor {
     private boolean printDemoInfo;
     private List<String> tcNames;
     private List<TestReport> reports;
+    private BuildTestcaseRepository buildRepo;
+    private Properties buildSettings;
+    private UpdateTestcaseRepository updateRepo;
+    private Properties updateSettings;
 
     RunExecutor() {
         this.configName = "servers";
@@ -53,42 +57,52 @@ class RunExecutor implements SubcommandExecutor {
         this.reports = reports;
     }
 
+    public void preCheck() throws CliException {
+        try {
+            OCBFileSystem fs = new OCBFileSystem(ApplicationType.BUILD);
+            buildRepo = BuildTestcaseRepositoryFactory.newInstanceWithTestcases(fs);
+            buildSettings = fs.loadSettings(configName);
+
+            if (buildSettings == null) {
+                logger.error("Unable to load config '{}'", configName);
+                return;
+            }
+
+            fs = new OCBFileSystem(ApplicationType.UPDATE);
+            updateRepo = UpdateTestcaseRepositoryFactory.newInstanceWithTestcases(fs);
+
+            updateSettings = fs.loadSettings(configName);
+            if (updateSettings == null) {
+                logger.error("Unable to load config '{}'", configName);
+                return;
+            }
+
+            List<String> misses = new ArrayList<>();
+            for (String testName : tcNames) {
+                if (!buildRepo.findAllTestcaseNames().contains(testName)) {
+                    misses.add(testName);
+                }
+            }
+            for (String testName : tcNames) {
+                if (updateRepo.findAllTestcaseNames().contains(testName)) {
+                    misses.remove(testName);
+                }
+            }
+            if (misses.size() > 0) throw new CliException("Testcase(s):\n" + misses.toString() + "\ndoes not exist");
+
+        } catch (IOException ex) {
+            throw new CliException(ex.getMessage(), ex);
+        }
+    }
 
     @Override
     public void actionPerformed() throws CliException {
         logger.entry();
         //logger.info("Service tested: {}", applicationType);
         try {
+            preCheck();
             actionPerformedUpdate();
             actionPerformedBuild();
-        } finally {
-            logger.exit();
-        }
-    }
-
-    @SuppressWarnings("Duplicates")
-    private void checkForNonExistentTestcases(UpdateTestcaseRepository updateTestcaseRepository) throws CliException {
-        logger.entry(updateTestcaseRepository);
-        try {
-            for (String testName : tcNames) {
-                if (!updateTestcaseRepository.findAllTestcaseNames().contains(testName)) {
-                    throw new CliException("Testcase : <<<< " + testName + " >>>> does not exists");
-                }
-            }
-        } finally {
-            logger.exit();
-        }
-    }
-
-    @SuppressWarnings("Duplicates")
-    private void checkForNonExistentTestcases(BuildTestcaseRepository buildTestcaseRepository) throws CliException {
-        logger.entry(buildTestcaseRepository);
-        try {
-            for (String testName : tcNames) {
-                if (!buildTestcaseRepository.findAllTestcaseNames().contains(testName)) {
-                    throw new CliException("Testcase : <<<< " + testName + " >>>> does not exists");
-                }
-            }
         } finally {
             logger.exit();
         }
@@ -97,32 +111,22 @@ class RunExecutor implements SubcommandExecutor {
     private void actionPerformedUpdate() throws CliException {
         logger.entry();
         try {
-            OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
-            UpdateTestcaseRepository repo = UpdateTestcaseRepositoryFactory.newInstanceWithTestcases(fs);
-
-            Properties settings = fs.loadSettings(configName);
-            if (settings == null) {
-                logger.error("Unable to load config '{}'", configName);
-                return;
-            }
-
-            logger.info("Using updateservice url: {}", settings.getProperty("updateservice.url"));
-            logger.info("Using rawrepo database: {}", settings.getProperty("rawrepo.jdbc.conn.url"));
-            logger.info("Using holding items database: {}", settings.getProperty("holdings.jdbc.conn.url"));
+            logger.info("Using updateservice url: {}", updateSettings.getProperty("updateservice.url"));
+            logger.info("Using rawrepo database: {}", updateSettings.getProperty("rawrepo.jdbc.conn.url"));
+            logger.info("Using holding items database: {}", updateSettings.getProperty("holdings.jdbc.conn.url"));
             logger.info("");
 
             List<UpdateTestRunnerItem> items = new ArrayList<>();
-            checkForNonExistentTestcases(repo);
-            for (UpdateTestcase tc : repo.findAllTestcases()) {
+            for (UpdateTestcase tc : updateRepo.findAllTestcases()) {
                 if (!matchAnyNames(tc, tcNames)) {
                     continue;
                 }
                 List<TestExecutor> executors = new ArrayList<>();
                 if (tc.getExpected().getValidation() != null) {
-                    executors.add(new RemoteValidateExecutor(tc, settings, printDemoInfo));
+                    executors.add(new RemoteValidateExecutor(tc, updateSettings, printDemoInfo));
                 }
                 if (tc.getExpected().getUpdate() != null) {
-                    executors.add(new RemoteUpdateExecutor(tc, settings, printDemoInfo));
+                    executors.add(new RemoteUpdateExecutor(tc, updateSettings, printDemoInfo));
                 }
                 items.add(new UpdateTestRunnerItem(tc, executors));
             }
@@ -138,8 +142,6 @@ class RunExecutor implements SubcommandExecutor {
                 logger.error("");
                 throw new CliException("Errors where found in system-tests.");
             }
-        } catch (IOException ex) {
-            throw new CliException(ex.getMessage(), ex);
         } finally {
             logger.exit();
         }
@@ -148,26 +150,16 @@ class RunExecutor implements SubcommandExecutor {
     private void actionPerformedBuild() throws CliException {
         logger.entry();
         try {
-            OCBFileSystem fs = new OCBFileSystem(ApplicationType.BUILD);
-            BuildTestcaseRepository repo = BuildTestcaseRepositoryFactory.newInstanceWithTestcases(fs);
-            Properties settings = fs.loadSettings(configName);
-
-            if (settings == null) {
-                logger.error("Unable to load config '{}'", configName);
-                return;
-            }
-
-            logger.info("Using url: {}", settings.getProperty("buildservice.url"));
+            logger.info("Using url: {}", buildSettings.getProperty("buildservice.url"));
             logger.info("");
 
             List<BuildTestRunnerItem> items = new ArrayList<>();
-            checkForNonExistentTestcases(repo);
-            for (BuildTestcase buildTestcase : repo.findAllTestcases()) {
+            for (BuildTestcase buildTestcase : buildRepo.findAllTestcases()) {
                 if (!matchAnyNames(buildTestcase, tcNames)) {
                     continue;
                 }
                 List<TestExecutor> executors = new ArrayList<>();
-                RemoteBuildExecutor remoteBuildExecutor = new RemoteBuildExecutor(buildTestcase, settings, printDemoInfo);
+                RemoteBuildExecutor remoteBuildExecutor = new RemoteBuildExecutor(buildTestcase, buildSettings, printDemoInfo);
                 executors.add(remoteBuildExecutor);
                 items.add(new BuildTestRunnerItem(buildTestcase, executors));
             }
@@ -182,8 +174,6 @@ class RunExecutor implements SubcommandExecutor {
                 logger.error("");
                 throw new CliException("Errors where found in system-tests.");
             }
-        } catch (IOException e) {
-            throw new CliException(e.getMessage(), e);
         } finally {
             logger.exit();
         }
