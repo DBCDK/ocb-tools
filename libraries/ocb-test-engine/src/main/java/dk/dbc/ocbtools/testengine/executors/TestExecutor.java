@@ -21,7 +21,7 @@ public interface TestExecutor {
      * <p/>
      * This method is called before the tests are run.
      */
-    boolean setup() throws IOException, JAXBException, SQLException, RawRepoException, HoldingsItemsException, ClassNotFoundException;
+    void setup() throws IOException, JAXBException, SQLException, RawRepoException, HoldingsItemsException, ClassNotFoundException;
 
     /**
      * Tear down the testcase.

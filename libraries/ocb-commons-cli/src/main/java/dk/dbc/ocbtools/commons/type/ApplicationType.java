@@ -6,7 +6,8 @@ package dk.dbc.ocbtools.commons.type;
 public enum ApplicationType {
 
     BUILD("BUILD"),
-    UPDATE("UPDATE");
+    UPDATE("UPDATE"),
+    REST("REST");
 
     private final String value;
 

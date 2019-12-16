@@ -50,35 +50,31 @@ public class UpdateTestRunner {
             for (TestExecutor exec : updateTestRunnerItem.getExecutors()) {
                 StopWatch watch = new StopWatch();
                 try {
-                    if (exec.setup()) {
-                        try {
-                            exec.executeTests();
-                            watch.stop();
-                            TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, null);
-                            testExecutorResult.setTime(watch.getElapsedTime());
-                            testExecutorResults.add(testExecutorResult);
-                        } catch (AssertionError ex) {
-                            watch.stop();
-                            logger.error("Got assertion error runTestcase update {}", ex);
-                            TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, ex);
-                            testExecutorResult.setTime(watch.getElapsedTime());
-                            testExecutorResults.add(testExecutorResult);
-                        } catch (Throwable ex) {
-                            logger.error("runTestcase update execute ERROR : {}", ex);
-                            watch.stop();
-                            TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(ex.getMessage(), ex));
-                            testExecutorResult.setTime(watch.getElapsedTime());
-                            testExecutorResults.add(testExecutorResult);
-                            throw new IllegalStateException("Unexpected error", ex);
-                        }
-                    } else {
-                        logger.error("setup runTestcase update fails");
-                        exec.teardown();
-                        return res;
+                    exec.setup();
+                    try {
+                        exec.executeTests();
+                        watch.stop();
+                        TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, null);
+                        testExecutorResult.setTime(watch.getElapsedTime());
+                        testExecutorResults.add(testExecutorResult);
+                    } catch (AssertionError ex) {
+                        watch.stop();
+                        logger.error("Got assertion error runTestcase update {}", ex);
+                        TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, ex);
+                        testExecutorResult.setTime(watch.getElapsedTime());
+                        testExecutorResults.add(testExecutorResult);
+                    } catch (Throwable ex) {
+                        logger.error("runTestcase update execute ERROR : {}", ex);
+                        watch.stop();
+                        TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(ex.getMessage(), ex));
+                        testExecutorResult.setTime(watch.getElapsedTime());
+                        testExecutorResults.add(testExecutorResult);
+                        throw new IllegalStateException("Unexpected error", ex);
                     }
                     exec.teardown();
                 } catch (Throwable ex) {
                     logger.error("runTestcase update ERROR : ", ex);
+                    exec.teardown();
                     watch.stop();
                     TestExecutorResult testExecutorResult = new TestExecutorResult(0, exec, new AssertionError(ex.getMessage(), ex));
                     testExecutorResult.setTime(watch.getElapsedTime());

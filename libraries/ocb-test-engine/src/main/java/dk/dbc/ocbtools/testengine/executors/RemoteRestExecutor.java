@@ -1,6 +1,7 @@
 package dk.dbc.ocbtools.testengine.executors;
 
 import dk.dbc.common.records.MarcRecord;
+import dk.dbc.httpclient.HttpClient;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.asserters.RawRepoAsserter;
@@ -13,10 +14,14 @@ import dk.dbc.updateservice.service.api.CatalogingUpdatePortType;
 import dk.dbc.updateservice.service.api.UpdateRecordRequest;
 import dk.dbc.updateservice.service.api.UpdateRecordResult;
 import dk.dbc.updateservice.service.api.UpdateStatusEnum;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.jackson.JacksonFeature;
 import org.perf4j.StopWatch;
 import org.slf4j.ext.XLoggerFactory;
 import org.xml.sax.SAXException;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -26,53 +31,92 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
- * Executor to test a testcase against the update operation on an external
+ * Executor to test a testcase against a rest service on an external
  * installation of Update.
  */
-public class RemoteUpdateExecutor extends RemoteValidateExecutor {
+public class RemoteRestExecutor extends RemoteValidateExecutor {
+    private static final String EXECUTOR_URL = "updateservice.url";
 
 
-    public RemoteUpdateExecutor(UpdateTestcase tc, Properties settings) {
+    public RemoteRestExecutor(UpdateTestcase tc, Properties settings) {
         super(tc, settings);
-        logger = XLoggerFactory.getXLogger(RemoteUpdateExecutor.class);
+        logger = XLoggerFactory.getXLogger(RemoteRestExecutor.class);
     }
 
     @Override
     public String name() {
-        return String.format("Update record against remote UpdateService: %s", settings.getProperty(EXECUTOR_URL));
+        String restType = tc.getRequest().getRestType();
+        String message;
+        if (restType.equals("")){
+            message = "Error, no restType defined in request section of testcase";
+        } else {
+            message = settings.getProperty(tc.getRequest().getRestType());
+        }
+        return String.format("Rest request against remote UpdateService: %s", message);
     }
 
     @Override
     public void executeTests() {
         logger.entry();
         try {
+            // TODO cleanup
+            logger.info("HYFSA jupjup vi komme hier {}", tc.getRequest().getRestType());
+            logger.info("HYFSA jupjup vi komme hier {}", settings.getProperty(tc.getRequest().getRestType()));
             assertNotNull("Property'en 'request' er obligatorisk.", tc.getRequest());
+            assertFalse("Property'en 'request.restType' er obligatorisk.", tc.getRequest().getRestType().equals(""));
             assertNotNull("Property'en 'request.authentication' er obligatorisk.", tc.getRequest().getAuthentication());
             assertNotNull("Property'en 'request.authentication.group' er obligatorisk.", tc.getRequest().getAuthentication().getGroup());
             assertNotNull("Property'en 'request.authentication.user' er obligatorisk.", tc.getRequest().getAuthentication().getUser());
             assertNotNull("Property'en 'request.authentication.password' er obligatorisk.", tc.getRequest().getAuthentication().getPassword());
 
 
-            OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
+            OCBFileSystem fs = new OCBFileSystem(ApplicationType.REST);
 
-            URL url = createServiceUrl(EXECUTOR_URL);
+            URL url = createServiceUrl(tc.getRequest().getRestType());
 
             UpdateRecordRequest request = createRequest();
             logger.debug("Tracking id: {}", request.getTrackingId());
 
             StopWatch watch = new StopWatch();
 
-            logger.debug("Sending UPDATE request '{}' to {}", request.getTrackingId(), url);
+            String hostUrl = settings.getProperty(tc.getRequest().getRestType());
+
+            // TODO why do we want this ?
+            switch (tc.getRequest().getRestType()) {
+                case "doublerecordcheck.url" :
+                    break;
+                case "classificationcheck.url" : int y = 0;
+                    break;
+                default:
+                    String message = String.format("Rest type %s can not be handled", tc.getRequest().getRestType());
+                    logger.info(message);
+                    throw new ClassNotFoundException(message);
+            }
+            // TODO why do we want this ? END
+
+            logger.debug("Sending REST request '{}' to {}", request.getTrackingId(), url);
             logger.debug("Request:\n" + request);
+            final Client client = HttpClient.newClient(new ClientConfig().register(new JacksonFeature()));
+            WebTarget target = client.target(hostUrl);
+
+
+
+
+
+
+
+
+
+
+            if (fs != null) return;
             watch.start();
             CatalogingUpdatePortType catalogingUpdatePortType = createPort(url);
             UpdateRecordResult response = catalogingUpdatePortType.updateRecord(request);
             watch.stop();
-            logger.debug("Received UPDATE response in " + watch.getElapsedTime() + " ms: " + response);
+            logger.debug("Received REST response in " + watch.getElapsedTime() + " ms: " + response);
 
             watch.start();
             try {
