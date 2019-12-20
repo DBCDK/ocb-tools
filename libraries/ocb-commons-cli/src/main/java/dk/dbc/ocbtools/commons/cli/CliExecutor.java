@@ -177,43 +177,6 @@ public class CliExecutor {
         }
     }
 
-    /**
-     * Extracts the base directory of the Opencat-business directory.
-     *
-     * @param file A File instance with the path of a directory.
-     * @return The base directory.
-     */
-    private File extractBaseDir(File file) {
-        logger.entry(file);
-
-        try {
-            final String ROOT_DIRECTORY_NAMES[] = {"bin", "distributions"};
-
-            if (file == null) {
-                return null;
-            }
-
-            if (!file.isDirectory()) {
-                return null;
-            }
-
-            int directoriesFound = 0;
-            for (String name : file.list()) {
-                if (Arrays.binarySearch(ROOT_DIRECTORY_NAMES, name) > -1) {
-                    directoriesFound++;
-                }
-            }
-
-            if (directoriesFound == ROOT_DIRECTORY_NAMES.length) {
-                return file;
-            }
-
-            return extractBaseDir(file.getParentFile());
-        } finally {
-            logger.exit();
-        }
-    }
-
     private CommandLine parseArguments(Subcommand subCommand, Options options, String[] args) throws IllegalAccessException, InstantiationException {
         logger.entry(options, args);
         CommandLineParser parser = new GnuParser();
@@ -285,13 +248,5 @@ public class CliExecutor {
         return String.format("%s %s %s", commandName, subCommandName, subCommand.usage());
     }
 
-    private void printStuff(String cmdName, Options options) throws InstantiationException, IllegalAccessException {
-        logger.entry(cmdName, options);
-        try {
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp(subCommandUsage(cmdName), options);
-        } finally {
-            logger.exit();
-        }
-    }
+
 }
