@@ -99,17 +99,18 @@ public class RemoteRestExecutor extends RemoteValidateExecutor {
             final UpdateRecordResult response = connectorResponseToOCBResponse(connectorResponse);
 
             assertNotNull("No expected results found.", tc.getExpected());
-            if (tc.getExpected().getUpdate().hasErrors() || tc.getExpected().getUpdate().hasWarnings()) {
-                UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getDoubleRecords(), response.getDoubleRecordEntries());
-                assertEquals(UpdateStatusEnum.FAILED, response.getUpdateStatus());
-            } else if (tc.getExpected().getUpdate().getDoubleRecords().size() > 0) {
-                UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getDoubleRecords(), response.getDoubleRecordEntries());
-                assertEquals(UpdateStatusEnum.FAILED, response.getUpdateStatus());
-            } else if (tc.getExpected().getUpdate().getErrors() == null || tc.getExpected().getUpdate().getErrors().isEmpty()) {
-                UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, new ArrayList<>(), response.getMessages());
-                assertEquals(UpdateStatusEnum.OK, response.getUpdateStatus());
-            }
+
             if (tc.getExpected().getUpdate() != null) {
+                if (tc.getExpected().getUpdate().hasErrors() || tc.getExpected().getUpdate().hasWarnings()) {
+                    UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getDoubleRecords(), response.getDoubleRecordEntries());
+                    assertEquals(UpdateStatusEnum.FAILED, response.getUpdateStatus());
+                } else if (tc.getExpected().getUpdate().getDoubleRecords().size() > 0) {
+                    UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getDoubleRecords(), response.getDoubleRecordEntries());
+                    assertEquals(UpdateStatusEnum.FAILED, response.getUpdateStatus());
+                } else if (tc.getExpected().getUpdate().getErrors() == null || tc.getExpected().getUpdate().getErrors().isEmpty()) {
+                    UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, new ArrayList<>(), response.getMessages());
+                    assertEquals(UpdateStatusEnum.OK, response.getUpdateStatus());
+                }
             }
         } catch (UpdateServiceDoubleRecordCheckConnectorException | IOException | JAXBException | ParserConfigurationException e) {
             throw new AssertionError(e.getMessage(), e);
