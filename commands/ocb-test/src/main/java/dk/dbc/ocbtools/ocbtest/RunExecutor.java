@@ -219,7 +219,7 @@ class RunExecutor implements SubcommandExecutor {
                     continue;
                 }
                 final List<TestExecutor> executors = new ArrayList<>();
-                if (tc.getExpected().getValidation() != null) {
+                if (tc.getExpected().getUpdate() != null) {
                     executors.add(new RemoteRestExecutor(tc, restSettings));
                 }
 
