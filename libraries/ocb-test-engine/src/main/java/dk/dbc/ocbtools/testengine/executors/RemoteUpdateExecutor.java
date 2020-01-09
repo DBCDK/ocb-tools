@@ -34,14 +34,16 @@ import static org.junit.Assert.assertNotNull;
  * installation of Update.
  */
 public class RemoteUpdateExecutor extends RemoteValidateExecutor {
-    public RemoteUpdateExecutor(UpdateTestcase tc, Properties settings, boolean printDemoInfo) {
-        super(tc, settings, printDemoInfo);
+
+
+    public RemoteUpdateExecutor(UpdateTestcase tc, Properties settings) {
+        super(tc, settings);
         logger = XLoggerFactory.getXLogger(RemoteUpdateExecutor.class);
     }
 
     @Override
     public String name() {
-        return String.format("Update record against remote UpdateService: %s", createServiceUrl("updateservice.url"));
+        return String.format("Update record against remote UpdateService: %s", settings.getProperty(EXECUTOR_URL));
     }
 
     @Override
@@ -57,7 +59,7 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
 
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
 
-            URL url = createServiceUrl("updateservice.url");
+            URL url = createServiceUrl(EXECUTOR_URL);
 
             UpdateRecordRequest request = createRequest();
             logger.debug("Tracking id: {}", request.getTrackingId());
@@ -66,17 +68,11 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
 
             logger.debug("Sending UPDATE request '{}' to {}", request.getTrackingId(), url);
             logger.debug("Request:\n" + request);
-            if (demoInfoPrinter != null) {
-                demoInfoPrinter.printRequest(request, tc.loadRecord());
-            }
             watch.start();
             CatalogingUpdatePortType catalogingUpdatePortType = createPort(url);
             UpdateRecordResult response = catalogingUpdatePortType.updateRecord(request);
             watch.stop();
             logger.debug("Received UPDATE response in " + watch.getElapsedTime() + " ms: " + response);
-            if (demoInfoPrinter != null) {
-                demoInfoPrinter.printResponse(response);
-            }
 
             watch.start();
             try {

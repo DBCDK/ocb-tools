@@ -47,8 +47,6 @@
     <properties>
         <ocbtools.version>1.0.0</ocbtools.version>
         <maven.apache.lang3.plugin.version>3.3.2</maven.apache.lang3.plugin.version>
-        <maven.jersey-core.plugin-version>2.14</maven.jersey-core.plugin-version>
-        <maven.jackson.plugin.version>2.2.3</maven.jackson.plugin.version>
         <maven.jackson.jaxrs.plugin.version>1.9.13</maven.jackson.jaxrs.plugin.version>
         <maven.perf4j.plugin.version>0.9.16</maven.perf4j.plugin.version>
         <maven.dbc.commons.jdbc.util.version>1.3-SNAPSHOT</maven.dbc.commons.jdbc.util.version>
@@ -63,6 +61,7 @@
         <wiremock.plugin.version>2.5.1</wiremock.plugin.version>
         <postgres.plugin.version>9.3-1101-jdbc41</postgres.plugin.version>
         <log4j.slf4j.plugin.version>1.7.7</log4j.slf4j.plugin.version>
+        <jersey.version>2.22.2</jersey.version>
         <updateservice.wsdl.url>https://raw.githubusercontent.com/DBCDK/updateservice/master/src/wsdl/update/catalogingUpdate.wsdl</updateservice.wsdl.url>
         <buildservice.wsdl.url>https://raw.githubusercontent.com/DBCDK/updateservice/master/src/wsdl/build/catalogingBuild.wsdl</buildservice.wsdl.url>
     </properties>
@@ -122,6 +121,12 @@
         </dependency>
 
         <dependency>
+            <groupId>dk.dbc</groupId>
+            <artifactId>updateservice-rest-connector</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
@@ -129,6 +134,32 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>dk.dbc</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>${jersey.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <version>${jersey.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.9.9</version>
         </dependency>
     </dependencies>
 

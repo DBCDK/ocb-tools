@@ -4,10 +4,7 @@ import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.cli.CliException;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
-import dk.dbc.ocbtools.testengine.executors.RemoteBuildExecutor;
-import dk.dbc.ocbtools.testengine.executors.RemoteUpdateExecutor;
-import dk.dbc.ocbtools.testengine.executors.RemoteValidateExecutor;
-import dk.dbc.ocbtools.testengine.executors.TestExecutor;
+import dk.dbc.ocbtools.testengine.executors.*;
 import dk.dbc.ocbtools.testengine.reports.TestReport;
 import dk.dbc.ocbtools.testengine.runners.*;
 import dk.dbc.ocbtools.testengine.testcases.*;
@@ -26,27 +23,23 @@ class RunExecutor implements SubcommandExecutor {
     private static final XLogger logger = XLoggerFactory.getXLogger(RunExecutor.class);
 
     private String configName;
-    private boolean printDemoInfo;
     private List<String> tcNames;
     private List<TestReport> reports;
     private BuildTestcaseRepository buildRepo;
     private Properties buildSettings;
     private UpdateTestcaseRepository updateRepo;
     private Properties updateSettings;
+    private UpdateTestcaseRepository restRepo;
+    private Properties restSettings;
 
     RunExecutor() {
-        this.configName = "servers";
-        this.printDemoInfo = false;
+        this.configName = ""; // If someone someday makes a testcase for RunExecutor, then it might be reasonable to set it to "servers" (make an intellij search for it)
         this.tcNames = null;
         this.reports = null;
     }
 
     void setConfigName(String configName) {
         this.configName = configName;
-    }
-
-    void setPrintDemoInfo(boolean printDemoInfo) {
-        this.printDemoInfo = printDemoInfo;
     }
 
     void setTcNames(List<String> tcNames) {
@@ -57,7 +50,11 @@ class RunExecutor implements SubcommandExecutor {
         this.reports = reports;
     }
 
-    public void preCheck() throws CliException {
+    /*
+    This voluminous function prevents quibbling about missing testcases when the program are called with a specific
+    case. It also fails heavily if no testcase is found.
+     */
+    private void preCheck() throws CliException {
         try {
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.BUILD);
             buildRepo = BuildTestcaseRepositoryFactory.newInstanceWithTestcases(fs);
@@ -70,9 +67,18 @@ class RunExecutor implements SubcommandExecutor {
 
             fs = new OCBFileSystem(ApplicationType.UPDATE);
             updateRepo = UpdateTestcaseRepositoryFactory.newInstanceWithTestcases(fs);
-
             updateSettings = fs.loadSettings(configName);
+
             if (updateSettings == null) {
+                logger.error("Unable to load config '{}'", configName);
+                return;
+            }
+
+            fs = new OCBFileSystem(ApplicationType.REST);
+            restRepo = UpdateTestcaseRepositoryFactory.newInstanceWithTestcases(fs);
+            restSettings = fs.loadSettings(configName);
+
+            if (restSettings == null) {
                 logger.error("Unable to load config '{}'", configName);
                 return;
             }
@@ -88,6 +94,12 @@ class RunExecutor implements SubcommandExecutor {
                     misses.remove(testName);
                 }
             }
+            for (String testName : tcNames) {
+                if (restRepo.findAllTestcaseNames().contains(testName)) {
+                    logger.info("YAHOO {}", testName);
+                    misses.remove(testName);
+                }
+            }
             if (misses.size() > 0) throw new CliException("Testcase(s):\n" + misses.toString() + "\ndoes not exist");
 
         } catch (IOException ex) {
@@ -98,11 +110,47 @@ class RunExecutor implements SubcommandExecutor {
     @Override
     public void actionPerformed() throws CliException {
         logger.entry();
-        //logger.info("Service tested: {}", applicationType);
         try {
             preCheck();
             actionPerformedUpdate();
             actionPerformedBuild();
+            actionPerformedRest();
+        } finally {
+            logger.exit();
+        }
+    }
+
+    private void actionPerformedRest() throws CliException {
+        logger.entry();
+        try {
+            OCBFileSystem fs = new OCBFileSystem(ApplicationType.REST);
+
+            List<UpdateTestRunnerItem> items = new ArrayList<>();
+            for (UpdateTestcase tc : restRepo.findAllTestcases()) {
+                if (!matchAnyNames(tc, tcNames)) {
+                    continue;
+                }
+                List<TestExecutor> executors = new ArrayList<>();
+                if (tc.getExpected().getValidation() != null) {
+                    executors.add(new RemoteRestExecutor(tc, updateSettings));
+                }
+
+                items.add(new UpdateTestRunnerItem(tc, executors));
+            }
+            UpdateTestRunner runner = new UpdateTestRunner(items);
+            TestResult testResult = runner.run();
+
+            for (TestReport report : reports) {
+                report.produce(testResult);
+            }
+
+            if (testResult.hasError()) {
+                logger.error("");
+                throw new CliException("Errors where found in system-tests.");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             logger.exit();
         }
@@ -123,10 +171,10 @@ class RunExecutor implements SubcommandExecutor {
                 }
                 List<TestExecutor> executors = new ArrayList<>();
                 if (tc.getExpected().getValidation() != null) {
-                    executors.add(new RemoteValidateExecutor(tc, updateSettings, printDemoInfo));
+                    executors.add(new RemoteValidateExecutor(tc, updateSettings));
                 }
                 if (tc.getExpected().getUpdate() != null) {
-                    executors.add(new RemoteUpdateExecutor(tc, updateSettings, printDemoInfo));
+                    executors.add(new RemoteUpdateExecutor(tc, updateSettings));
                 }
                 items.add(new UpdateTestRunnerItem(tc, executors));
             }
@@ -150,7 +198,7 @@ class RunExecutor implements SubcommandExecutor {
     private void actionPerformedBuild() throws CliException {
         logger.entry();
         try {
-            logger.info("Using url: {}", buildSettings.getProperty("buildservice.url"));
+            logger.info("Using buildservice url: {}", buildSettings.getProperty("buildservice.url"));
             logger.info("");
 
             List<BuildTestRunnerItem> items = new ArrayList<>();
@@ -159,7 +207,7 @@ class RunExecutor implements SubcommandExecutor {
                     continue;
                 }
                 List<TestExecutor> executors = new ArrayList<>();
-                RemoteBuildExecutor remoteBuildExecutor = new RemoteBuildExecutor(buildTestcase, buildSettings, printDemoInfo);
+                RemoteBuildExecutor remoteBuildExecutor = new RemoteBuildExecutor(buildTestcase, buildSettings);
                 executors.add(remoteBuildExecutor);
                 items.add(new BuildTestRunnerItem(buildTestcase, executors));
             }

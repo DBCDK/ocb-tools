@@ -29,23 +29,20 @@ import java.util.Properties;
  */
 public class RemoteBuildExecutor implements TestExecutor {
     private static final XLogger logger = XLoggerFactory.getXLogger(RemoteBuildExecutor.class);
+    private static final String ENDPOINT_PATH = "/CatalogingBuildServices/OpenBuild";
     private static final long DEFAULT_CONNECT_TIMEOUT_MS =     60 * 1000;    // 1 minute
     private static final long DEFAULT_REQUEST_TIMEOUT_MS = 3 * 60 * 1000;    // 3 minutes
     private static final String TRACKING_ID_FORMAT = "ocbtools-%s-%s-%s";
+    private static final String EXECUTOR_URL = "buildservice.url";
 
     private BuildTestcase buildTestcase;
     private Properties settings;
-    private DemoInfoPrinter demoInfoPrinter;
     private OcbWireMockServer wireMockServer;
 
 
-    public RemoteBuildExecutor(BuildTestcase buildTestcase, Properties settings, boolean printDemoInfo) {
+    public RemoteBuildExecutor(BuildTestcase buildTestcase, Properties settings) {
         this.buildTestcase = buildTestcase;
         this.settings = settings;
-        this.demoInfoPrinter = null;
-        if (printDemoInfo) {
-            this.demoInfoPrinter = new DemoInfoPrinter();
-        }
         this.wireMockServer = null;
     }
 
@@ -54,7 +51,7 @@ public class RemoteBuildExecutor implements TestExecutor {
         logger.entry();
         String res = null;
         try {
-            res = "Build using remote Buildservice: " + createServiceUrl();
+            res = "Build using remote Buildservice: " + settings.getProperty(EXECUTOR_URL);
             return res;
         } finally {
             logger.exit(res);
@@ -62,14 +59,10 @@ public class RemoteBuildExecutor implements TestExecutor {
     }
 
     @Override
-    public boolean setup() {
+    public void setup() {
         logger.entry();
         try {
-            if (this.demoInfoPrinter != null) {
-                demoInfoPrinter.printHeader(this.buildTestcase, this);
-            }
             wireMockServer = new OcbWireMockServer(buildTestcase, settings);
-            return true;
         } finally {
             logger.exit();
         }
@@ -81,9 +74,6 @@ public class RemoteBuildExecutor implements TestExecutor {
         try {
             if (this.wireMockServer != null) {
                 this.wireMockServer.stop();
-            }
-            if (this.demoInfoPrinter != null) {
-                demoInfoPrinter.printFooter();
             }
         } finally {
             logger.exit();
@@ -97,9 +87,6 @@ public class RemoteBuildExecutor implements TestExecutor {
             URL url = createServiceUrl();
             BuildRequest buildRequest = getBuildRequest();
             logger.debug("Sending BUILD request '{}' to {}", buildRequest.getTrackingId(), url);
-            if (demoInfoPrinter != null) {
-                demoInfoPrinter.printRequest(buildRequest, buildTestcase.loadRequestRecord());
-            }
             //StopWatch watch = new Log4JStopWatch("RemoteBuildExecutor.executeTests");
             StopWatch watch = new StopWatch();
             BuildPortType buildPortType = createPort(url);
@@ -108,31 +95,25 @@ public class RemoteBuildExecutor implements TestExecutor {
 
             String assertInput = null;
             if (buildResult != null) {
-                switch (buildResult.getBuildStatus()) {
-                    case OK:
-                        MarcRecord buildResultAsRecord = null;
-                        List<Object> list = buildResult.getBibliographicRecord().getRecordData().getContent();
-                        for (Object o : list) {
-                            if (o instanceof Node) {
-                                buildResultAsRecord = MarcConverter.createFromMarcXChange(new DOMSource((Node) o));
-                                break;
-                            }
+                if (buildResult.getBuildStatus() == BuildStatusEnum.OK) {
+                    MarcRecord buildResultAsRecord = null;
+                    List<Object> list = buildResult.getBibliographicRecord().getRecordData().getContent();
+                    for (Object o : list) {
+                        if (o instanceof Node) {
+                            buildResultAsRecord = MarcConverter.createFromMarcXChange(new DOMSource((Node) o));
+                            break;
                         }
-                        if (buildResultAsRecord != null) {
-                            assertInput = buildResultAsRecord.toString();
-                        }
-                        break;
-                    default:
-                        assertInput = buildResult.getBuildStatus().toString();
-                        break;
+                    }
+                    if (buildResultAsRecord != null) {
+                        assertInput = buildResultAsRecord.toString();
+                    }
+                } else {
+                    assertInput = buildResult.getBuildStatus().toString();
                 }
             }
             BuildAsserter.assertValidation(buildTestcase, assertInput);
 
             logger.debug("Receive BUILD response in {} ms: {}", watch.getElapsedTime(), buildResult);
-            if (demoInfoPrinter != null) {
-                demoInfoPrinter.printResponse(buildResult);
-            }
         } catch (IOException | ParserConfigurationException | SAXException | JAXBException e) {
             throw new AssertionError("Fatal error when building record for testcase " + buildTestcase.getName(), e);
         } finally {
@@ -156,10 +137,7 @@ public class RemoteBuildExecutor implements TestExecutor {
         logger.entry();
         URL result = null;
         try {
-            String key = "buildservice.url";
-            String property = settings.getProperty(key);
-            result = new URL(property);
-            return result;
+            return result = new URL(settings.getProperty(EXECUTOR_URL));
         } catch (MalformedURLException e) {
             throw new AssertionError("Unable to create url to webservice: " + e.getMessage(), e);
         } finally {
@@ -170,7 +148,6 @@ public class RemoteBuildExecutor implements TestExecutor {
     private BuildPortType createPort(URL baseUrl) throws MalformedURLException {
         logger.entry();
         try {
-            final String ENDPOINT_PATH = "/CatalogingBuildServices/OpenBuild";
             QName serviceName = new QName("http://oss.dbc.dk/ns/catalogingBuild", "CatalogingBuildServices");
             String endpoint = baseUrl + ENDPOINT_PATH;
             URL url = new URL(endpoint);

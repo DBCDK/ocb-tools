@@ -7,6 +7,7 @@ public class UpdateTestcaseRequest {
     private TestcaseAuthentication authentication = new TestcaseAuthentication();
     private Map<String, Object> headers = null;
     private String record = null;
+    private String restType = "";
     private Boolean check001c = false;
     private Boolean check001d = false;
     private String ignoreFieldsInMatch = "";
@@ -36,6 +37,10 @@ public class UpdateTestcaseRequest {
 
     public String getRecord() {
         return record;
+    }
+
+    public String getRestType() {
+        return restType;
     }
 
     public void setRecord(String record) {
@@ -70,6 +75,7 @@ public class UpdateTestcaseRequest {
                 ", check001c=" + check001c +
                 ", check001d=" + check001d +
                 ", ignoreFieldsInMatch='" + ignoreFieldsInMatch + '\'' +
+                ", restType='" + restType + '\'' +
                 '}';
     }
 }

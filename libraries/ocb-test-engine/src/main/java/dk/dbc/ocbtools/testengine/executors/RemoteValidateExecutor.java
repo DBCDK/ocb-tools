@@ -1,7 +1,6 @@
 package dk.dbc.ocbtools.testengine.executors;
 
 import dk.dbc.common.records.MarcRecord;
-import dk.dbc.holdingsitems.HoldingsItemsException;
 import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
@@ -44,37 +43,29 @@ public class RemoteValidateExecutor implements TestExecutor {
     private static final long DEFAULT_CONNECT_TIMEOUT_MS =     60 * 1000;    // 1 minute
     private static final long DEFAULT_REQUEST_TIMEOUT_MS = 3 * 60 * 1000;    // 3 minutes
     private static final String TRACKING_ID_FORMAT = "ocbtools-%s-%s-%s";
+    static final String EXECUTOR_URL = "updateservice.url";
 
     protected XLogger logger;
-    protected UpdateTestcase tc;
+    protected UpdateTestcase tc; // No, despite intellij's claims, this cannot be private - it's used in other classes that implements this
     Properties settings;
-    DemoInfoPrinter demoInfoPrinter;
     private OcbWireMockServer wireMockServer;
 
-    public RemoteValidateExecutor(UpdateTestcase tc, Properties settings, boolean printDemoInfo) {
+    public RemoteValidateExecutor(UpdateTestcase tc, Properties settings) {
         logger = XLoggerFactory.getXLogger(RemoteValidateExecutor.class);
         this.tc = tc;
         this.settings = settings;
-        this.demoInfoPrinter = null;
         this.wireMockServer = null;
-
-        if (printDemoInfo) {
-            this.demoInfoPrinter = new DemoInfoPrinter();
-        }
     }
 
     @Override
     public String name() {
-        return String.format("Validate record against remote UpdateService: %s", createServiceUrl("updateservice.url"));
+        return String.format("Validate record against remote UpdateService: %s", settings.getProperty(EXECUTOR_URL));
     }
 
     @Override
-    public boolean setup() throws IOException, JAXBException, SQLException, RawRepoException, HoldingsItemsException, ClassNotFoundException {
+    public void setup() throws IOException, JAXBException, SQLException, RawRepoException, ClassNotFoundException {
         logger.entry();
         try {
-            if (this.demoInfoPrinter != null) {
-                demoInfoPrinter.printHeader(this.tc, this);
-            }
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
 
             RawRepo.teardownDatabase(settings);
@@ -85,7 +76,7 @@ public class RemoteValidateExecutor implements TestExecutor {
             wireMockServer = new OcbWireMockServer(tc, settings);
 
             if (!hasRawRepoSetup(tc)) {
-                return true;
+                return;
             }
             try (Connection conn = RawRepo.getConnection(settings)) {
                 RawRepo rawRepo = null;
@@ -107,10 +98,6 @@ public class RemoteValidateExecutor implements TestExecutor {
                 }
             }
             setupHoldings(fs);
-            if (this.demoInfoPrinter != null) {
-                demoInfoPrinter.printRemoteDatabases(this.tc, settings);
-            }
-            return true;
         } catch (Throwable ex) {
             logger.error("setup ERROR : ", ex);
             throw ex;
@@ -124,7 +111,7 @@ public class RemoteValidateExecutor implements TestExecutor {
      *
      * @param fs The OCB filesystem to load records from.
      */
-    private void setupHoldings(OCBFileSystem fs) throws SQLException, IOException, ClassNotFoundException, HoldingsItemsException {
+    private void setupHoldings(OCBFileSystem fs) throws SQLException, IOException, ClassNotFoundException {
         logger.entry(fs);
         try {
             if (!hasHoldings()) {
@@ -214,13 +201,6 @@ public class RemoteValidateExecutor implements TestExecutor {
             if (wireMockServer != null) {
                 wireMockServer.stop();
             }
-            if (this.demoInfoPrinter != null) {
-                demoInfoPrinter.printRemoteDatabases(this.tc, settings);
-            }
-
-            if (this.demoInfoPrinter != null) {
-                demoInfoPrinter.printFooter();
-            }
         } catch (Throwable ex) {
             throw new IllegalStateException("Teardown error", ex);
         } finally {
@@ -238,7 +218,7 @@ public class RemoteValidateExecutor implements TestExecutor {
             assertNotNull("Property'en 'request.authentication.user' er obligatorisk.", tc.getRequest().getAuthentication().getUser());
             assertNotNull("Property'en 'request.authentication.password' er obligatorisk.", tc.getRequest().getAuthentication().getPassword());
 
-            URL url = createServiceUrl("updateservice.url");
+            URL url = createServiceUrl(EXECUTOR_URL);
 
             UpdateRecordRequest request = createRequest();
             logger.debug("Tracking id: {}", request.getTrackingId());
@@ -246,17 +226,11 @@ public class RemoteValidateExecutor implements TestExecutor {
             StopWatch watch = new StopWatch();
 
             logger.debug("Sending VALIDATION request '{}' to {}", request.getTrackingId(), url);
-            if (demoInfoPrinter != null) {
-                demoInfoPrinter.printRequest(request, tc.loadRecord());
-            }
             watch.start();
             CatalogingUpdatePortType catalogingUpdatePortType = createPort(url);
             UpdateRecordResult response = catalogingUpdatePortType.updateRecord(request);
             watch.stop();
             logger.debug("Received VALIDATION response in " + watch.getElapsedTime() + " ms: " + Json.encodePretty(response));
-            if (demoInfoPrinter != null) {
-                demoInfoPrinter.printResponse(response);
-            }
 
             watch.start();
             try {
@@ -264,12 +238,12 @@ public class RemoteValidateExecutor implements TestExecutor {
                 if (!tc.getExpected().getValidation().hasErrors() && !tc.getExpected().getValidation().hasDoubleRecords()) {
                     assertEquals(UpdateStatusEnum.OK, response.getUpdateStatus());
                     if (tc.getExpected().getValidation().getErrors() == null) {
-                        assertTrue(response.getMessages() == null);
+                        assertNull(response.getMessages());
                     } else {
                         assertTrue(response.getMessages().getMessageEntry().size() > 0);
                     }
                     if (tc.getExpected().getValidation().getDoubleRecords() == null) {
-                        assertTrue(response.getDoubleRecordEntries() == null);
+                        assertNull(response.getDoubleRecordEntries());
                     } else {
                         assertTrue(response.getDoubleRecordEntries().getDoubleRecordEntry().size() > 0);
                     }

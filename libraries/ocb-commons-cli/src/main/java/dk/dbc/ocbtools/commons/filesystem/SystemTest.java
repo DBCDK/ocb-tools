@@ -19,6 +19,11 @@ public class SystemTest implements Comparable<SystemTest> {
         return distributionName;
     }
 
+    // TODO er det det vi vil ???
+    public ApplicationType getApplicationType() {
+        return applicationType;
+    }
+
     public File getFile() {
         return file;
     }

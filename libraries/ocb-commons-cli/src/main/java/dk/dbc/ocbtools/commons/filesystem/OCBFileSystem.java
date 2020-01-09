@@ -113,6 +113,7 @@ public class OCBFileSystem {
         logger.entry(name);
         Properties props = null;
         try {
+            // If we find the first one, it's a real test, otherwise it's a ocb-tools system test (probably)
             String[] filenames = {
                     System.getProperty("user.home") + "/.ocb-tools/" + name + ".properties",
                     baseDir.getCanonicalFile() + "/etc/" + name + ".properties"
