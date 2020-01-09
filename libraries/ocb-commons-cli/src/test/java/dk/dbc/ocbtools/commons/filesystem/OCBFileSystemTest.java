@@ -1,7 +1,9 @@
-//-----------------------------------------------------------------------------
-package dk.dbc.ocbtools.commons.filesystem;
+/*
+ * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
+ *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
+ */
 
-//-----------------------------------------------------------------------------
+package dk.dbc.ocbtools.commons.filesystem;
 
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import org.junit.Test;
@@ -17,70 +19,90 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
-
-/**
- * Created by stp on 14/02/15.
- */
 public class OCBFileSystemTest {
     @Test
     public void testBaseDir() throws Exception {
-        Properties props = new Properties();
-        props.load( getClass().getResourceAsStream( "/build-test.settings" ) );
+        final Properties props = new Properties();
+        props.load(getClass().getResourceAsStream("/build-test.settings"));
 
-        File baseDir = new File( props.getProperty( "ocb.directory" ) ).getCanonicalFile();
-        assertEquals( baseDir, newInstance().getBaseDir() );
-        assertEquals( baseDir, newInstance( baseDir.getCanonicalPath() + "/distributions" ).getBaseDir() );
-        assertEquals( baseDir, newInstance( baseDir.getCanonicalPath() + "/distributions/fbs" ).getBaseDir() );
-        assertNull( newInstance( baseDir.getCanonicalPath() + "/distributions/unknown-dir" ).getBaseDir() );
+        final File baseDir = new File(props.getProperty("ocb.directory")).getCanonicalFile();
+        assertEquals(baseDir, newInstance(ApplicationType.UPDATE).getBaseDir());
+        assertEquals(baseDir, newInstance(baseDir.getCanonicalPath() + "/distributions", ApplicationType.UPDATE).getBaseDir());
+        assertEquals(baseDir, newInstance(baseDir.getCanonicalPath() + "/distributions/fbs", ApplicationType.UPDATE).getBaseDir());
+        assertNull(newInstance(baseDir.getCanonicalPath() + "/distributions/unknown-dir", ApplicationType.UPDATE).getBaseDir());
     }
 
     @Test
     public void testFindDistributions() throws Exception {
-        OCBFileSystem instance = newInstance();
+        final OCBFileSystem instance = newInstance(ApplicationType.UPDATE);
 
-        String[] expected = { "dataio", "fbs" };
+        final String[] expected = {"dataio", "fbs"};
         assertThat(instance.findDistributions(), containsInAnyOrder(expected));
     }
 
     @Test
-    public void testFindSystemTests() throws Exception {
-        OCBFileSystem instance = newInstance();
+    public void testFindSystemTestsUpdate() throws Exception {
+        final OCBFileSystem instance = newInstance(ApplicationType.UPDATE);
 
-        List<SystemTest> expected = new ArrayList<>();
-        expected.add( new SystemTest( "dataio", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/update/books/single-cases.json" ), ApplicationType.UPDATE ) );
-        expected.add( new SystemTest( "dataio", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/update/books/volumes/main-cases.json" ), ApplicationType.UPDATE ) );
-        expected.add( new SystemTest( "dataio", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/update/books/volumes/volume-cases.json" ), ApplicationType.UPDATE ) );
-        expected.add( new SystemTest( "dataio", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/update/movies/film-cases.json" ), ApplicationType.UPDATE ) );
-        expected.add( new SystemTest( "fbs", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/fbs/system-tests/update/bog-cases.json" ), ApplicationType.UPDATE ) );
-        expected.add( new SystemTest( "fbs", new File( instance.getBaseDir().getAbsolutePath() + "/distributions/fbs/system-tests/update/film-cases.json" ), ApplicationType.UPDATE ) );
-        Collections.sort( expected );
+        final List<SystemTest> expected = new ArrayList<>();
+        expected.add(new SystemTest("dataio", new File(instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/update/books/single-cases.json"), ApplicationType.UPDATE));
+        expected.add(new SystemTest("dataio", new File(instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/update/books/volumes/main-cases.json"), ApplicationType.UPDATE));
+        expected.add(new SystemTest("dataio", new File(instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/update/books/volumes/volume-cases.json"), ApplicationType.UPDATE));
+        expected.add(new SystemTest("dataio", new File(instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/update/movies/film-cases.json"), ApplicationType.UPDATE));
+        expected.add(new SystemTest("fbs", new File(instance.getBaseDir().getAbsolutePath() + "/distributions/fbs/system-tests/update/bog-cases.json"), ApplicationType.UPDATE));
+        expected.add(new SystemTest("fbs", new File(instance.getBaseDir().getAbsolutePath() + "/distributions/fbs/system-tests/update/film-cases.json"), ApplicationType.UPDATE));
+        Collections.sort(expected);
 
-        List<SystemTest> actual = instance.findSystemtests();
-        Collections.sort( actual );
+        final List<SystemTest> actual = instance.findSystemtests();
+        Collections.sort(actual);
 
-        assertEquals( expected, actual );
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testFindSystemTestsRest() throws Exception {
+        final OCBFileSystem instance = newInstance(ApplicationType.REST);
+
+        final List<SystemTest> expected = new ArrayList<>();
+        expected.add(new SystemTest("dataio", new File(instance.getBaseDir().getAbsolutePath() + "/distributions/dataio/system-tests/rest/doublerecord/test.json"), ApplicationType.REST));
+        Collections.sort(expected);
+
+        final List<SystemTest> actual = instance.findSystemtests();
+        Collections.sort(actual);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testFindSystemTestsBuild() throws Exception {
+        final OCBFileSystem instance = newInstance(ApplicationType.BUILD);
+
+        final List<SystemTest> expected = new ArrayList<>();
+        expected.add(new SystemTest("fbs", new File(instance.getBaseDir().getAbsolutePath() + "/distributions/fbs/system-tests/build/test.json"), ApplicationType.BUILD));
+        Collections.sort(expected);
+
+        final List<SystemTest> actual = instance.findSystemtests();
+        Collections.sort(actual);
+
+        assertEquals(expected, actual);
     }
 
     @Test
     public void testLoadSettings() throws Exception {
-        OCBFileSystem instance = newInstance();
+        final OCBFileSystem instance = newInstance(ApplicationType.UPDATE);
 
-        Properties settings = instance.loadSettings( "servers" );
-        assertEquals( "http://ifish_i01:20080", settings.getProperty( "updateservice.dataio.url" ) );
+        final Properties settings = instance.loadSettings("servers");
+        assertEquals("http://ifish_i01:20080", settings.getProperty("updateservice.dataio.url"));
     }
 
-    //-------------------------------------------------------------------------
-    //              Helpers
-    //-------------------------------------------------------------------------
+    private OCBFileSystem newInstance(ApplicationType applicationType) throws Exception {
+        final Properties props = new Properties();
+        props.load(getClass().getResourceAsStream("/build-test.settings"));
 
-    public OCBFileSystem newInstance() throws Exception {
-        Properties props = new Properties();
-        props.load( getClass().getResourceAsStream( "/build-test.settings" ) );
-
-        return newInstance( new File( props.getProperty( "ocb.directory" ) ).getCanonicalPath() );
+        return newInstance(new File(props.getProperty("ocb.directory")).getCanonicalPath(), applicationType);
     }
 
-    public OCBFileSystem newInstance( String path ) throws Exception {
-        return new OCBFileSystem( path, ApplicationType.UPDATE );
+    private OCBFileSystem newInstance(String path, ApplicationType applicationType) throws Exception {
+        return new OCBFileSystem(path, applicationType);
     }
 }

@@ -4,10 +4,23 @@ import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
 import dk.dbc.ocbtools.commons.cli.CliException;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
-import dk.dbc.ocbtools.testengine.executors.*;
+import dk.dbc.ocbtools.testengine.executors.RemoteBuildExecutor;
+import dk.dbc.ocbtools.testengine.executors.RemoteRestExecutor;
+import dk.dbc.ocbtools.testengine.executors.RemoteUpdateExecutor;
+import dk.dbc.ocbtools.testengine.executors.RemoteValidateExecutor;
+import dk.dbc.ocbtools.testengine.executors.TestExecutor;
 import dk.dbc.ocbtools.testengine.reports.TestReport;
-import dk.dbc.ocbtools.testengine.runners.*;
-import dk.dbc.ocbtools.testengine.testcases.*;
+import dk.dbc.ocbtools.testengine.runners.BuildTestRunner;
+import dk.dbc.ocbtools.testengine.runners.BuildTestRunnerItem;
+import dk.dbc.ocbtools.testengine.runners.TestResult;
+import dk.dbc.ocbtools.testengine.runners.UpdateTestRunner;
+import dk.dbc.ocbtools.testengine.runners.UpdateTestRunnerItem;
+import dk.dbc.ocbtools.testengine.testcases.BuildTestcase;
+import dk.dbc.ocbtools.testengine.testcases.BuildTestcaseRepository;
+import dk.dbc.ocbtools.testengine.testcases.BuildTestcaseRepositoryFactory;
+import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
+import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRepository;
+import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRepositoryFactory;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -96,7 +109,6 @@ class RunExecutor implements SubcommandExecutor {
             }
             for (String testName : tcNames) {
                 if (restRepo.findAllTestcaseNames().contains(testName)) {
-                    logger.info("YAHOO {}", testName);
                     misses.remove(testName);
                 }
             }
@@ -120,56 +132,22 @@ class RunExecutor implements SubcommandExecutor {
         }
     }
 
-    private void actionPerformedRest() throws CliException {
-        logger.entry();
-        try {
-            OCBFileSystem fs = new OCBFileSystem(ApplicationType.REST);
-
-            List<UpdateTestRunnerItem> items = new ArrayList<>();
-            for (UpdateTestcase tc : restRepo.findAllTestcases()) {
-                if (!matchAnyNames(tc, tcNames)) {
-                    continue;
-                }
-                List<TestExecutor> executors = new ArrayList<>();
-                if (tc.getExpected().getValidation() != null) {
-                    executors.add(new RemoteRestExecutor(tc, updateSettings));
-                }
-
-                items.add(new UpdateTestRunnerItem(tc, executors));
-            }
-            UpdateTestRunner runner = new UpdateTestRunner(items);
-            TestResult testResult = runner.run();
-
-            for (TestReport report : reports) {
-                report.produce(testResult);
-            }
-
-            if (testResult.hasError()) {
-                logger.error("");
-                throw new CliException("Errors where found in system-tests.");
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            logger.exit();
-        }
-    }
-
     private void actionPerformedUpdate() throws CliException {
         logger.entry();
         try {
+            logger.info("--- Running UPDATE tests ---");
+            logger.info("");
             logger.info("Using updateservice url: {}", updateSettings.getProperty("updateservice.url"));
             logger.info("Using rawrepo database: {}", updateSettings.getProperty("rawrepo.jdbc.conn.url"));
             logger.info("Using holding items database: {}", updateSettings.getProperty("holdings.jdbc.conn.url"));
             logger.info("");
 
-            List<UpdateTestRunnerItem> items = new ArrayList<>();
+            final List<UpdateTestRunnerItem> items = new ArrayList<>();
             for (UpdateTestcase tc : updateRepo.findAllTestcases()) {
                 if (!matchAnyNames(tc, tcNames)) {
                     continue;
                 }
-                List<TestExecutor> executors = new ArrayList<>();
+                final List<TestExecutor> executors = new ArrayList<>();
                 if (tc.getExpected().getValidation() != null) {
                     executors.add(new RemoteValidateExecutor(tc, updateSettings));
                 }
@@ -179,8 +157,8 @@ class RunExecutor implements SubcommandExecutor {
                 items.add(new UpdateTestRunnerItem(tc, executors));
             }
 
-            UpdateTestRunner runner = new UpdateTestRunner(items);
-            TestResult testResult = runner.run();
+            final UpdateTestRunner runner = new UpdateTestRunner(items);
+            final TestResult testResult = runner.run();
 
             for (TestReport report : reports) {
                 report.produce(testResult);
@@ -198,26 +176,62 @@ class RunExecutor implements SubcommandExecutor {
     private void actionPerformedBuild() throws CliException {
         logger.entry();
         try {
+            logger.info("--- Running BUILD tests ---");
+            logger.info("");
             logger.info("Using buildservice url: {}", buildSettings.getProperty("buildservice.url"));
             logger.info("");
 
-            List<BuildTestRunnerItem> items = new ArrayList<>();
+            final List<BuildTestRunnerItem> items = new ArrayList<>();
             for (BuildTestcase buildTestcase : buildRepo.findAllTestcases()) {
                 if (!matchAnyNames(buildTestcase, tcNames)) {
                     continue;
                 }
-                List<TestExecutor> executors = new ArrayList<>();
-                RemoteBuildExecutor remoteBuildExecutor = new RemoteBuildExecutor(buildTestcase, buildSettings);
+                final List<TestExecutor> executors = new ArrayList<>();
+                final RemoteBuildExecutor remoteBuildExecutor = new RemoteBuildExecutor(buildTestcase, buildSettings);
                 executors.add(remoteBuildExecutor);
                 items.add(new BuildTestRunnerItem(buildTestcase, executors));
             }
 
-            BuildTestRunner runner = new BuildTestRunner(items);
-            TestResult testResult = runner.run();
+            final BuildTestRunner runner = new BuildTestRunner(items);
+            final TestResult testResult = runner.run();
 
             for (TestReport report : reports) {
                 report.produce(testResult);
             }
+            if (testResult.hasError()) {
+                logger.error("");
+                throw new CliException("Errors where found in system-tests.");
+            }
+        } finally {
+            logger.exit();
+        }
+    }
+
+    private void actionPerformedRest() throws CliException {
+        logger.entry();
+        try {
+            logger.info("--- Running UPDATE REST tests ---");
+            logger.info("");
+
+            final List<UpdateTestRunnerItem> items = new ArrayList<>();
+            for (UpdateTestcase tc : restRepo.findAllTestcases()) {
+                if (!matchAnyNames(tc, tcNames)) {
+                    continue;
+                }
+                final List<TestExecutor> executors = new ArrayList<>();
+                if (tc.getExpected().getUpdate() != null) {
+                    executors.add(new RemoteRestExecutor(tc, restSettings));
+                }
+
+                items.add(new UpdateTestRunnerItem(tc, executors));
+            }
+            final UpdateTestRunner runner = new UpdateTestRunner(items);
+            final TestResult testResult = runner.run();
+
+            for (TestReport report : reports) {
+                report.produce(testResult);
+            }
+
             if (testResult.hasError()) {
                 logger.error("");
                 throw new CliException("Errors where found in system-tests.");

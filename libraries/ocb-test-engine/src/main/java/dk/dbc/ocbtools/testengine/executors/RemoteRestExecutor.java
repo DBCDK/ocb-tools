@@ -74,7 +74,6 @@ public class RemoteRestExecutor extends RemoteValidateExecutor {
             assertNotNull("Property'en 'request.authentication.user' er obligatorisk.", tc.getRequest().getAuthentication().getUser());
             assertNotNull("Property'en 'request.authentication.password' er obligatorisk.", tc.getRequest().getAuthentication().getPassword());
 
-
             StopWatch watch = new StopWatch();
             watch.start();
             try {
@@ -100,9 +99,13 @@ public class RemoteRestExecutor extends RemoteValidateExecutor {
             final UpdateRecordResult response = connectorResponseToOCBResponse(connectorResponse);
 
             assertNotNull("No expected results found.", tc.getExpected());
+
             if (tc.getExpected().getUpdate() != null) {
                 if (tc.getExpected().getUpdate().hasErrors() || tc.getExpected().getUpdate().hasWarnings()) {
-                    UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getErrors(), response.getMessages());
+                    UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getDoubleRecords(), response.getDoubleRecordEntries());
+                    assertEquals(UpdateStatusEnum.FAILED, response.getUpdateStatus());
+                } else if (tc.getExpected().getUpdate().getDoubleRecords().size() > 0) {
+                    UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getDoubleRecords(), response.getDoubleRecordEntries());
                     assertEquals(UpdateStatusEnum.FAILED, response.getUpdateStatus());
                 } else if (tc.getExpected().getUpdate().getErrors() == null || tc.getExpected().getUpdate().getErrors().isEmpty()) {
                     UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, new ArrayList<>(), response.getMessages());
@@ -110,12 +113,12 @@ public class RemoteRestExecutor extends RemoteValidateExecutor {
                 }
             }
         } catch (UpdateServiceDoubleRecordCheckConnectorException | IOException | JAXBException | ParserConfigurationException e) {
-            e.printStackTrace();
+            throw new AssertionError(e.getMessage(), e);
         }
     }
 
     private void executeTestsClassificationCheck() {
-        final UpdateServiceClassificationCheckConnector doubleRecordCheckConnector = UpdateServiceClassificationCheckConnectorFactory.create(EXECUTOR_URL);
+        final UpdateServiceClassificationCheckConnector doubleRecordCheckConnector = UpdateServiceClassificationCheckConnectorFactory.create(settings.getProperty(EXECUTOR_URL) + "/UpdateService/rest");
 
         try {
             final dk.dbc.oss.ns.catalogingupdate.UpdateRecordResult connectorResponse = doubleRecordCheckConnector.classificationCheck(createRestRequest());
@@ -132,7 +135,7 @@ public class RemoteRestExecutor extends RemoteValidateExecutor {
                 }
             }
         } catch (UpdateServiceClassificationCheckConnectorException | IOException | JAXBException | ParserConfigurationException e) {
-            e.printStackTrace();
+            throw new AssertionError(e.getMessage(), e);
         }
     }
 
