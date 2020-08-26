@@ -42,8 +42,6 @@ class RunExecutor implements SubcommandExecutor {
     private Properties buildSettings;
     private UpdateTestcaseRepository updateRepo;
     private Properties updateSettings;
-    private UpdateTestcaseRepository restRepo;
-    private Properties restSettings;
 
     RunExecutor() {
         this.configName = ""; // If someone someday makes a testcase for RunExecutor, then it might be reasonable to set it to "servers" (make an intellij search for it)
@@ -87,15 +85,6 @@ class RunExecutor implements SubcommandExecutor {
                 return;
             }
 
-            fs = new OCBFileSystem(ApplicationType.REST);
-            restRepo = UpdateTestcaseRepositoryFactory.newInstanceWithTestcases(fs);
-            restSettings = fs.loadSettings(configName);
-
-            if (restSettings == null) {
-                logger.error("Unable to load config '{}'", configName);
-                return;
-            }
-
             List<String> misses = new ArrayList<>();
             for (String testName : tcNames) {
                 if (!buildRepo.findAllTestcaseNames().contains(testName)) {
@@ -107,11 +96,7 @@ class RunExecutor implements SubcommandExecutor {
                     misses.remove(testName);
                 }
             }
-            for (String testName : tcNames) {
-                if (restRepo.findAllTestcaseNames().contains(testName)) {
-                    misses.remove(testName);
-                }
-            }
+
             if (misses.size() > 0) throw new CliException("Testcase(s):\n" + misses.toString() + "\ndoes not exist");
 
         } catch (IOException ex) {
@@ -126,7 +111,6 @@ class RunExecutor implements SubcommandExecutor {
             preCheck();
             actionPerformedUpdate();
             actionPerformedBuild();
-            actionPerformedRest();
         } finally {
             logger.exit();
         }
@@ -198,40 +182,6 @@ class RunExecutor implements SubcommandExecutor {
             for (TestReport report : reports) {
                 report.produce(testResult);
             }
-            if (testResult.hasError()) {
-                logger.error("");
-                throw new CliException("Errors where found in system-tests.");
-            }
-        } finally {
-            logger.exit();
-        }
-    }
-
-    private void actionPerformedRest() throws CliException {
-        logger.entry();
-        try {
-            logger.info("--- Running UPDATE REST tests ---");
-            logger.info("");
-
-            final List<UpdateTestRunnerItem> items = new ArrayList<>();
-            for (UpdateTestcase tc : restRepo.findAllTestcases()) {
-                if (!matchAnyNames(tc, tcNames)) {
-                    continue;
-                }
-                final List<TestExecutor> executors = new ArrayList<>();
-                if (tc.getExpected().getUpdate() != null) {
-                    executors.add(new RemoteRestExecutor(tc, restSettings));
-                }
-
-                items.add(new UpdateTestRunnerItem(tc, executors));
-            }
-            final UpdateTestRunner runner = new UpdateTestRunner(items);
-            final TestResult testResult = runner.run();
-
-            for (TestReport report : reports) {
-                report.produce(testResult);
-            }
-
             if (testResult.hasError()) {
                 logger.error("");
                 throw new CliException("Errors where found in system-tests.");
