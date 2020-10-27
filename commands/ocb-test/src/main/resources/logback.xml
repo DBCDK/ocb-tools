@@ -41,7 +41,7 @@
     </appender>
 
     <logger name="org.perf4j.TimingLogger">
-        <level value="INFO"/>
+        <level value="WARN"/>
         <appender-ref ref="FILE"/>
     </logger>
     <logger name="org.flywaydb">
