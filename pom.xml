@@ -62,8 +62,8 @@
         <postgres.plugin.version>9.3-1101-jdbc41</postgres.plugin.version>
         <log4j.slf4j.plugin.version>1.7.7</log4j.slf4j.plugin.version>
         <jersey.version>2.22.2</jersey.version>
-        <updateservice.wsdl.url>https://raw.githubusercontent.com/DBCDK/updateservice/master/src/wsdl/update/catalogingUpdate.wsdl</updateservice.wsdl.url>
-        <buildservice.wsdl.url>https://raw.githubusercontent.com/DBCDK/updateservice/master/src/wsdl/build/catalogingBuild.wsdl</buildservice.wsdl.url>
+        <updateservice.wsdl.url>https://raw.githubusercontent.com/DBCDK/updateservice-facade/master/src/wsdl/update/catalogingUpdate.wsdl</updateservice.wsdl.url>
+        <buildservice.wsdl.url>https://raw.githubusercontent.com/DBCDK/updateservice-facade/master/src/wsdl/build/catalogingBuild.wsdl</buildservice.wsdl.url>
     </properties>
 
     <pluginRepositories>
