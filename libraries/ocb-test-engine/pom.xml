@@ -44,6 +44,11 @@
             <version>${maven.holdings.item.access.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>6.5.5</version>
+        </dependency>
+        <dependency>
             <groupId>dk.dbc.iscrum</groupId>
             <artifactId>iscrum-records</artifactId>
             <version>${maven.iscrum.records.version}</version>
