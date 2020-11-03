@@ -52,6 +52,10 @@
         <level value="WARN"/>
         <appender-ref ref="STDOUT"/>
     </logger>
+    <logger name="dk.dbc.rawrepo">
+        <level value="WARN"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
     <logger name="dk.dbc.pgqueue.DatabaseMigrator">
         <level value="WARN"/>
         <appender-ref ref="STDOUT"/>
