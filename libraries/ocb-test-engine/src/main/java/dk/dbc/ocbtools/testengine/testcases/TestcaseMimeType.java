@@ -11,7 +11,9 @@ public enum TestcaseMimeType {
     ARTICLE(MarcXChangeMimeType.ARTICLE),
     AUTHORITY(MarcXChangeMimeType.AUTHORITY),
     LITANALYSIS(MarcXChangeMimeType.LITANALYSIS),
-    MATVURD(MarcXChangeMimeType.MATVURD);
+    MATVURD(MarcXChangeMimeType.MATVURD),
+    SIMPLE(MarcXChangeMimeType.SIMPLE),
+    HOSTPUB(MarcXChangeMimeType.HOSTPUB);
 
     private final String value;
 
