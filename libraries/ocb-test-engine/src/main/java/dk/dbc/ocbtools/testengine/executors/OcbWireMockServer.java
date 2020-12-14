@@ -124,7 +124,7 @@ class OcbWireMockServer {
             FileInputStream fis = new FileInputStream(workDir.getAbsolutePath() + "/" + file);
             String response = IOUtils.readAll(fis, "UTF-8");
             wiremockServer.stubFor(
-                    any(urlMatching("(.*)")).
+                    any(urlMatching("/1.0/api/libraryrules")).
                             withHeader("Content-type", containing("application/json")).
                             withRequestBody(containing(matcher)).
                             willReturn(new ResponseDefinitionBuilder().withStatus(200).withBody(response)));
@@ -222,6 +222,7 @@ class OcbWireMockServer {
                 setNumberRollResponse(rootFile);
                 setAnalysisResponse();
                 setOpenagencyResponses();
+                setVipCoreResponses();
                 wiremockServer.start();
                 logger.debug("Stub settings {}", wiremockServer.listAllStubMappings().getMappings());
             }
