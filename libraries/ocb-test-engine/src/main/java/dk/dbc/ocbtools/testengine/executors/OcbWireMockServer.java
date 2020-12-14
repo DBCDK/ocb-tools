@@ -17,7 +17,10 @@ import java.io.FileInputStream;
 import java.util.List;
 import java.util.Properties;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 
@@ -36,6 +39,7 @@ class OcbWireMockServer {
     private static final String ANALYSIS_RESPONSE_MOCK_FILE = "/distributions/common/WireMocks/Solr/analysisResponse.json";
 
     private static final String OPENAGENCY_RESPONSE_MOCK_DIR = "/distributions/common/WireMocks/Openagency";
+    private static final String VIPCORE_RESPONSE_MOCK_DIR = "/distributions/common/WireMocks/VipCore";
 
     private static final String SOAP_ACTION_LIBRARYRULES = "LibraryRules";
     private static final String SOAP_ACTION_SHOWORDER = "ShowOrder";
@@ -115,6 +119,21 @@ class OcbWireMockServer {
         }
     }
 
+    private void setResponseJson(File workDir, String file, String matcher) {
+        try {
+            FileInputStream fis = new FileInputStream(workDir.getAbsolutePath() + "/" + file);
+            String response = IOUtils.readAll(fis, "UTF-8");
+            wiremockServer.stubFor(
+                    any(urlMatching("(.*)")).
+                            withHeader("Content-type", containing("application/json")).
+                            withRequestBody(containing(matcher)).
+                            willReturn(new ResponseDefinitionBuilder().withStatus(200).withBody(response)));
+        } catch (Throwable ex) {
+            logger.error("wiremockServer setOpenagencyResponses ERROR : ", ex);
+            throw new IllegalStateException("OcbWireMock mocking error", ex);
+        }
+    }
+
     private void setOpenagencyResponses() {
         File workDir = new File("");
         workDir = new File(workDir.getAbsolutePath() + OPENAGENCY_RESPONSE_MOCK_DIR);
@@ -136,6 +155,28 @@ class OcbWireMockServer {
                 if ("showOrder".equals(splitted[0])) {
                     selector = "<ns1:agencyId>" + splitted[1] + "</ns1:agencyId>";
                     setResponse(workDir, file, selector, SOAP_ACTION_SHOWORDER);
+                }
+            }
+        }
+    }
+
+    private void setVipCoreResponses() {
+        File workDir = new File("");
+        workDir = new File(workDir.getAbsolutePath() + VIPCORE_RESPONSE_MOCK_DIR);
+        String[] files = workDir.list();
+        if (files == null) return;
+        String selector;
+        for (String file : files) {
+            logger.debug("Setting wiremock {}", file);
+            String[] splitted = file.split("\\.");
+            if (splitted.length == 3) {
+                if ("agencyId".equals(splitted[0])) {
+                    selector = "{\"agencyId\":\"" + splitted[1] + "\"}";
+                    setResponseJson(workDir, file, selector);
+                }
+                if ("cataloging_template_set".equals(splitted[0])) {
+                    selector = "{\"libraryRule\":[{\"name\":\"cataloging_template_set\",\"string\":\"" + splitted[1] + "\"}]}";
+                    setResponseJson(workDir, file, selector);
                 }
             }
         }
@@ -171,6 +212,7 @@ class OcbWireMockServer {
                 wiremockServer = new WireMockServer(wireMockConfiguration);
                 setNumberRollResponse(rootFile);
                 setOpenagencyResponses();
+                setVipCoreResponses();
                 wiremockServer.start();
 
                 logger.debug("Starting WireMock server in {} ms", watch.getElapsedTime());
@@ -194,7 +236,7 @@ class OcbWireMockServer {
     private void showRequests() {
         List<ServeEvent> serverEvents = wiremockServer.getAllServeEvents();
         logger.debug("Incoming requests :");
-        for (ServeEvent pp : serverEvents ) {
+        for (ServeEvent pp : serverEvents) {
             logger.debug("REQ {}", pp.getRequest().toString());
             logger.debug("RSP {}", pp.getResponse().getBody());
         }
