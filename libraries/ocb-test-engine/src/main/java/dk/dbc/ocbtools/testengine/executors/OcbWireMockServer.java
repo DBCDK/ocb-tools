@@ -121,13 +121,14 @@ class OcbWireMockServer {
 
     private void setResponseJson(File workDir, String file, String matcher) {
         try {
-            FileInputStream fis = new FileInputStream(workDir.getAbsolutePath() + "/" + file);
-            String response = IOUtils.readAll(fis, "UTF-8");
             wiremockServer.stubFor(
                     any(urlMatching("/1.0/api/libraryrules")).
                             withHeader("Content-type", containing("application/json")).
                             withRequestBody(containing(matcher)).
-                            willReturn(ResponseDefinitionBuilder.okForJson(response)));
+                            willReturn(new ResponseDefinitionBuilder().
+                                    withBodyFile(workDir.getAbsolutePath() + "/" + file).
+                                    withStatus(200).
+                                    withHeader("Content-type", "application/json")));
         } catch (Throwable ex) {
             logger.error("wiremockServer setOpenagencyResponses ERROR : ", ex);
             throw new IllegalStateException("OcbWireMock mocking error", ex);
