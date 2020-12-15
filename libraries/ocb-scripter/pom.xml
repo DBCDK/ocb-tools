@@ -18,30 +18,16 @@
             <dependency>
                 <groupId>dk.dbc</groupId>
                 <artifactId>dbc-jslib</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.3-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-
-        <!-- ************************************************************* -->
-        <!-- DBC JsLib                                                     -->
-        <!-- ************************************************************* -->
-
-        <dependency>
             <groupId>dk.dbc</groupId>
             <artifactId>dbc-jslib</artifactId>
-
-            <!--
-                This tells maven to not include log4j dependencies, even if
-                introduced by other depencencies. dbc-jsslib has such a dep in test
-                but here they are removed
-            -->
+            <version>1.3-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
