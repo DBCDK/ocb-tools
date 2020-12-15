@@ -127,7 +127,7 @@ class OcbWireMockServer {
                     any(urlMatching("/1.0/api/libraryrules")).
                             withHeader("Content-type", containing("application/json")).
                             withRequestBody(containing(matcher)).
-                            willReturn(new ResponseDefinitionBuilder().withStatus(200).withBody(response)));
+                            willReturn(ResponseDefinitionBuilder.okForJson(response)));
         } catch (Throwable ex) {
             logger.error("wiremockServer setOpenagencyResponses ERROR : ", ex);
             throw new IllegalStateException("OcbWireMock mocking error", ex);
