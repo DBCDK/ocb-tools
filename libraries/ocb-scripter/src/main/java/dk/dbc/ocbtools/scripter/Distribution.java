@@ -1,8 +1,8 @@
 package dk.dbc.ocbtools.scripter;
 
 public class Distribution {
-    private String schemaName;
-    private String dirName;
+    private final String schemaName;
+    private final String dirName;
 
     public Distribution(String schemaName, String dirName) {
         this.schemaName = schemaName;

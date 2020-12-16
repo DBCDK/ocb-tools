@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 public class OCBFileSystem {
@@ -29,8 +30,8 @@ public class OCBFileSystem {
     private static final String SYSTEMTESTS_DIR_PATTERN = "%s/" + DISTRIBUTIONS_DIRNAME + "/%s/" + SYSTEMTESTS_DIRNAME + "/%s/";
     private static final String SYSTEMTESTS_FILE_EXT = ".json";
 
-    private File baseDir;
-    private ApplicationType applicationType;
+    private final File baseDir;
+    private final ApplicationType applicationType;
 
     public OCBFileSystem(ApplicationType applicationType) throws IOException {
         this(".", applicationType);
@@ -54,7 +55,7 @@ public class OCBFileSystem {
         ArrayList<String> result = new ArrayList<>();
         try {
             File distributionsDir = new File(baseDir.getCanonicalPath() + "/" + DISTRIBUTIONS_DIRNAME);
-            for (File file : distributionsDir.listFiles(new FileIgnoreFilter(COMMON_DISTRIBUTION_DIRNAME, ".svn"))) {
+            for (File file : Objects.requireNonNull(distributionsDir.listFiles(new FileIgnoreFilter(COMMON_DISTRIBUTION_DIRNAME, ".svn")))) {
                 if (file.isDirectory()) {
                     result.add(file.getName());
                 }
@@ -99,8 +100,9 @@ public class OCBFileSystem {
                 return null;
             }
             File recordFile = new File(baseDir.getCanonicalPath() + "/" + filename);
-            FileInputStream fis = new FileInputStream(recordFile);
-            return MarcRecordFactory.readRecord(IOUtils.readAll(fis, "UTF-8"));
+            try (FileInputStream fis = new FileInputStream(recordFile)) {
+                return MarcRecordFactory.readRecord(IOUtils.readAll(fis, "UTF-8"));
+            }
         } finally {
             logger.exit();
         }
@@ -139,8 +141,9 @@ public class OCBFileSystem {
         Properties props = new Properties();
         try {
             logger.debug("Loads settings from '{}'", file.getCanonicalPath());
-            FileInputStream fileInputStream = new FileInputStream(file);
-            props.load(fileInputStream);
+            try (FileInputStream fileInputStream = new FileInputStream(file)) {
+                props.load(fileInputStream);
+            }
 
             return props;
         } finally {

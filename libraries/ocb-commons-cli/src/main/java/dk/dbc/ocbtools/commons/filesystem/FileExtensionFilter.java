@@ -6,7 +6,7 @@ import java.io.FilenameFilter;
 
 class FileExtensionFilter implements FilenameFilter {
 
-    private String ext;
+    private final String ext;
 
     FileExtensionFilter(String ext) {
         this.ext = ext;
