@@ -6,8 +6,10 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import dk.dbc.iscrum.utils.IOUtils;
+import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.ocbtools.testengine.testcases.BuildTestcase;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
+import dk.dbc.vipcore.marshallers.LibraryRulesResponse;
 import org.perf4j.StopWatch;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -46,6 +48,7 @@ class OcbWireMockServer {
     private static final String NUMBERROLL_ID_FILE = "id_numbers";
     private static final String NUMBERROLL_RESPONSE = "{\"numberRollResponse\":{\"rollNumber\":{\"$\":\"%s\"}},\"@namespaces\":null}";
 
+    private static final JSONBContext jsonbContext = new JSONBContext();
 
     private WireMockServer wiremockServer;
 
@@ -121,16 +124,15 @@ class OcbWireMockServer {
 
     private void setResponseJson(File workDir, String file, String matcher) {
         try {
+            final FileInputStream fis = new FileInputStream(workDir.getAbsolutePath() + "/" + file);
+            final String response = IOUtils.readAll(fis, "UTF-8");
             wiremockServer.stubFor(
                     any(urlMatching("/1.0/api/libraryrules")).
                             withHeader("Content-type", containing("application/json")).
                             withRequestBody(containing(matcher)).
-                            willReturn(new ResponseDefinitionBuilder().
-                                    withBodyFile(workDir.getAbsolutePath() + "/" + file).
-                                    withStatus(200).
-                                    withHeader("Content-type", "application/json")));
+                            willReturn(ResponseDefinitionBuilder.okForJson(jsonbContext.unmarshall(response, LibraryRulesResponse.class))));
         } catch (Throwable ex) {
-            logger.error("wiremockServer setOpenagencyResponses ERROR : ", ex);
+            logger.error("wiremockServer LibraryRulesResponse ERROR : ", ex);
             throw new IllegalStateException("OcbWireMock mocking error", ex);
         }
     }
