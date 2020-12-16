@@ -30,13 +30,9 @@ public class ServiceScripter {
     private List<Distribution> distributions = null;
     private String modulesKey = "";
     private String serviceName = "";
-    private Map<String, Environment> environments = new HashMap<>();
+    private final Map<String, Environment> environments = new HashMap<>();
 
     public ServiceScripter() {
-    }
-
-    public String getBaseDir() {
-        return baseDir;
     }
 
     public void setBaseDir(String baseDir) {
@@ -203,9 +199,8 @@ public class ServiceScripter {
     private void addSearchPathsFromSettingsFile(ModuleHandler handler, String schemeName, String modulesDir) {
         logger.entry(handler, schemeName, modulesDir);
         String fileName = modulesDir + "/settings.properties";
-        try {
-            File file = new File(fileName);
-            addSearchPathsFromSettingsFile(handler, schemeName, new FileInputStream(file));
+        try (FileInputStream fis = new FileInputStream(fileName)){
+            addSearchPathsFromSettingsFile(handler, schemeName, fis);
         } catch (FileNotFoundException ex) {
             logger.warn("The file '{}' does not exist.", fileName);
         } catch (IOException ex) {
