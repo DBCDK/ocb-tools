@@ -2,6 +2,7 @@ package dk.dbc.ocbtools.testengine.executors;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -126,11 +127,22 @@ class OcbWireMockServer {
         try {
             final FileInputStream fis = new FileInputStream(workDir.getAbsolutePath() + "/" + file);
             final String response = IOUtils.readAll(fis, "UTF-8");
-            wiremockServer.stubFor(
-                    any(urlMatching("/1.0/api/libraryrules")).
-                            withHeader("Content-type", containing("application/json")).
-                            withRequestBody(containing(matcher)).
-                            willReturn(ResponseDefinitionBuilder.okForJson(jsonbContext.unmarshall(response, LibraryRulesResponse.class))));
+            // AgencyId 299999 is a special agency which returns an error body. But the status code has to be 404 which
+            // means we have to handle it differently
+            if (file.contains("299999")) {
+                wiremockServer.stubFor(
+                        any(urlMatching("/1.0/api/libraryrules")).
+                                withRequestBody(containing(matcher)).
+                                willReturn(new ResponseDefinitionBuilder().withBody(
+                                        Json.write(jsonbContext.unmarshall(response, LibraryRulesResponse.class))).withStatus(404).
+                                        withHeader("Content-Type", "application/json")));
+            } else {
+                wiremockServer.stubFor(
+                        any(urlMatching("/1.0/api/libraryrules")).
+                                withHeader("Content-type", containing("application/json")).
+                                withRequestBody(containing(matcher)).
+                                willReturn(ResponseDefinitionBuilder.okForJson(jsonbContext.unmarshall(response, LibraryRulesResponse.class))));
+            }
         } catch (Throwable ex) {
             logger.error("wiremockServer LibraryRulesResponse ERROR : ", ex);
             throw new IllegalStateException("OcbWireMock mocking error", ex);
