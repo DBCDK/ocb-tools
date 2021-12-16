@@ -256,7 +256,6 @@ public class RawRepo {
                 JDBCUtil.update(conn, "DELETE FROM records");
                 JDBCUtil.update(conn, "DELETE FROM records_archive");
                 JDBCUtil.update(conn, "DELETE FROM records_summary");
-                JDBCUtil.update(conn, "DELETE FROM records_cache");
                 JDBCUtil.update(conn, "DELETE FROM queue");
                 JDBCUtil.update(conn, "DELETE FROM jobdiag");
 
