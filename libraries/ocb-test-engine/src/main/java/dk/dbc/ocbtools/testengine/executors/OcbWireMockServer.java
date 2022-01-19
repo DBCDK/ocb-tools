@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import dk.dbc.idp.connector.AuthorizeResponse;
 import dk.dbc.iscrum.utils.IOUtils;
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.ocbtools.testengine.testcases.BuildTestcase;
@@ -40,6 +41,7 @@ class OcbWireMockServer {
     private static final String SELECT_RESPONSE = "{\"response\":{\"numFound\":0,\"start\":0,\"docs\":[]}}";
 
     private static final String ANALYSIS_RESPONSE_MOCK_FILE = "/distributions/common/WireMocks/Solr/analysisResponse.json";
+    private static final String IDP_OK_RESPONSE_MOCK_FILE = "/distributions/common/WireMocks/IDP/ok.json";
 
     private static final String OPENAGENCY_RESPONSE_MOCK_DIR = "/distributions/common/WireMocks/Openagency";
     private static final String VIPCORE_RESPONSE_MOCK_DIR = "/distributions/common/WireMocks/VipCore";
@@ -54,7 +56,6 @@ class OcbWireMockServer {
     private WireMockServer wiremockServer;
 
     private void setNumberRollResponse(File rootFile) {
-
         try {
             if (rootFile != null) {
                 String rootDir = rootFile.getAbsolutePath();
@@ -105,7 +106,21 @@ class OcbWireMockServer {
             logger.error("OcbWireMock ERROR : ", ex);
             throw new IllegalStateException("OcbWireMock error", ex);
         }
+    }
 
+    private void setIDPResponse() {
+        String idpOkResponse;
+        try {
+            final File workDir = new File("");
+            final FileInputStream fis = new FileInputStream(workDir.getAbsolutePath() + IDP_OK_RESPONSE_MOCK_FILE);
+            idpOkResponse = IOUtils.readAll(fis, "UTF-8");
+            wiremockServer.stubFor(
+                    any(urlMatching("/api/v1/authorize/"))
+                            .willReturn(ResponseDefinitionBuilder.okForJson(jsonbContext.unmarshall(idpOkResponse, AuthorizeResponse.class))));
+        } catch (Throwable ex) {
+            logger.error("OcbWireMock ERROR : ", ex);
+            throw new IllegalStateException("OcbWireMock error", ex);
+        }
     }
 
     private void setResponse(File workDir, String file, String matcher, String soapAction) {
@@ -123,7 +138,7 @@ class OcbWireMockServer {
         }
     }
 
-    private void setResponseJson(File workDir, String file, String matcher) {
+    private void setVipResponsesJson(File workDir, String file, String matcher) {
         try {
             final FileInputStream fis = new FileInputStream(workDir.getAbsolutePath() + "/" + file);
             final String response = IOUtils.readAll(fis, "UTF-8");
@@ -134,7 +149,7 @@ class OcbWireMockServer {
                         any(urlMatching("/1.0/api/libraryrules")).
                                 withRequestBody(containing(matcher)).
                                 willReturn(new ResponseDefinitionBuilder().withBody(
-                                        Json.write(jsonbContext.unmarshall(response, LibraryRulesResponse.class))).withStatus(404).
+                                                Json.write(jsonbContext.unmarshall(response, LibraryRulesResponse.class))).withStatus(404).
                                         withHeader("Content-Type", "application/json")));
             } else {
                 wiremockServer.stubFor(
@@ -187,19 +202,20 @@ class OcbWireMockServer {
             if (splitted.length == 3) {
                 if ("agencyId".equals(splitted[0])) {
                     selector = "{\"agencyId\":\"" + splitted[1] + "\"}";
-                    setResponseJson(workDir, file, selector);
+                    setVipResponsesJson(workDir, file, selector);
                 }
                 if ("cataloging_template_set".equals(splitted[0])) {
                     selector = "{\"libraryRule\":[{\"name\":\"cataloging_template_set\",\"string\":\"" + splitted[1] + "\"}]}";
-                    setResponseJson(workDir, file, selector);
+                    setVipResponsesJson(workDir, file, selector);
                 }
             }
         }
     }
 
+
     OcbWireMockServer(BuildTestcase utc, Properties settings) {
         File rootFile = utc.getWireMockRootDirectory();
-        OcbWireMockServerActivate(false, "", rootFile, settings);
+        activate(false, "", rootFile, settings);
     }
 
     OcbWireMockServer(UpdateTestcase utc, Properties settings) {
@@ -208,10 +224,10 @@ class OcbWireMockServer {
         String rootDir = "";
         if (file != null) rootDir = utc.getSolrRootDirectory().getAbsolutePath();
         boolean hasSolrMock = utc.hasSolrMocking();
-        OcbWireMockServerActivate(hasSolrMock, rootDir, rootFile, settings);
+        activate(hasSolrMock, rootDir, rootFile, settings);
     }
 
-    void OcbWireMockServerActivate(boolean hasSolrMock, String rootDir, File rootFile, Properties settings) {
+    void activate(boolean hasSolrMock, String rootDir, File rootFile, Properties settings) {
         logger.entry();
 
         try {
@@ -228,6 +244,7 @@ class OcbWireMockServer {
                 setNumberRollResponse(rootFile);
                 setOpenagencyResponses();
                 setVipCoreResponses();
+                setIDPResponse();
                 wiremockServer.start();
 
                 logger.debug("Starting WireMock server in {} ms", watch.getElapsedTime());
@@ -238,6 +255,7 @@ class OcbWireMockServer {
                 setAnalysisResponse();
                 setOpenagencyResponses();
                 setVipCoreResponses();
+                setIDPResponse();
                 wiremockServer.start();
                 logger.debug("Stub settings {}", wiremockServer.listAllStubMappings().getMappings());
             }
