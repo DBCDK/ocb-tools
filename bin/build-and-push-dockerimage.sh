@@ -11,7 +11,7 @@ function sanityCheckInput(){
 }
 
 function tagAndPushToArty () {
-  TAG_LATEST="docker-i.dbc.dk/ocb-tools-deployer:latest"
+  TAG_LATEST="docker-metascrum.artifacts.dbccloud.dk/ocb-tools-deployer:latest"
   docker build --no-cache -t ${TAG_LATEST} -f docker/ocb-tools-deployer/Dockerfile docker/ocb-tools-deployer/\
   --label=svn="${SVN_REVISION}"\
   --label=user="${USER}"\
