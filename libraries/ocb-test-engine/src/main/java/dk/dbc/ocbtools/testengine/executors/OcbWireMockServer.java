@@ -37,17 +37,10 @@ class OcbWireMockServer {
     private static final String SOLR_PORT_KEY = "solr.port";
     private static final String SELECT_REQUEST_MASK = "([^?]*)select(.*)";
     private static final String ANALYSIS_REQUEST_MASK = "([^?]*)analysis(.*)";
-
     private static final String SELECT_RESPONSE = "{\"response\":{\"numFound\":0,\"start\":0,\"docs\":[]}}";
-
     private static final String ANALYSIS_RESPONSE_MOCK_FILE = "/distributions/common/WireMocks/Solr/analysisResponse.json";
     private static final String IDP_OK_RESPONSE_MOCK_FILE = "/distributions/common/WireMocks/IDP/ok.json";
-
-    private static final String OPENAGENCY_RESPONSE_MOCK_DIR = "/distributions/common/WireMocks/Openagency";
     private static final String VIPCORE_RESPONSE_MOCK_DIR = "/distributions/common/WireMocks/VipCore";
-
-    private static final String SOAP_ACTION_LIBRARYRULES = "LibraryRules";
-    private static final String SOAP_ACTION_SHOWORDER = "ShowOrder";
     private static final String NUMBERROLL_ID_FILE = "id_numbers";
     private static final String NUMBERROLL_RESPONSE = "{\"numberRollResponse\":{\"rollNumber\":{\"$\":\"%s\"}},\"@namespaces\":null}";
 
@@ -123,21 +116,6 @@ class OcbWireMockServer {
         }
     }
 
-    private void setResponse(File workDir, String file, String matcher, String soapAction) {
-        try {
-            FileInputStream fis = new FileInputStream(workDir.getAbsolutePath() + "/" + file);
-            String response = IOUtils.readAll(fis, "UTF-8");
-            wiremockServer.stubFor(
-                    any(urlMatching("(.*)")).
-                            withHeader("SOAPAction", containing(soapAction)).
-                            withRequestBody(containing(matcher)).
-                            willReturn(new ResponseDefinitionBuilder().withStatus(200).withBody(response)));
-        } catch (Throwable ex) {
-            logger.error("wiremockServer setOpenagencyResponses ERROR : ", ex);
-            throw new IllegalStateException("OcbWireMock mocking error", ex);
-        }
-    }
-
     private void setVipResponsesJson(File workDir, String file, String matcher) {
         try {
             final FileInputStream fis = new FileInputStream(workDir.getAbsolutePath() + "/" + file);
@@ -161,32 +139,6 @@ class OcbWireMockServer {
         } catch (Throwable ex) {
             logger.error("wiremockServer LibraryRulesResponse ERROR : ", ex);
             throw new IllegalStateException("OcbWireMock mocking error", ex);
-        }
-    }
-
-    private void setOpenagencyResponses() {
-        File workDir = new File("");
-        workDir = new File(workDir.getAbsolutePath() + OPENAGENCY_RESPONSE_MOCK_DIR);
-        String[] files = workDir.list();
-        if (files == null) return;
-        String selector;
-        for (String file : files) {
-            logger.debug("Setting wiremock {}", file);
-            String[] splitted = file.split("\\.");
-            if (splitted.length == 3) {
-                if ("agencyId".equals(splitted[0])) {
-                    selector = "<ns1:agencyId>" + splitted[1] + "</ns1:agencyId>";
-                    setResponse(workDir, file, selector, SOAP_ACTION_LIBRARYRULES);
-                }
-                if ("cataloging_template_set".equals(splitted[0])) {
-                    selector = "<ns1:name>" + splitted[0] + "</ns1:name><ns1:string>" + splitted[1] + "</ns1:string>";
-                    setResponse(workDir, file, selector, SOAP_ACTION_LIBRARYRULES);
-                }
-                if ("showOrder".equals(splitted[0])) {
-                    selector = "<ns1:agencyId>" + splitted[1] + "</ns1:agencyId>";
-                    setResponse(workDir, file, selector, SOAP_ACTION_SHOWORDER);
-                }
-            }
         }
     }
 
@@ -242,7 +194,6 @@ class OcbWireMockServer {
 
                 wiremockServer = new WireMockServer(wireMockConfiguration);
                 setNumberRollResponse(rootFile);
-                setOpenagencyResponses();
                 setVipCoreResponses();
                 setIDPResponse();
                 wiremockServer.start();
@@ -253,7 +204,6 @@ class OcbWireMockServer {
                 wiremockServer = new WireMockServer(wireMockConfig().port(port));
                 setNumberRollResponse(rootFile);
                 setAnalysisResponse();
-                setOpenagencyResponses();
                 setVipCoreResponses();
                 setIDPResponse();
                 wiremockServer.start();
