@@ -48,6 +48,17 @@ public class UpdateTestcaseExpectedUpdateResult {
         this.mail = mail;
     }
 
+    public boolean hasFatals() {
+        if (errors != null) {
+            for (MessageEntry errResult : errors) {
+                if (errResult.getType() == Type.FATAL) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public boolean hasErrors() {
         if (errors != null) {
             for (MessageEntry errResult : errors) {
