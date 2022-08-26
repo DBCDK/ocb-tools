@@ -90,7 +90,7 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
                     if (tc.getExpected().getUpdate().hasDoubleRecords()) {
                         UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getDoubleRecords(), response.getDoubleRecordEntries());
                         assertEquals(UpdateStatusEnum.FAILED, response.getUpdateStatus());
-                    } else if (tc.getExpected().getUpdate().hasErrors() || tc.getExpected().getUpdate().hasWarnings()) {
+                    } else if (tc.getExpected().getUpdate().hasErrors() || tc.getExpected().getUpdate().hasFatals() || tc.getExpected().getUpdate().hasWarnings()) {
                         UpdateAsserter.assertValidation(UpdateAsserter.UPDATE_PREFIX_KEY, tc.getExpected().getUpdate().getErrors(), response.getMessages());
                         assertEquals(UpdateStatusEnum.FAILED, response.getUpdateStatus());
                     } else if (tc.getExpected().getUpdate().getErrors() == null || tc.getExpected().getUpdate().getErrors().isEmpty()) {
