@@ -42,6 +42,7 @@
         <dependency>
             <groupId>dk.dbc</groupId>
             <artifactId>jscommon</artifactId>
+            <version>2012.1-SNAPSHOT</version>
         </dependency>
 
         <!-- ************************************************************* -->

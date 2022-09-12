@@ -6,8 +6,8 @@
 
     <parent>
         <groupId>dk.dbc</groupId>
-        <artifactId>dbc-pom</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <artifactId>super-pom</artifactId>
+        <version>java11-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -21,29 +21,6 @@
     <packaging>pom</packaging>
 
     <name>OCB-Tools</name>
-    <description>
-        OCB-Tools står for OpenCat-Business Tools og er en række kommandolinieværktøjer til DATA-divisionen
-        i deres arbejde med at udvikle skabeloner og integrationstests af skabeloner, Build og Update.
-    </description>
-
-    <ciManagement>
-        <url>http://is.dbc.dk/job/ocb-tools-head-guesstimate</url>
-    </ciManagement>
-    <scm>
-        <connection>scm:git:https://github.com/DBCDK/ocb-tools</connection>
-        <developerConnection>scm:git:https://github.com/DBCDK/ocb-tools</developerConnection>
-        <tag>trunk</tag>
-        <url>https://github.com/DBCDK/ocb-tools</url>
-    </scm>
-    <issueManagement>
-        <system>Bugzilla</system>
-        <url>http://bugs.dbc.dk/</url>
-    </issueManagement>
-    <organization>
-        <name>DBC as</name>
-        <url>http://www.dbc.dk</url>
-    </organization>
-
     <properties>
         <ocbtools.version>1.0.0</ocbtools.version>
         <maven.apache.lang3.plugin.version>3.3.2</maven.apache.lang3.plugin.version>
@@ -60,10 +37,14 @@
         <jaxws.maven.plugin>2.3</jaxws.maven.plugin>
         <wiremock.plugin.version>2.26.3</wiremock.plugin.version>
         <postgres.plugin.version>9.3-1101-jdbc41</postgres.plugin.version>
-        <log4j.slf4j.plugin.version>1.7.7</log4j.slf4j.plugin.version>
+        <log4j.slf4j.plugin.version>2.0.0</log4j.slf4j.plugin.version>
         <jersey.version>2.22.2</jersey.version>
-        <updateservice.wsdl.url>https://raw.githubusercontent.com/DBCDK/updateservice-facade/master/src/wsdl/update/catalogingUpdate.wsdl</updateservice.wsdl.url>
-        <buildservice.wsdl.url>https://raw.githubusercontent.com/DBCDK/updateservice-facade/master/src/wsdl/build/catalogingBuild.wsdl</buildservice.wsdl.url>
+        <updateservice.wsdl.url>
+            https://raw.githubusercontent.com/DBCDK/updateservice-facade/master/src/wsdl/update/catalogingUpdate.wsdl
+        </updateservice.wsdl.url>
+        <buildservice.wsdl.url>
+            https://raw.githubusercontent.com/DBCDK/updateservice-facade/master/src/wsdl/build/catalogingBuild.wsdl
+        </buildservice.wsdl.url>
     </properties>
 
     <pluginRepositories>
@@ -76,7 +57,7 @@
     <repositories>
         <repository>
             <id>mavenrepo.dbc.dk</id>
-            <url>https://mavenrepo.dbc.dk/nexus/content/groups/public/</url>
+            <url>https://mavenrepo.dbc.dk/nexus/content/groups/public</url>
         </repository>
     </repositories>
 
@@ -89,7 +70,7 @@
         <dependency>
             <groupId>org.codehaus.janino</groupId>
             <artifactId>janino</artifactId>
-            <version>2.5.16</version>
+            <version>3.1.8</version>
         </dependency>
 
         <dependency>
@@ -159,7 +140,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.10.0.pr1</version>
+            <version>2.13.4</version>
         </dependency>
     </dependencies>
 
@@ -168,12 +149,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
+                <version>3.8.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <testSource>1.8</testSource>
-                    <testTarget>1.8</testTarget>
+                    <source>${jdk.target.version}</source>
+                    <target>${jdk.target.version}</target>
+                    <testSource>${jdk.target.version}</testSource>
+                    <testTarget>${jdk.target.version}</testTarget>
                     <showDeprecation>true</showDeprecation>
                     <showWarnings>true</showWarnings>
                 </configuration>
