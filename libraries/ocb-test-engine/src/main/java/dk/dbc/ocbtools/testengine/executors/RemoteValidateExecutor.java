@@ -10,7 +10,14 @@ import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.updateservice.client.BibliographicRecordExtraData;
 import dk.dbc.updateservice.client.BibliographicRecordFactory;
-import dk.dbc.updateservice.service.api.*;
+import dk.dbc.updateservice.service.api.Authentication;
+import dk.dbc.updateservice.service.api.CatalogingUpdatePortType;
+import dk.dbc.updateservice.service.api.Options;
+import dk.dbc.updateservice.service.api.UpdateOptionEnum;
+import dk.dbc.updateservice.service.api.UpdateRecordRequest;
+import dk.dbc.updateservice.service.api.UpdateRecordResult;
+import dk.dbc.updateservice.service.api.UpdateService;
+import dk.dbc.updateservice.service.api.UpdateStatusEnum;
 import org.perf4j.StopWatch;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -32,7 +39,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Executor to test a testcase against the validation operation on an external
@@ -40,8 +50,8 @@ import static org.junit.Assert.*;
  */
 public class RemoteValidateExecutor implements TestExecutor {
     private static final String ENDPOINT_PATH = "/UpdateService/2.0";
-    private static final long DEFAULT_CONNECT_TIMEOUT_MS =     60 * 1000;    // 1 minute
-    private static final long DEFAULT_REQUEST_TIMEOUT_MS = 3 * 60 * 1000;    // 3 minutes
+    private static final int DEFAULT_CONNECT_TIMEOUT_MS =     60 * 1000;    // 1 minute
+    private static final int DEFAULT_REQUEST_TIMEOUT_MS = 3 * 60 * 1000;    // 3 minutes
     private static final String TRACKING_ID_FORMAT = "ocbtools-%s-%s-%s";
     static final String EXECUTOR_URL = "updateservice.url";
 
