@@ -1,7 +1,12 @@
 package dk.dbc.ocbtools.testengine.executors;
 
 import dk.dbc.buildservice.client.BibliographicRecordFactory;
-import dk.dbc.buildservice.service.api.*;
+import dk.dbc.buildservice.service.api.BibliographicRecord;
+import dk.dbc.buildservice.service.api.BuildPortType;
+import dk.dbc.buildservice.service.api.BuildRequest;
+import dk.dbc.buildservice.service.api.BuildResult;
+import dk.dbc.buildservice.service.api.BuildStatusEnum;
+import dk.dbc.buildservice.service.api.CatalogingBuildServices;
 import dk.dbc.common.records.MarcConverter;
 import dk.dbc.common.records.MarcRecord;
 import dk.dbc.ocbtools.testengine.asserters.BuildAsserter;
@@ -30,8 +35,8 @@ import java.util.Properties;
 public class RemoteBuildExecutor implements TestExecutor {
     private static final XLogger logger = XLoggerFactory.getXLogger(RemoteBuildExecutor.class);
     private static final String ENDPOINT_PATH = "/CatalogingBuildServices/OpenBuild";
-    private static final long DEFAULT_CONNECT_TIMEOUT_MS =     60 * 1000;    // 1 minute
-    private static final long DEFAULT_REQUEST_TIMEOUT_MS = 3 * 60 * 1000;    // 3 minutes
+    private static final int DEFAULT_CONNECT_TIMEOUT_MS =     60 * 1000;    // 1 minute
+    private static final int DEFAULT_REQUEST_TIMEOUT_MS = 3 * 60 * 1000;    // 3 minutes
     private static final String TRACKING_ID_FORMAT = "ocbtools-%s-%s-%s";
     private static final String EXECUTOR_URL = "buildservice.url";
 
