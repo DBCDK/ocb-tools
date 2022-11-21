@@ -2,12 +2,13 @@ package dk.dbc.ocbtools.testengine.executors;
 
 import dk.dbc.common.records.MarcRecord;
 import dk.dbc.commons.jdbc.util.JDBCUtil;
-import dk.dbc.holdingsitems.DatabaseMigrator;
 import dk.dbc.holdingsitems.HoldingsItemsDAO;
 import dk.dbc.holdingsitems.HoldingsItemsException;
 import dk.dbc.holdingsitems.Record;
 import dk.dbc.holdingsitems.RecordCollection;
 import dk.dbc.rawrepo.RecordId;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.MigrationVersion;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -24,7 +25,7 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * Class to setup holdings in the holdingsitems database.
+ * Class to set up holdings in the holdingsitems database.
  * <p/>
  * It is the responsibility of the caller to ensure commits/rollbacks on the
  * connection.
@@ -128,7 +129,22 @@ class Holdings {
     static void teardownDatabase(Properties settings) throws SQLException, ClassNotFoundException {
         logger.entry(settings);
         try (Connection conn = getConnection(settings)) {
-            DatabaseMigrator.migrate(getDataSource(settings));
+
+            /*
+                This is a weird hack!
+
+                When running dk.dbc.holdingsitems.DatabaseMigrator.migrate(getDataSource(settings)) in
+                holdings items access we get this:
+
+                java.lang.NoSuchMethodError: 'int org.flywaydb.core.Flyway.migrate()'
+	                at dk.dbc.holdingsitems.DatabaseMigrator.migrate(DatabaseMigrator.java:47)
+	                at dk.dbc.ocbtools.testengine.executors.Holdings.teardownDatabase(Holdings.java:143)
+
+	            The only functional workaround we have found is to perform the migrate command directly. We don't know
+	            why this works...
+             */
+            Flyway flyway = Flyway.configure().table("schema_version").baselineOnMigrate(true).baselineVersion(MigrationVersion.fromVersion("0")).dataSource(getDataSource(settings)).locations("holdingsitems/migration").load();
+            flyway.migrate();
 
             try {
                 JDBCUtil.update(conn, "DELETE FROM holdingsitemsitem");
