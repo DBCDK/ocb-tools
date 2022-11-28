@@ -39,11 +39,6 @@
             <version>${maven.rawrepo.version}</version>
         </dependency>
         <dependency>
-            <groupId>dk.dbc</groupId>
-            <artifactId>holdings-items-access</artifactId>
-            <version>${maven.holdings.item.access.version}</version>
-        </dependency>
-        <dependency>
             <groupId>dk.dbc.iscrum</groupId>
             <artifactId>iscrum-records</artifactId>
             <version>${maven.iscrum.records.version}</version>
