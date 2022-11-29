@@ -58,15 +58,13 @@ public class RemoteValidateExecutor implements TestExecutor {
     protected XLogger logger;
     protected UpdateTestcase tc; // No, despite intellij's claims, this cannot be private - it's used in other classes that implements this
     Properties settings;
-    private OcbWireMockServer ocbWireMockServer;
-    private final HoldingsWireMockServer holdingsWireMockServer;
+    private OcbWireMockServer ocbWireMockServer = null;
+    private static HoldingsWireMockServer holdingsWireMockServer = null;
 
     public RemoteValidateExecutor(UpdateTestcase tc, Properties settings) {
         logger = XLoggerFactory.getXLogger(RemoteValidateExecutor.class);
         this.tc = tc;
         this.settings = settings;
-        this.ocbWireMockServer = null;
-        holdingsWireMockServer = new HoldingsWireMockServer(settings);
     }
 
     @Override
@@ -84,7 +82,9 @@ public class RemoteValidateExecutor implements TestExecutor {
 
             RawRepo.setupDatabase(settings);
             ocbWireMockServer = new OcbWireMockServer(tc, settings);
-
+            synchronized (this) {
+                if(holdingsWireMockServer == null) holdingsWireMockServer = new HoldingsWireMockServer(settings);
+            }
             if (!hasRawRepoSetup(tc)) {
                 return;
             }
