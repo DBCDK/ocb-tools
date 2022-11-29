@@ -62,6 +62,15 @@ pipeline {
             }
         }
 
+        stage("Deploy connector") {
+            when {
+                expression { env.BRANCH_NAME == 'master' }
+            }
+            steps {
+                sh "mvn deploy -Dmaven.test.skip=true -am -pl content-connector"
+            }
+        }
+
         stage("Build and deploy docker") {
             when {
                 expression { env.BRANCH_NAME == 'master' }
