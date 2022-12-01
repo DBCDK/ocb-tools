@@ -58,13 +58,13 @@ public class RemoteValidateExecutor implements TestExecutor {
     protected XLogger logger;
     protected UpdateTestcase tc; // No, despite intellij's claims, this cannot be private - it's used in other classes that implements this
     Properties settings;
-    private OcbWireMockServer wireMockServer;
+    private OcbWireMockServer ocbWireMockServer = null;
+    private static HoldingsWireMockServer holdingsWireMockServer = null;
 
     public RemoteValidateExecutor(UpdateTestcase tc, Properties settings) {
         logger = XLoggerFactory.getXLogger(RemoteValidateExecutor.class);
         this.tc = tc;
         this.settings = settings;
-        this.wireMockServer = null;
     }
 
     @Override
@@ -79,12 +79,12 @@ public class RemoteValidateExecutor implements TestExecutor {
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
 
             RawRepo.teardownDatabase(settings);
-            Holdings.teardownDatabase(settings);
 
             RawRepo.setupDatabase(settings);
-            Holdings.setupDatabase(settings);
-            wireMockServer = new OcbWireMockServer(tc, settings);
-
+            ocbWireMockServer = new OcbWireMockServer(tc, settings);
+            synchronized (this) {
+                if(holdingsWireMockServer == null) holdingsWireMockServer = new HoldingsWireMockServer(settings);
+            }
             if (!hasRawRepoSetup(tc)) {
                 return;
             }
@@ -121,28 +121,25 @@ public class RemoteValidateExecutor implements TestExecutor {
      *
      * @param fs The OCB filesystem to load records from.
      */
-    private void setupHoldings(OCBFileSystem fs) throws SQLException, IOException, ClassNotFoundException {
+    private void setupHoldings(OCBFileSystem fs) throws IOException {
         logger.entry(fs);
         try {
             if (!hasHoldings()) {
                 return;
             }
-            try (Connection conn = Holdings.getConnection(settings)) {
-                MarcRecord marcRecord;
 
-                // Setup holdings for the request record.
-                if (tc.getSetup().getHoldings() != null) {
-                    marcRecord = fs.loadRecord(tc.getFile().getParentFile(), tc.getRequest().getRecord());
-                    Holdings.saveHoldings(conn, marcRecord, tc.getSetup().getHoldings());
-                }
+            // Setup holdings for the request record.
+            if (tc.getSetup().getHoldings() != null) {
+                MarcRecord marcRecord = fs.loadRecord(tc.getFile().getParentFile(), tc.getRequest().getRecord());
+                holdingsWireMockServer.addRecord(marcRecord, tc.getSetup().getHoldings());
+            }
 
-                // Setup holdings for records already in RawRepo.
-                if (tc.getSetup().getRawrepo() != null) {
-                    for (UpdateTestcaseRecord record : tc.getSetup().getRawrepo()) {
-                        if (!record.getHoldings().isEmpty()) {
-                            marcRecord = fs.loadRecord(tc.getFile().getParentFile(), record.getRecord());
-                            Holdings.saveHoldings(conn, marcRecord, record.getHoldings());
-                        }
+            // Setup holdings for records already in RawRepo.
+            if (tc.getSetup().getRawrepo() != null) {
+                for (UpdateTestcaseRecord record : tc.getSetup().getRawrepo()) {
+                    if (!record.getHoldings().isEmpty()) {
+                        MarcRecord marcRecord = fs.loadRecord(tc.getFile().getParentFile(), record.getRecord());
+                        holdingsWireMockServer.addRecord(marcRecord, record.getHoldings());
                     }
                 }
             }
@@ -208,9 +205,10 @@ public class RemoteValidateExecutor implements TestExecutor {
     public void teardown() {
         logger.entry();
         try {
-            if (wireMockServer != null) {
-                wireMockServer.stop();
+            if (ocbWireMockServer != null) {
+                ocbWireMockServer.stop();
             }
+            holdingsWireMockServer.clearMocks();
         } catch (Throwable ex) {
             throw new IllegalStateException("Teardown error", ex);
         } finally {
