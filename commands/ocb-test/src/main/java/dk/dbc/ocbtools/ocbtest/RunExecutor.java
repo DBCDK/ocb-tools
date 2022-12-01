@@ -5,7 +5,6 @@ import dk.dbc.ocbtools.commons.cli.CliException;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.executors.RemoteBuildExecutor;
-import dk.dbc.ocbtools.testengine.executors.RemoteRestExecutor;
 import dk.dbc.ocbtools.testengine.executors.RemoteUpdateExecutor;
 import dk.dbc.ocbtools.testengine.executors.RemoteValidateExecutor;
 import dk.dbc.ocbtools.testengine.executors.TestExecutor;
@@ -123,7 +122,7 @@ class RunExecutor implements SubcommandExecutor {
             logger.info("");
             logger.info("Using updateservice url: {}", updateSettings.getProperty("updateservice.url"));
             logger.info("Using rawrepo database: {}", updateSettings.getProperty("rawrepo.jdbc.conn.url"));
-            logger.info("Using holding items database: {}", updateSettings.getProperty("holdings.jdbc.conn.url"));
+            logger.info("Using holdings items service: {}", updateSettings.getProperty("holdings.url"));
             logger.info("");
 
             final List<UpdateTestRunnerItem> items = new ArrayList<>();
