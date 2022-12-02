@@ -3,6 +3,7 @@ package dk.dbc.ocbtools.testengine.asserters;
 import dk.dbc.common.records.MarcConverter;
 import dk.dbc.common.records.MarcField;
 import dk.dbc.common.records.MarcRecord;
+import dk.dbc.common.records.MarcRecordReader;
 import dk.dbc.common.records.MarcSubField;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
@@ -20,10 +21,16 @@ import org.slf4j.ext.XLoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Asserter class to check records against rawrepo.
@@ -36,6 +43,7 @@ public class RawRepoAsserter {
 
     public static void assertRecordListEquals(List<UpdateTestcaseRecord> expected, List<Record> actual, UpdateTestcase tc) {
         logger.entry(expected, actual);
+        actual.sort(recordComparator());
 
         try {
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
@@ -43,12 +51,13 @@ public class RawRepoAsserter {
                 StringBuilder message = new StringBuilder();
                 message.append("Number of records with RawRepo differ\n");
 
-                message.append("Expected: [");
-                for (UpdateTestcaseRecord expectedRecord : expected) {
-                    message.append("\n");
-                    message.append(fs.loadRecord(expectedRecord.getRecordFile().getParentFile(), expectedRecord.getRecord()).toString());
-                }
-                message.append("],\n");
+                String exp = expected.stream()
+                        .map(UpdateTestcaseRecord::getRecordFile)
+                        .map(fs::loadRecord)
+                        .sorted(marcRecordComparator())
+                        .map(Objects::toString)
+                        .collect(Collectors.joining("\n"));
+                message.append("Expected: [\n").append(exp).append("],\n");
 
                 message.append("Actual: [");
                 for (Record actualRecord : actual) {
@@ -75,6 +84,15 @@ public class RawRepoAsserter {
             logger.exit();
         }
     }
+
+    private static Comparator<? super MarcRecord> marcRecordComparator() {
+        return Comparator.comparing((MarcRecord m) -> new MarcRecordReader(m).getRecordId()).thenComparing(m -> new MarcRecordReader(m).getAgencyId());
+    }
+
+    private static Comparator<? super Record> recordComparator() {
+        return Comparator.comparing((Record r) -> r.getId().getBibliographicRecordId()).thenComparing(r -> r.getId().getAgencyId());
+    }
+
 
     private static void assertRecordEqual(UpdateTestcaseRecord expected, Record actual, UpdateTestcase tc) throws IOException {
         logger.entry(expected, actual);
