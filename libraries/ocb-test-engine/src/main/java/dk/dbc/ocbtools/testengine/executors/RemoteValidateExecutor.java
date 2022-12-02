@@ -34,10 +34,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -131,7 +136,14 @@ public class RemoteValidateExecutor implements TestExecutor {
             // Setup holdings for the request record.
             if (tc.getSetup().getHoldings() != null) {
                 MarcRecord marcRecord = fs.loadRecord(tc.getFile().getParentFile(), tc.getRequest().getRecord());
-                holdingsWireMockServer.addRecord(marcRecord, tc.getSetup().getHoldings());
+                List<Integer> holdings = Stream.of(
+                        tc.getSetup().getHoldings().stream(),
+                        tc.getSetup().getRawrepo().stream().map(UpdateTestcaseRecord::getHoldings).flatMap(Collection::stream))
+                        .flatMap(Function.identity())
+                        .distinct()
+                        .collect(Collectors.toList());
+
+                holdingsWireMockServer.addRecord(marcRecord, holdings);
             }
 
             // Setup holdings for records already in RawRepo.
