@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -100,8 +101,19 @@ public class OCBFileSystem {
                 return null;
             }
             File recordFile = new File(baseDir.getCanonicalPath() + "/" + filename);
-            try (FileInputStream fis = new FileInputStream(recordFile)) {
-                return MarcRecordFactory.readRecord(IOUtils.readAll(fis, "UTF-8"));
+            return loadRecord(recordFile);
+        } finally {
+            logger.exit();
+        }
+    }
+
+    public MarcRecord loadRecord(File file) {
+        logger.entry();
+        try {
+            try (FileInputStream fis = new FileInputStream(file)) {
+                return MarcRecordFactory.readRecord(IOUtils.readAll(fis, StandardCharsets.UTF_8.name()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         } finally {
             logger.exit();

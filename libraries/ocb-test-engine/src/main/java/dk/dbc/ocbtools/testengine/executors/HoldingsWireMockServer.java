@@ -33,9 +33,11 @@ public class HoldingsWireMockServer {
     }
 
     public void addMock(String recordId, List<Integer> agencies) {
+        if(agencies.isEmpty()) return;
         String request = HOLDINGS_PATH + "/" + recordId;
         String agencyString = agencies == null ? "" : agencies.stream().map(Object::toString).collect(Collectors.joining(","));
         String body = "{\"agencies\":[" + agencyString + "],\"trackingId\":\"" + UUID.randomUUID() + "\"}";
+        LOGGER.debug("Added holdings mock for {} with agencies {}, ", recordId, agencies);
         wireMockServer.stubFor(WireMock.get(request).willReturn(
                 ResponseDefinitionBuilder.responseDefinition().withStatus(200).withHeader("content-type", "application/json").withBody(body))
         );
@@ -43,6 +45,7 @@ public class HoldingsWireMockServer {
 
     public void clearMocks() {
         if(wireMockServer != null) {
+            LOGGER.debug("Clearing holdings mock");
             wireMockServer.resetMappings();
             addEmptyStub(wireMockServer);
         }
