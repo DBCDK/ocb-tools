@@ -8,7 +8,7 @@ import java.util.List;
  * Define types of relations.
  */
 public enum RawRepoRelationType {
-    CHILD(1, "A child relation from %s -> %s was expected", "Found unexpected child of record %s: [%s]"),
+    CHILD(1, "A child relation from %s -> %s was expected", "Found unexpected child of record %s, expected : [%s], was : [%s]"),
     SIBLING(2, "An enrichment relation from %s -> %s was expected", "Unexpected enrichments found for record %s: [%s]");
 
     private final int value;

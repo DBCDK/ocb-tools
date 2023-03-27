@@ -19,6 +19,7 @@ import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -62,7 +63,7 @@ public class RawRepoAsserter {
                 message.append("Actual: [");
                 for (Record actualRecord : actual) {
                     message.append("\n");
-                    message.append(RawRepo.decodeRecord(actualRecord.getContent()).toString());
+                    message.append(RawRepo.decodeRecord(actualRecord.getContent()));
                 }
                 message.append("]");
 
@@ -106,10 +107,10 @@ public class RawRepoAsserter {
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
 
             MarcRecord marcExpected = fs.loadRecord(expected.getRecordFile().getParentFile(), expected.getRecord());
-            MarcRecord marcActual = MarcConverter.convertFromMarcXChange(new String(actual.getContent(), "UTF-8"));
+            MarcRecord marcActual = MarcConverter.convertFromMarcXChange(new String(actual.getContent(), StandardCharsets.UTF_8));
             if (marcExpected.getFields().size() != marcActual.getFields().size()) {
-                String message = String.format("Number of fields differ. Expected record:\n%s\nActual record:\n%s",
-                        marcExpected.toString(), marcActual.toString());
+                String message = String.format("Number of fields differ. File : %s\nExpected record:\n%s\nActual record:\n%s",
+                        expected.getRecordFile().getName(), marcExpected, marcActual);
                 fail(message);
             }
 
@@ -234,7 +235,11 @@ public class RawRepoAsserter {
                     recordIds.append(String.format(FORMATTED_RECORD_ID, id.getBibliographicRecordId(), id.getAgencyId()));
                 }
 
-                throw new AssertionError(String.format(relationType.getUnexpectedFormatError(), formatedRecordId, recordIds.toString()));
+                if (relationType.getExpectedRelationItems(expected) != null) {
+                    throw new AssertionError(String.format(relationType.getUnexpectedFormatError(), formatedRecordId, relationType.getExpectedRelationItems(expected), recordIds.toString()));
+                } else {
+                    throw new AssertionError(String.format(relationType.getUnexpectedFormatError(), formatedRecordId, "EMPTY", recordIds.toString()));
+                }
             }
         } finally {
             logger.exit();
