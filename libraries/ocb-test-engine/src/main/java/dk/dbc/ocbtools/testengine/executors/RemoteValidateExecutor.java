@@ -5,6 +5,7 @@ import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.asserters.UpdateAsserter;
+import dk.dbc.ocbtools.testengine.testcases.TestcaseMimeType;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
 import dk.dbc.rawrepo.RawRepoException;
@@ -184,6 +185,10 @@ public class RemoteValidateExecutor implements TestExecutor {
                     commonOrParentRecord = fs.loadRecord(baseDir, record.getRecord());
                     for (String enrichmentOrChildFilename : record.getChildren()) {
                         rawRepo.saveRelation(commonOrParentRecord, fs.loadRecord(baseDir, enrichmentOrChildFilename));
+                    }
+                } else {
+                    if (record.getType().equals(TestcaseMimeType.AUTHORITY)) {
+                        logger.error("Type AUTHORITY must at least have an empty children section");
                     }
                 }
 
