@@ -33,7 +33,7 @@ public class UpdateTestcaseRecord {
         this.recordFile = null;
         this.type = null;
         this.deleted = false;
-        this.children = new ArrayList<>();
+        this.children = null;
         this.enrichments = new ArrayList<>();
         this.enqueued = false;
         this.queueWorkers = null; // Can't initialize it to empty as an empty queue is a valid assertion while null value means "don't use"

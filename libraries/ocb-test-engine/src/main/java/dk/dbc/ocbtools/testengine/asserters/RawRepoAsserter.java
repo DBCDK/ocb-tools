@@ -217,13 +217,15 @@ public class RawRepoAsserter {
             }
 
             if (expectedSize == relations.size()) {
-                for (String name : relationType.getExpectedRelationItems(expected)) {
-                    MarcRecord relatedRecord = fs.loadRecord(expected.getRecordFile().getParentFile(), name);
-                    RecordId relatedRecordId = RawRepo.getRecordId(relatedRecord);
+                if (relationType.getExpectedRelationItems(expected) != null) {
+                    for (String name : relationType.getExpectedRelationItems(expected)) {
+                        MarcRecord relatedRecord = fs.loadRecord(expected.getRecordFile().getParentFile(), name);
+                        RecordId relatedRecordId = RawRepo.getRecordId(relatedRecord);
 
-                    String formatedSiblingRecordId = String.format(FORMATTED_RECORD, name, relatedRecordId.getBibliographicRecordId(), relatedRecordId.getAgencyId());
-                    String message = String.format(relationType.getExpectedFormatError(), formatedRecordId, formatedSiblingRecordId);
-                    assertTrue(message, relations.contains(relatedRecordId));
+                        String formatedSiblingRecordId = String.format(FORMATTED_RECORD, name, relatedRecordId.getBibliographicRecordId(), relatedRecordId.getAgencyId());
+                        String message = String.format(relationType.getExpectedFormatError(), formatedRecordId, formatedSiblingRecordId);
+                        assertTrue(message, relations.contains(relatedRecordId));
+                    }
                 }
             } else {
                 StringBuilder recordIds = new StringBuilder();
