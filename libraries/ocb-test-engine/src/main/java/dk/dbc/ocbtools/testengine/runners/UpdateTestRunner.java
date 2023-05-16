@@ -23,8 +23,10 @@ public class UpdateTestRunner {
         logger.entry();
         try {
             TestResult testResult = new TestResult();
+            int count = 0;
             for (UpdateTestRunnerItem item : items) {
-                logger.info("Running testcase '{}'", item.getUpdateTestcase().getName());
+                count++;
+                logger.info("Running testcase {} of {} '{}'", count, items.size(), item.getUpdateTestcase().getName());
 
                 TestcaseResult tcResult = runTestcase(item);
                 if (tcResult != null) {
