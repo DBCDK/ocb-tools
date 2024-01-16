@@ -1,9 +1,11 @@
 package dk.dbc.ocbtools.testengine.testcases;
 
 
-import dk.dbc.updateservice.service.api.DoubleRecordEntry;
-import dk.dbc.updateservice.service.api.MessageEntry;
-import dk.dbc.updateservice.service.api.Type;
+
+
+import dk.dbc.oss.ns.catalogingupdate.DoubleRecordEntry;
+import dk.dbc.oss.ns.catalogingupdate.MessageEntry;
+import dk.dbc.oss.ns.catalogingupdate.Type;
 
 import java.util.List;
 

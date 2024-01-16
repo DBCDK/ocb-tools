@@ -3,7 +3,6 @@ package dk.dbc.ocbtools.ocbtest;
 import dk.dbc.ocbtools.commons.api.Subcommand;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
-import dk.dbc.ocbtools.commons.cli.CliException;
 import dk.dbc.ocbtools.testengine.reports.JUnitReport;
 import dk.dbc.ocbtools.testengine.reports.TestReport;
 import dk.dbc.ocbtools.testengine.reports.TextReport;
@@ -24,7 +23,7 @@ public class RunDefinition implements SubcommandDefinition {
     private static final XLogger logger = XLoggerFactory.getXLogger(RunDefinition.class);
 
     @Override
-    public List<Option> createOptions() throws CliException {
+    public List<Option> createOptions() {
         List<Option> options = new ArrayList<>();
         Option option;
         option = new Option("c", "config", true, "Navn på konfiguration som skal anvendes.");
@@ -36,7 +35,7 @@ public class RunDefinition implements SubcommandDefinition {
     }
 
     @Override
-    public SubcommandExecutor createExecutor(File baseDir, CommandLine line) throws CliException {
+    public SubcommandExecutor createExecutor(File baseDir, CommandLine line) {
         logger.entry(baseDir, line);
         try {
             List<TestReport> reports = new ArrayList<>();

@@ -1,13 +1,10 @@
 package dk.dbc.ocbtools.testengine.executors;
 
-import dk.dbc.common.records.MarcConverter;
-import dk.dbc.common.records.MarcRecord;
 import dk.dbc.common.records.MarcRecordReader;
-import dk.dbc.common.records.MarcXchangeFactory;
-import dk.dbc.common.records.marcxchange.CollectionType;
-import dk.dbc.common.records.marcxchange.ObjectFactory;
-import dk.dbc.common.records.marcxchange.RecordType;
 import dk.dbc.commons.jdbc.util.JDBCUtil;
+import dk.dbc.marc.binding.MarcRecord;
+import dk.dbc.marc.writer.JsonLineWriter;
+import dk.dbc.marc.writer.MarcWriterException;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
@@ -15,22 +12,22 @@ import dk.dbc.rawrepo.RawRepoDAO;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.RecordId;
+import dk.dbc.vipcore.exception.VipCoreException;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Helper Class to interact with the rawrepo database.
@@ -66,9 +63,8 @@ public class RawRepo {
      * @param records Records to store in the rawrepo.
      * @throws IOException      I/O errors if we can not load some records.
      * @throws RawRepoException rawrepo errors.
-     * @throws JAXBException    XML errors.
      */
-    void saveRecords(File baseDir, List<UpdateTestcaseRecord> records) throws IOException, RawRepoException, JAXBException {
+    void saveRecords(File baseDir, List<UpdateTestcaseRecord> records) throws IOException, RawRepoException, MarcWriterException, VipCoreException {
         logger.entry(baseDir, records);
 
         try {
@@ -87,9 +83,8 @@ public class RawRepo {
      * @param record  Record to store in the rawrepo.
      * @throws IOException      I/O errors if we can not load some records.
      * @throws RawRepoException rawrepo errors.
-     * @throws JAXBException    XML errors.
      */
-    private void saveRecord(File baseDir, UpdateTestcaseRecord record) throws IOException, RawRepoException, JAXBException {
+    private void saveRecord(File baseDir, UpdateTestcaseRecord record) throws IOException, RawRepoException, MarcWriterException, VipCoreException {
         logger.entry(baseDir, record);
 
         try {
@@ -101,7 +96,7 @@ public class RawRepo {
                 Record newRecord = dao.fetchRecord(recId.getBibliographicRecordId(), recId.getAgencyId());
                 newRecord.setDeleted(record.isDeleted());
                 newRecord.setMimeType(record.getType().value());
-                newRecord.setContent(encodeRecord(marcRecord));
+                newRecord.setContentJson(encodeRecord(marcRecord));
                 dao.saveRecord(newRecord);
 
                 if (record.isEnqueued()) {
@@ -141,44 +136,21 @@ public class RawRepo {
         }
     }
 
-    public static MarcRecord decodeRecord(byte[] bytes) throws UnsupportedEncodingException {
-        return MarcConverter.convertFromMarcXChange(new String(bytes, "UTF-8"));
-    }
-
     /**
      * Encodes the record as marcxchange.
      *
      * @param record The record to encode.
      * @return The encoded record as a sequence of bytes.
-     * @throws javax.xml.bind.JAXBException         if the record can not be encoded in marcxchange.
-     * @throws java.io.UnsupportedEncodingException if the record can not be encoded in UTF-8
+     * @throws MarcWriterException if the record can not be encoded in marcxchange.
      */
-    private byte[] encodeRecord(MarcRecord record) throws JAXBException, UnsupportedEncodingException {
+    private byte[] encodeRecord(MarcRecord record) throws MarcWriterException {
         logger.entry(record);
         byte[] result = null;
 
         try {
+            JsonLineWriter writer = new JsonLineWriter();
 
-            if (record.getFields().isEmpty()) {
-                return null;
-            }
-
-            RecordType marcXchangeType = MarcXchangeFactory.createMarcXchangeFromMarc(record);
-
-            ObjectFactory objectFactory = new ObjectFactory();
-            JAXBElement<RecordType> jAXBElement = objectFactory.createRecord(marcXchangeType);
-
-            JAXBContext jc = JAXBContext.newInstance(CollectionType.class);
-            Marshaller marshaller = jc.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd");
-
-            StringWriter recData = new StringWriter();
-            marshaller.marshal(jAXBElement, recData);
-
-            logger.debug("Marshalled record: {}", recData.toString());
-            result = recData.toString().getBytes("UTF-8");
-
-            return result;
+            return writer.write(record, StandardCharsets.UTF_8);
         } finally {
             logger.exit(result);
         }
@@ -191,7 +163,7 @@ public class RawRepo {
             MarcRecordReader reader = new MarcRecordReader(record);
 
             String recordId = reader.getRecordId();
-            int agencyId = reader.getAgencyIdAsInteger();
+            int agencyId = reader.getAgencyIdAsInt();
 
             return new RecordId(recordId, agencyId);
         } catch (NumberFormatException ex) {
@@ -331,7 +303,7 @@ public class RawRepo {
         try (Connection conn = getConnection(settings)) {
 
             for (Map<String, Object> entry : JDBCUtil.queryForRowMaps(conn, SELECT_QUEUE_JOBS_SQL)) {
-               result.add(QueuedJob.fromMap(entry));
+                result.add(QueuedJob.fromMap(entry));
             }
 
             return result;

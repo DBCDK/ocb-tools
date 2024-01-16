@@ -1,6 +1,8 @@
 package dk.dbc.ocbtools.testengine.executors;
 
+import dk.dbc.marc.writer.MarcWriterException;
 import dk.dbc.rawrepo.RawRepoException;
+import dk.dbc.vipcore.exception.VipCoreException;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -20,7 +22,7 @@ public interface TestExecutor {
      * <p/>
      * This method is called before the tests are run.
      */
-    void setup() throws IOException, JAXBException, SQLException, RawRepoException, ClassNotFoundException;
+    void setup() throws IOException, JAXBException, SQLException, RawRepoException, ClassNotFoundException, MarcWriterException, VipCoreException;
 
     /**
      * Tear down the testcase.

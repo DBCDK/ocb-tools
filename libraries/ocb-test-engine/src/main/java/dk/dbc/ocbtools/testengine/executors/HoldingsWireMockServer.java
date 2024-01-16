@@ -3,8 +3,8 @@ package dk.dbc.ocbtools.testengine.executors;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import dk.dbc.common.records.MarcRecord;
 import dk.dbc.common.records.MarcRecordReader;
+import dk.dbc.marc.binding.MarcRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

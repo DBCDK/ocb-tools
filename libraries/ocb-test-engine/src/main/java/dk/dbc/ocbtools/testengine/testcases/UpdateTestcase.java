@@ -1,8 +1,9 @@
 package dk.dbc.ocbtools.testengine.testcases;
 
-import dk.dbc.common.records.MarcRecord;
-import dk.dbc.common.records.MarcRecordFactory;
-import dk.dbc.iscrum.utils.IOUtils;
+import dk.dbc.common.records.utils.IOUtils;
+import dk.dbc.marc.binding.MarcRecord;
+import dk.dbc.marc.reader.MarcReaderException;
+import dk.dbc.ocbtools.testengine.rawrepo.MarcConverter;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -108,7 +109,7 @@ public class UpdateTestcase extends BaseTestcase {
         }
     }
 
-    public MarcRecord loadRecord() throws IOException {
+    public MarcRecord loadRecord() throws IOException, MarcReaderException {
         logger.entry();
 
         try {
@@ -122,7 +123,7 @@ public class UpdateTestcase extends BaseTestcase {
 
             File recordFile = new File(file.getParent() + "/" + request.getRecord());
             FileInputStream fis = new FileInputStream(recordFile);
-            return MarcRecordFactory.readRecord(IOUtils.readAll(fis, "UTF-8"));
+            return MarcConverter.decodeLineFormat(IOUtils.readAll(fis, "UTF-8"));
         } finally {
             logger.exit();
         }

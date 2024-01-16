@@ -1,30 +1,34 @@
 package dk.dbc.ocbtools.testengine.executors;
 
-import dk.dbc.buildservice.client.BibliographicRecordFactory;
-import dk.dbc.buildservice.service.api.BibliographicRecord;
-import dk.dbc.buildservice.service.api.BuildPortType;
-import dk.dbc.buildservice.service.api.BuildRequest;
-import dk.dbc.buildservice.service.api.BuildResult;
-import dk.dbc.buildservice.service.api.BuildStatusEnum;
-import dk.dbc.buildservice.service.api.CatalogingBuildServices;
-import dk.dbc.common.records.MarcConverter;
-import dk.dbc.common.records.MarcRecord;
+
+import dk.dbc.marc.binding.MarcRecord;
+import dk.dbc.marc.reader.MarcReaderException;
+import dk.dbc.marc.reader.MarcXchangeV1Reader;
 import dk.dbc.ocbtools.testengine.asserters.BuildAsserter;
+import dk.dbc.ocbtools.testengine.rawrepo.MarcConverter;
 import dk.dbc.ocbtools.testengine.testcases.BuildTestcase;
+import dk.dbc.oss.ns.catalogingbuild.BuildPortType;
+import dk.dbc.oss.ns.catalogingbuild.BuildRequest;
+import dk.dbc.oss.ns.catalogingbuild.BuildResult;
+import dk.dbc.oss.ns.catalogingbuild.BuildStatusEnum;
+import dk.dbc.oss.ns.catalogingbuild.CatalogingBuildServices;
+import dk.dbc.oss.ns.catalogingbuild.BibliographicRecord;
+import jakarta.xml.ws.BindingProvider;
 import org.perf4j.StopWatch;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import javax.xml.bind.JAXBException;
+
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.ws.BindingProvider;
+
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
 
@@ -88,11 +92,12 @@ public class RemoteBuildExecutor implements TestExecutor {
     @Override
     public void executeTests() {
         logger.entry();
+
+
         try {
             URL url = createServiceUrl();
             BuildRequest buildRequest = getBuildRequest();
             logger.debug("Sending BUILD request '{}' to {}", buildRequest.getTrackingId(), url);
-            //StopWatch watch = new Log4JStopWatch("RemoteBuildExecutor.executeTests");
             StopWatch watch = new StopWatch();
             BuildPortType buildPortType = createPort(url);
             BuildResult buildResult = buildPortType.build(buildRequest);
@@ -105,7 +110,10 @@ public class RemoteBuildExecutor implements TestExecutor {
                     List<Object> list = buildResult.getBibliographicRecord().getRecordData().getContent();
                     for (Object o : list) {
                         if (o instanceof Node) {
-                            buildResultAsRecord = MarcConverter.createFromMarcXChange(new DOMSource((Node) o));
+                            String marcString = (String) o;
+                            final ByteArrayInputStream buf = new ByteArrayInputStream(marcString.getBytes());
+                            final MarcXchangeV1Reader reader = new MarcXchangeV1Reader(buf, StandardCharsets.UTF_8);
+                            buildResultAsRecord = reader.read();
                             break;
                         }
                     }
@@ -119,20 +127,20 @@ public class RemoteBuildExecutor implements TestExecutor {
             BuildAsserter.assertValidation(buildTestcase, assertInput);
 
             logger.debug("Receive BUILD response in {} ms: {}", watch.getElapsedTime(), buildResult);
-        } catch (IOException | ParserConfigurationException | SAXException | JAXBException e) {
+        } catch (IOException | ParserConfigurationException | SAXException | MarcReaderException e) {
             throw new AssertionError("Fatal error when building record for testcase " + buildTestcase.getName(), e);
         } finally {
             logger.exit();
         }
     }
 
-    private BuildRequest getBuildRequest() throws ParserConfigurationException, SAXException, IOException, JAXBException {
+    private BuildRequest getBuildRequest() throws ParserConfigurationException, SAXException, IOException, MarcReaderException {
         BuildRequest buildRequest = new BuildRequest();
         buildRequest.setSchemaName(buildTestcase.getRequest().getTemplateName());
         buildRequest.setTrackingId(String.format(TRACKING_ID_FORMAT, System.getProperty("user.name"), buildTestcase.getName(), getClass().getSimpleName()));
         MarcRecord marcRecord = buildTestcase.loadRequestRecord();
         if (marcRecord != null) {
-            BibliographicRecord bibliographicRecord = BibliographicRecordFactory.newMarcRecord(marcRecord);
+            BibliographicRecord bibliographicRecord = MarcConverter.newMarcRecord(marcRecord);
             buildRequest.setBibliographicRecord(bibliographicRecord);
         }
         return buildRequest;

@@ -1,8 +1,8 @@
 package dk.dbc.ocbtools.commons.filesystem;
 
-import dk.dbc.common.records.MarcRecord;
-import dk.dbc.common.records.MarcRecordFactory;
-import dk.dbc.iscrum.utils.IOUtils;
+import dk.dbc.marc.binding.MarcRecord;
+import dk.dbc.marc.reader.DanMarc2LineFormatReader;
+import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -111,8 +111,10 @@ public class OCBFileSystem {
         logger.entry();
         try {
             try (FileInputStream fis = new FileInputStream(file)) {
-                return MarcRecordFactory.readRecord(IOUtils.readAll(fis, StandardCharsets.UTF_8.name()));
-            } catch (IOException e) {
+                final DanMarc2LineFormatReader lineFormatReader = new DanMarc2LineFormatReader(fis, StandardCharsets.UTF_8);
+
+                return lineFormatReader.read();
+            } catch (IOException | MarcReaderException e) {
                 throw new RuntimeException(e);
             }
         } finally {

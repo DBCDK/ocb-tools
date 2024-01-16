@@ -1,13 +1,14 @@
 package dk.dbc.ocbtools.testengine.asserters;
 
-import dk.dbc.iscrum.utils.ResourceBundles;
-import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseExpectedResult;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseExpectedValidateResult;
-import dk.dbc.updateservice.service.api.DoubleRecordEntries;
-import dk.dbc.updateservice.service.api.DoubleRecordEntry;
-import dk.dbc.updateservice.service.api.MessageEntry;
-import dk.dbc.updateservice.service.api.Messages;
+
+import dk.dbc.ocbtools.testengine.utils.Json;
+import dk.dbc.ocbtools.testengine.utils.ResourceBundles;
+import dk.dbc.oss.ns.catalogingupdate.DoubleRecordEntries;
+import dk.dbc.oss.ns.catalogingupdate.DoubleRecordEntry;
+import dk.dbc.oss.ns.catalogingupdate.MessageEntry;
+import dk.dbc.oss.ns.catalogingupdate.Messages;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;

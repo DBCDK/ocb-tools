@@ -1,8 +1,9 @@
-package dk.dbc.ocbtools.commons.cli;
+package dk.dbc.ocbtools.ocbtest;
 
 import dk.dbc.ocbtools.commons.api.Subcommand;
 import dk.dbc.ocbtools.commons.api.SubcommandDefinition;
 import dk.dbc.ocbtools.commons.api.SubcommandExecutor;
+import dk.dbc.ocbtools.commons.cli.CliException;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import org.apache.commons.cli.CommandLine;
@@ -13,18 +14,15 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.perf4j.StopWatch;
-import org.reflections.Reflections;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 /**
  * CliExecutor has the responsibility to parse the arguments from the command
@@ -111,7 +109,7 @@ public class CliExecutor {
         StopWatch watch = new StopWatch();
         try {
             logger.debug("Command: {}", commandName);
-            logger.debug("Arguments: {}", args.toString());
+            logger.debug("Arguments: {}", Arrays.toString(args));
 
             CliExecutor cli = new CliExecutor(commandName);
             cli.execute(args);
@@ -138,27 +136,20 @@ public class CliExecutor {
         }
     }
 
-    private List<SubcommandDefinition> getSubcommandDefinitions() throws IllegalAccessException, InstantiationException {
+    private List<SubcommandDefinition> getSubcommandDefinitions() {
         logger.entry();
 
-        List<SubcommandDefinition> definitions = new ArrayList<>();
+        final List<SubcommandDefinition> definitions = new ArrayList<>();
         try {
-            Reflections reflections = Reflections.collect();
-            Set<Class<?>> subCommands = reflections.getTypesAnnotatedWith(Subcommand.class);
-            for (Class<?> clazz : subCommands) {
-                Object instance = clazz.newInstance();
-                if (instance instanceof SubcommandDefinition) {
-                    definitions.add((SubcommandDefinition) instance);
-                }
-            }
-
+            definitions.add(new JsTestsDefinition());
+            definitions.add(new RunDefinition());
             return definitions;
         } finally {
             logger.exit(definitions);
         }
     }
 
-    private SubcommandDefinition findSubcommandDefinition(String subCommandName) throws InstantiationException, IllegalAccessException {
+    private SubcommandDefinition findSubcommandDefinition(String subCommandName) {
         logger.entry();
 
         try {

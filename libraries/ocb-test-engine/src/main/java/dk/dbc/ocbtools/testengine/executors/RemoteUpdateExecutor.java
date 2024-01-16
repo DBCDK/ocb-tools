@@ -1,18 +1,20 @@
 package dk.dbc.ocbtools.testengine.executors;
 
-import dk.dbc.common.records.MarcRecord;
+import dk.dbc.marc.binding.MarcRecord;
+import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.asserters.RawRepoAsserter;
 import dk.dbc.ocbtools.testengine.asserters.UpdateAsserter;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
+import dk.dbc.oss.ns.catalogingupdate.CatalogingUpdatePortType;
+import dk.dbc.oss.ns.catalogingupdate.UpdateRecordRequest;
+import dk.dbc.oss.ns.catalogingupdate.UpdateRecordResult;
+import dk.dbc.oss.ns.catalogingupdate.UpdateStatusEnum;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.RecordId;
-import dk.dbc.updateservice.service.api.CatalogingUpdatePortType;
-import dk.dbc.updateservice.service.api.UpdateRecordRequest;
-import dk.dbc.updateservice.service.api.UpdateRecordResult;
-import dk.dbc.updateservice.service.api.UpdateStatusEnum;
+
 import org.perf4j.StopWatch;
 import org.slf4j.ext.XLoggerFactory;
 import org.xml.sax.SAXException;
@@ -115,7 +117,8 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
                 watch.stop();
                 logger.debug("Test response in {} ms", watch.getElapsedTime());
             }
-        } catch (ClassNotFoundException | SQLException | RawRepoException | SAXException | ParserConfigurationException | JAXBException | IOException ex) {
+        } catch (ClassNotFoundException | SQLException | RawRepoException | SAXException |
+                 ParserConfigurationException | IOException | MarcReaderException | JAXBException ex) {
             throw new AssertionError(ex.getMessage(), ex);
         } finally {
             logger.exit();
@@ -141,7 +144,7 @@ public class RemoteUpdateExecutor extends RemoteValidateExecutor {
         }
     }
 
-    protected UpdateRecordRequest createRequest() throws IOException, JAXBException, SAXException, ParserConfigurationException {
+    protected UpdateRecordRequest createRequest() throws IOException, SAXException, ParserConfigurationException, MarcReaderException, JAXBException {
         logger.entry();
         UpdateRecordRequest request = null;
         try {

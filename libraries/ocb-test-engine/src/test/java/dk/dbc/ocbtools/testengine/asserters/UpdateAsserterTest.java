@@ -1,6 +1,6 @@
 package dk.dbc.ocbtools.testengine.asserters;
 
-import dk.dbc.updateservice.service.api.MessageEntry;
+import dk.dbc.oss.ns.catalogingupdate.MessageEntry;
 import org.junit.Test;
 
 import java.io.IOException;

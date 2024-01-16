@@ -1,8 +1,9 @@
 package dk.dbc.ocbtools.testengine.asserters;
 
-import dk.dbc.common.records.MarcRecord;
-import dk.dbc.iscrum.utils.ResourceBundles;
+import dk.dbc.marc.binding.MarcRecord;
+import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.ocbtools.testengine.testcases.BuildTestcase;
+import dk.dbc.ocbtools.testengine.utils.ResourceBundles;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -36,7 +37,7 @@ public class BuildAsserter {
             if (!expectedResult.equals(actualResult)) {
                 throw new AssertionError(String.format(bundle.getString(BUILD_ERROR_RESOURCE_STRING), expectedResult, actualResult));
             }
-        } catch (IOException e) {
+        } catch (IOException | MarcReaderException e) {
             e.printStackTrace();
         } finally {
             logger.exit();

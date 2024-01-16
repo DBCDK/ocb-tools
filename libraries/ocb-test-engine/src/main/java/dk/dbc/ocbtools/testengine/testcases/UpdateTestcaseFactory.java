@@ -1,7 +1,7 @@
 package dk.dbc.ocbtools.testengine.testcases;
 
-import dk.dbc.iscrum.utils.json.Json;
 import dk.dbc.ocbtools.commons.filesystem.SystemTest;
+import dk.dbc.ocbtools.testengine.utils.Json;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 

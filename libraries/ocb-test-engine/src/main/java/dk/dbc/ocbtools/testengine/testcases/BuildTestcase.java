@@ -1,8 +1,9 @@
 package dk.dbc.ocbtools.testengine.testcases;
 
-import dk.dbc.common.records.MarcRecord;
-import dk.dbc.common.records.MarcRecordFactory;
-import dk.dbc.iscrum.utils.IOUtils;
+import dk.dbc.common.records.utils.IOUtils;
+import dk.dbc.marc.binding.MarcRecord;
+import dk.dbc.marc.reader.MarcReaderException;
+import dk.dbc.ocbtools.testengine.rawrepo.MarcConverter;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -60,13 +61,13 @@ public class BuildTestcase extends BaseTestcase {
         }
     }
 
-    public MarcRecord loadRequestRecord() throws IOException {
+    public MarcRecord loadRequestRecord() throws IOException, MarcReaderException {
         logger.entry();
         MarcRecord res = null;
         try {
             if (request != null && request.getRecordFile() != null) {
                 FileInputStream fis = new FileInputStream(request.getRecordFile());
-                res = MarcRecordFactory.readRecord(IOUtils.readAll(fis, "UTF-8"));
+                res = MarcConverter.decodeLineFormat(IOUtils.readAll(fis, "UTF-8"));
             }
             return res;
         } finally {
@@ -74,13 +75,13 @@ public class BuildTestcase extends BaseTestcase {
         }
     }
 
-    public MarcRecord loadResultRecord() throws IOException {
+    public MarcRecord loadResultRecord() throws IOException, MarcReaderException {
         logger.entry();
         MarcRecord res = null;
         try {
             if (expected != null && expected.getRecordFile() != null) {
                 FileInputStream fis = new FileInputStream(expected.getRecordFile());
-                res = MarcRecordFactory.readRecord(IOUtils.readAll(fis, "UTF-8"));
+                res = MarcConverter.decodeLineFormat(IOUtils.readAll(fis, "UTF-8"));
             }
             return res;
         } finally {

@@ -3,6 +3,7 @@ package dk.dbc.ocbtools.commons.filesystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 
 import java.io.File;
+import java.util.Objects;
 
 public class SystemTest implements Comparable<SystemTest> {
     private String distributionName;
@@ -39,10 +40,10 @@ public class SystemTest implements Comparable<SystemTest> {
 
         SystemTest that = (SystemTest) o;
 
-        if (distributionName != null ? !distributionName.equals(that.distributionName) : that.distributionName != null) {
+        if (!Objects.equals(distributionName, that.distributionName)) {
             return false;
         }
-        if (file != null ? !file.equals(that.file) : that.file != null) {
+        if (!Objects.equals(file, that.file)) {
             return false;
         }
         if (applicationType != null ? !(applicationType == that.applicationType) : that.applicationType != null) {

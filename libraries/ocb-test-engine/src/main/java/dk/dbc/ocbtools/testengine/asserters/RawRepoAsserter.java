@@ -1,15 +1,17 @@
 package dk.dbc.ocbtools.testengine.asserters;
 
-import dk.dbc.common.records.MarcConverter;
-import dk.dbc.common.records.MarcField;
-import dk.dbc.common.records.MarcRecord;
+
 import dk.dbc.common.records.MarcRecordReader;
-import dk.dbc.common.records.MarcSubField;
+import dk.dbc.marc.binding.DataField;
+import dk.dbc.marc.binding.MarcRecord;
+import dk.dbc.marc.binding.SubField;
+import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.executors.QueuedJob;
 import dk.dbc.ocbtools.testengine.executors.RawRepo;
 import dk.dbc.ocbtools.testengine.executors.RawRepoRelationType;
+import dk.dbc.ocbtools.testengine.rawrepo.MarcConverter;
 import dk.dbc.ocbtools.testengine.testcases.TestcaseMimeType;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
@@ -19,7 +21,6 @@ import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -63,7 +64,7 @@ public class RawRepoAsserter {
                 message.append("Actual: [");
                 for (Record actualRecord : actual) {
                     message.append("\n");
-                    message.append(RawRepo.decodeRecord(actualRecord.getContent()));
+                    message.append(MarcConverter.convertFromMarcJson(actualRecord.getContentJson()));
                 }
                 message.append("]");
 
@@ -79,7 +80,7 @@ public class RawRepoAsserter {
                 }
                 assertRecordEqual(testRecord, actualRecord, tc);
             }
-        } catch (IOException ex) {
+        } catch (IOException | MarcReaderException ex) {
             ex.printStackTrace();
         } finally {
             logger.exit();
@@ -99,15 +100,15 @@ public class RawRepoAsserter {
         logger.entry(expected, actual);
 
         try {
-            String formattedRecordId = String.format(FORMATTED_RECORD, expected.getRecord(), actual.getId().getBibliographicRecordId(), actual.getId().getAgencyId());
+            final String formattedRecordId = String.format(FORMATTED_RECORD, expected.getRecord(), actual.getId().getBibliographicRecordId(), actual.getId().getAgencyId());
 
             assertEquals(String.format("Wrong mimetype of record %s", formattedRecordId), expected.getType(), TestcaseMimeType.fromValue(actual.getMimeType()));
             assertEquals(String.format("Wrong deletion mark of record %s", formattedRecordId), expected.isDeleted(), actual.isDeleted());
 
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
 
-            MarcRecord marcExpected = fs.loadRecord(expected.getRecordFile().getParentFile(), expected.getRecord());
-            MarcRecord marcActual = MarcConverter.convertFromMarcXChange(new String(actual.getContent(), StandardCharsets.UTF_8));
+            final MarcRecord marcExpected = fs.loadRecord(expected.getRecordFile().getParentFile(), expected.getRecord());
+            MarcRecord marcActual = MarcConverter.convertFromMarcJson(actual.getContentJson());
             if (marcExpected.getFields().size() != marcActual.getFields().size()) {
                 String message = String.format("Number of fields differ. File : %s\nExpected record:\n%s\nActual record:\n%s",
                         expected.getRecordFile().getName(), marcExpected, marcActual);
@@ -115,34 +116,41 @@ public class RawRepoAsserter {
             }
 
             for (int i = 0; i < marcExpected.getFields().size(); i++) {
-                MarcField expectedField = marcExpected.getFields().get(i);
-                MarcField actualField = marcActual.getFields().get(i);
+                final DataField expectedField = marcExpected.getFields(DataField.class).get(i);
+                final DataField actualField = marcActual.getFields(DataField.class).get(i);
 
-                if (expectedField.getName().equals("001")) {
-                    assertEquals("Compare field name of 001", expectedField.getName(), actualField.getName());
-                    assertEquals("Compare indicator of 001", expectedField.getIndicator(), actualField.getIndicator());
+                if (expectedField.getTag().equals("001")) {
+                    assertEquals("Compare field name of 001", expectedField.getTag(), actualField.getTag());
 
-                    for (int k = 0; k < expectedField.getSubfields().size(); k++) {
-                        MarcSubField expectedSubField = expectedField.getSubfields().get(k);
+                    final String expectedIndicators = String.format("%s%s%s", expectedField.getInd1(), expectedField.getInd2(), expectedField.getInd3());
+                    final String actualIndicators = String.format("%s%s%s", actualField.getInd1(), actualField.getInd2(), actualField.getInd3());
 
-                        if (expectedSubField.getName().equals("c") && !tc.getRequest().isCheck001c()) {
+                    assertEquals("Compare indicator of 001", expectedIndicators, actualIndicators);
+
+
+                    for (int k = 0; k < expectedField.getSubFields().size(); k++) {
+                        SubField expectedSubField = expectedField.getSubFields().get(k);
+
+                        if (expectedSubField.getCode() == 'c' && !tc.getRequest().isCheck001c()) {
                             continue;
                         }
-                        if (expectedSubField.getName().equals("d") && !tc.getRequest().isCheck001d()) {
+                        if (expectedSubField.getCode() == 'd' && !tc.getRequest().isCheck001d()) {
                             continue;
                         }
 
-                        MarcSubField actualSubField = actualField.getSubfields().get(k);
-                        assertEquals("Compare 001" + expectedSubField.getName(), expectedSubField.toString(), actualSubField.toString());
+                        SubField actualSubField = actualField.getSubFields().get(k);
+                        assertEquals("Compare 001" + expectedSubField.getCode(), expectedSubField.toString(), actualSubField.toString());
                     }
                 } else {
                     // This is a bit messy. It is done because subject records from metakompas requests has a weekcode in field d09 - could be useful in other cases
-                    if (tc.getRequest().getIgnoreFieldsInMatch().contains(expectedField.getName())) {
+                    if (tc.getRequest().getIgnoreFieldsInMatch().contains(expectedField.getTag())) {
                         continue;
                     }
-                    assertEquals("Compare field " + expectedField.getName() + "\ntestfile :" + expected.getRecord(), expectedField.toString(), actualField.toString());
+                    assertEquals("Compare field " + expectedField.getTag() + "\ntestfile :" + expected.getRecord(), expectedField.toString(), actualField.toString());
                 }
             }
+        } catch (MarcReaderException e) {
+            throw new RuntimeException(e);
         } finally {
             logger.exit();
         }

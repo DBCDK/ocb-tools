@@ -38,11 +38,7 @@
             <artifactId>rawrepo-access</artifactId>
             <version>${maven.rawrepo.version}</version>
         </dependency>
-        <dependency>
-            <groupId>dk.dbc.iscrum</groupId>
-            <artifactId>iscrum-records</artifactId>
-            <version>${maven.iscrum.records.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>dk.dbc</groupId>
             <artifactId>vipcore-connector</artifactId>
@@ -74,6 +70,31 @@
             <artifactId>wiremock</artifactId>
             <version>${wiremock.plugin.version}</version>
         </dependency>
+        <dependency>
+            <groupId>jakarta.xml.ws</groupId>
+            <artifactId>jakarta.xml.ws-api</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.patrodyne.jvnet</groupId>
+            <artifactId>hisrc-basicjaxb-runtime</artifactId>
+            <version>2.1.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.glassfish.jaxb</groupId>
+                    <artifactId>jaxb-runtime</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>jakarta.activation</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -81,9 +102,11 @@
             <plugin>
                 <groupId>com.sun.xml.ws</groupId>
                 <artifactId>jaxws-maven-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>4.0.1</version>
                 <executions>
                     <execution>
+                        <id>wsimport-generate-catalogingUpdate-internal</id>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>wsimport</goal>
                         </goals>
@@ -91,12 +114,14 @@
                             <wsdlUrls>
                                 <wsdlUrl>${updateservice.wsdl.url}</wsdlUrl>
                             </wsdlUrls>
-                            <packageName>dk.dbc.updateservice.service.api</packageName>
+                            <wsdlLocation>META-INF/wsdl/update/catalogingUpdate.wsdl</wsdlLocation>
+                            <wsdlDirectory>${basedir}/src/wsdl/update</wsdlDirectory>
+                            <staleFile>${project.build.directory}/jaxws/stale/catalogingUpdate.stale</staleFile>
                         </configuration>
-                        <id>wsimport-generate-catalogingupdate</id>
-                        <phase>generate-sources</phase>
                     </execution>
                     <execution>
+                        <id>wsimport-generate-openCatalogingBuild</id>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>wsimport</goal>
                         </goals>
@@ -104,41 +129,34 @@
                             <wsdlUrls>
                                 <wsdlUrl>${buildservice.wsdl.url}</wsdlUrl>
                             </wsdlUrls>
-                            <packageName>dk.dbc.buildservice.service.api</packageName>
+                            <wsdlLocation>META-INF/wsdl/build/catalogingBuild.wsdl</wsdlLocation>
+                            <wsdlDirectory>${basedir}/src/wsdl/build</wsdlDirectory>
+                            <packageName>dk.dbc.oss.ns.catalogingbuild</packageName>
+                            <staleFile>${project.build.directory}/jaxws/stale/catalogingBuild.stale</staleFile>
                         </configuration>
-                        <id>wsimport-generate-catalogingbuild</id>
-                        <phase>generate-sources</phase>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>javax.xml</groupId>
-                        <artifactId>webservices-api</artifactId>
-                        <version>${webservices.api.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.jvnet.jaxb2_commons</groupId>
-                        <artifactId>jaxb2-basics</artifactId>
-                        <version>${maven.jaxb2.common.plugin}</version>
-                    </dependency>
-                </dependencies>
                 <configuration>
-                    <xjcArgs>
-                        <xjcArg>-Xequals</xjcArg>
-                        <xjcArg>-XhashCode</xjcArg>
-                        <xjcArg>-XtoString</xjcArg>
-                    </xjcArgs>
-                    <sourceDestDir>${project.build.directory}/generated-sources/jaxws-wsimport</sourceDestDir>
-                    <xnocompile>true</xnocompile>
-                    <verbose>true</verbose>
+                    <target>3.0</target>
                     <extension>true</extension>
-                    <target>2.2</target>
                     <vmArgs>
                         <vmArg>-Djavax.xml.accessExternalDTD=all</vmArg>
                         <vmArg>-Djavax.xml.accessExternalStylesheet=all</vmArg>
                         <vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
                     </vmArgs>
+                    <xjcArgs>
+                        <xjcArg>-Xequals</xjcArg>
+                        <xjcArg>-XtoString</xjcArg>
+                        <xjcArg>-XhashCode</xjcArg>
+                    </xjcArgs>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.patrodyne.jvnet</groupId>
+                        <artifactId>hisrc-basicjaxb-plugins</artifactId>
+                        <version>2.1.0</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>

@@ -1,24 +1,29 @@
 package dk.dbc.ocbtools.testengine.executors;
 
-import dk.dbc.common.records.MarcRecord;
-import dk.dbc.iscrum.utils.json.Json;
+import dk.dbc.marc.binding.MarcRecord;
+import dk.dbc.marc.reader.MarcReaderException;
+import dk.dbc.marc.writer.MarcWriterException;
 import dk.dbc.ocbtools.commons.filesystem.OCBFileSystem;
 import dk.dbc.ocbtools.commons.type.ApplicationType;
 import dk.dbc.ocbtools.testengine.asserters.UpdateAsserter;
 import dk.dbc.ocbtools.testengine.testcases.TestcaseMimeType;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcase;
 import dk.dbc.ocbtools.testengine.testcases.UpdateTestcaseRecord;
+import dk.dbc.ocbtools.testengine.utils.update.BibliographicRecordExtraData;
+import dk.dbc.ocbtools.testengine.utils.update.BibliographicRecordFactory;
+import dk.dbc.oss.ns.catalogingupdate.Authentication;
+import dk.dbc.oss.ns.catalogingupdate.CatalogingUpdatePortType;
+import dk.dbc.oss.ns.catalogingupdate.Options;
+import dk.dbc.oss.ns.catalogingupdate.UpdateOptionEnum;
+import dk.dbc.oss.ns.catalogingupdate.UpdateRecordRequest;
+import dk.dbc.oss.ns.catalogingupdate.UpdateRecordResult;
+import dk.dbc.oss.ns.catalogingupdate.UpdateService;
+import dk.dbc.oss.ns.catalogingupdate.UpdateStatusEnum;
 import dk.dbc.rawrepo.RawRepoException;
-import dk.dbc.updateservice.client.BibliographicRecordExtraData;
-import dk.dbc.updateservice.client.BibliographicRecordFactory;
-import dk.dbc.updateservice.service.api.Authentication;
-import dk.dbc.updateservice.service.api.CatalogingUpdatePortType;
-import dk.dbc.updateservice.service.api.Options;
-import dk.dbc.updateservice.service.api.UpdateOptionEnum;
-import dk.dbc.updateservice.service.api.UpdateRecordRequest;
-import dk.dbc.updateservice.service.api.UpdateRecordResult;
-import dk.dbc.updateservice.service.api.UpdateService;
-import dk.dbc.updateservice.service.api.UpdateStatusEnum;
+
+import dk.dbc.vipcore.exception.VipCoreException;
+import jakarta.xml.ws.BindingProvider;
+import jakarta.xml.ws.handler.MessageContext;
 import org.perf4j.StopWatch;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -27,8 +32,6 @@ import org.xml.sax.SAXException;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.handler.MessageContext;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -74,7 +77,7 @@ public class RemoteValidateExecutor implements TestExecutor {
     }
 
     @Override
-    public void setup() throws IOException, JAXBException, SQLException, RawRepoException, ClassNotFoundException {
+    public void setup() throws IOException, SQLException, RawRepoException, ClassNotFoundException, MarcWriterException, VipCoreException {
         logger.entry();
         try {
             OCBFileSystem fs = new OCBFileSystem(ApplicationType.UPDATE);
@@ -243,7 +246,7 @@ public class RemoteValidateExecutor implements TestExecutor {
             CatalogingUpdatePortType catalogingUpdatePortType = createPort(url);
             UpdateRecordResult response = catalogingUpdatePortType.updateRecord(request);
             watch.stop();
-            logger.debug("Received VALIDATION response in " + watch.getElapsedTime() + " ms: " + Json.encodePretty(response));
+            logger.debug("Received VALIDATION response in " + watch.getElapsedTime() + " ms: " + response);
 
             watch.start();
             try {
@@ -267,7 +270,7 @@ public class RemoteValidateExecutor implements TestExecutor {
                 watch.stop();
                 logger.debug("Test response in {} ms", watch.getElapsedTime());
             }
-        } catch (SAXException | ParserConfigurationException | JAXBException | IOException ex) {
+        } catch (SAXException | ParserConfigurationException | IOException | MarcReaderException | JAXBException ex) {
             throw new AssertionError(ex.getMessage(), ex);
         } finally {
             logger.exit();
@@ -299,7 +302,7 @@ public class RemoteValidateExecutor implements TestExecutor {
         }
     }
 
-    protected UpdateRecordRequest createRequest() throws IOException, JAXBException, SAXException, ParserConfigurationException {
+    protected UpdateRecordRequest createRequest() throws IOException, SAXException, ParserConfigurationException, JAXBException, MarcReaderException {
         logger.entry();
         try {
             UpdateRecordRequest request = new UpdateRecordRequest();
@@ -327,7 +330,9 @@ public class RemoteValidateExecutor implements TestExecutor {
             }
 
             File recordFile = new File(tc.getFile().getParentFile().getCanonicalPath() + "/" + tc.getRequest().getRecord());
-            request.setBibliographicRecord(BibliographicRecordFactory.loadMarcRecordInLineFormat(recordFile, extraData));
+            request.setBibliographicRecord(BibliographicRecordFactory.loadResource(recordFile, extraData));
+            logger.info("request: {}", request);
+
             return request;
         } finally {
             logger.exit();
