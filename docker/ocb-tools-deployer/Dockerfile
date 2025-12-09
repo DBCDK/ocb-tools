@@ -1,4 +1,4 @@
-FROM docker-dbc.artifacts.dbccloud.dk/dbc-java11:latest
+FROM docker-dbc.artifacts.dbccloud.dk/dbc-java17:latest
 
 ENV OCB_USER ocbtools
 ENV OCB_USER_HOME /home/$OCB_USER
